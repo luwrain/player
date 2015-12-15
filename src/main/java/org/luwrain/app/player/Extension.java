@@ -18,12 +18,15 @@ package org.luwrain.app.player;
 
 import java.util.*;
 import org.luwrain.core.*;
+import org.luwrain.player.*;
 
 public class Extension extends org.luwrain.core.extensions.EmptyExtension
 {
     @Override public Command[] getCommands(Luwrain luwrain)
     {
 	return new Command[]{
+
+
 
 	    new Command(){
 		@Override public String getName()
@@ -35,6 +38,20 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		    luwrain.launchApp("player");
 		}
 	    },
+
+	    new Command(){
+		@Override public String getName()
+		{
+		    return "player-stop";
+		}
+		@Override public void onCommand(Luwrain luwrain)
+		{
+		    final Player player = luwrain.getPlayer();
+		    if (player != null)
+			player.stop();
+		}
+	    },
+
 
 	};
     }

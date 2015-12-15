@@ -25,15 +25,48 @@ import java.nio.channels.*;
 
 import org.luwrain.core.*;
 import org.luwrain.controls.*;
+import org.luwrain.player.*;
 
 class Base
 {
     private Luwrain luwrain;
+    private CachedTreeModel treeModel;
+    private final TreeModelSource treeModelSource = new TreeModelSource();
+    private Player player;
+    private Listener listener;
 
     boolean init(Luwrain luwrain)
     {
 	NullCheck.notNull(luwrain, "luwrain");
 	this.luwrain = luwrain;
+	player = luwrain.getPlayer();
+	if (player == null)
+	    return false;
+	treeModelSource.setPlaylists(player.loadRegistryPlaylists());
+	treeModel = new CachedTreeModel(treeModelSource);
 	return true;
+    }
+
+    TreeModel getTreeModel()
+    {
+	return treeModel;
+    }
+
+    void onPlaylistClick(Playlist playlist)
+    {
+	NullCheck.notNull(playlist, "playlist");
+	player.play(playlist);
+    }
+
+    void setListener(Area area)
+    {
+	NullCheck.notNull(area, "area");
+	listener = new Listener(luwrain, area);
+	player.addListener(listener);
+    }
+
+    void removeListener()
+    {
+	player.removeListener(listener);
     }
 }

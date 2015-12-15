@@ -34,6 +34,8 @@ class PlayerArea extends SimpleArea
     private Actions actions;
     private Strings strings;
 
+    org.luwrain.player.backends.JLayer jlayer = new org.luwrain.player.backends.JLayer();
+
     PlayerArea(Luwrain luwrain, Actions actions, Strings strings)
     {
 	super(new DefaultControlEnvironment(luwrain), strings.appName());
@@ -50,8 +52,9 @@ class PlayerArea extends SimpleArea
 	NullCheck.notNull(event, "event");
 	switch(event.getCode())
 	{
-	case EnvironmentEvent.OK:
-	    play();
+	case EnvironmentEvent.THREAD_SYNC:
+	    if (event instanceof  ListenerEvent)
+		onListenerEvent((ListenerEvent)event);
 	    return true;
 	case EnvironmentEvent.CLOSE:
 	    actions.closeApp();
@@ -63,10 +66,15 @@ class PlayerArea extends SimpleArea
 
     private void play()
     {
-    final Media media = new Media("file:/tmp/proba.mp3");                      
+	final Media media = new Media("http://internet-radio.org.ua/go.php?site=http://www.radiovos.ru/radiovos-128.m3u");
     final MediaPlayer mediaPlayer = new MediaPlayer(media);                  
     mediaPlayer.play();                                                      
 
 
+    }
+
+    private void onListenerEvent(ListenerEvent event)
+    {
+	NullCheck.notNull(event, "event");
     }
 }

@@ -19,4 +19,5 @@ package org.luwrain.app.player;
 interface Actions
 {
     void closeApp();
+    boolean onTreeClick(Object obj);
 }

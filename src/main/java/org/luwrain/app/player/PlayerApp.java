@@ -23,6 +23,7 @@ import java.nio.charset.*;
 import org.luwrain.core.*;
 import org.luwrain.core.events.*;
 import org.luwrain.controls.*;
+import org.luwrain.player.*;
 import org.luwrain.popups.*;
 
 class PlayerApp implements Application, Actions
@@ -32,7 +33,9 @@ static public final String STRINGS_NAME = "luwrain.player";
     private Luwrain luwrain;
     private final Base base = new Base();
     private Strings strings;
-    private PlayerArea area;
+    private TreeArea treeArea;
+    private PlayerArea controlArea;
+    private SimpleArea docArea;
 
     private String arg = null;
 
@@ -58,8 +61,45 @@ static public final String STRINGS_NAME = "luwrain.player";
 	this.luwrain = luwrain;
 	if (!base.init(luwrain))
 	    return false;
-	area = new PlayerArea(luwrain, this, strings);
+	createAreas();
 	return true;
+    }
+
+    @Override public boolean onTreeClick(Object obj)
+    {
+	if (obj == null || !(obj instanceof Playlist))
+	    return false;
+	base.onPlaylistClick((Playlist)obj);
+	return true;
+    }
+
+    private void createAreas()
+    {
+	final Actions actions = this;
+
+	final TreeArea.Params treeParams = new TreeArea.Params();
+	treeParams.environment = new DefaultControlEnvironment(luwrain);
+	treeParams.model = base.getTreeModel();
+	treeParams.name = "Альбомы и станции";//FIXME:
+	treeParams.clickHandler = (area, obj)->actions.onTreeClick(obj);
+
+	treeArea = new TreeArea(treeParams){
+		@Override public boolean onEnvironmentEvent(EnvironmentEvent event)
+		{
+		    NullCheck.notNull(event, "event");
+		    switch(event.getCode())
+		    {
+		    case EnvironmentEvent.CLOSE:
+			actions.closeApp();
+			return true;
+		    default:
+			return super.onEnvironmentEvent(event);
+		    }
+		}
+	    };
+
+	controlArea = new PlayerArea(luwrain, this, strings);
+	base.setListener(controlArea);
     }
 
     @Override public String getAppName()
@@ -69,11 +109,12 @@ static public final String STRINGS_NAME = "luwrain.player";
 
     @Override public AreaLayout getAreasToShow()
     {
-	return new AreaLayout(area);
+	return new AreaLayout(AreaLayout.LEFT_RIGHT, treeArea, controlArea);
     }
 
     @Override public void closeApp()
     {
+	base.removeListener();
 	luwrain.closeApp();
     }
 }
