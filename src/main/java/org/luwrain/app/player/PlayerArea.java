@@ -16,46 +16,99 @@
 
 package org.luwrain.app.player;
 
-import java.net.URL;                                                         
-                                                                             
-import javafx.application.Application;                                       
-import javafx.scene.media.Media;                                             
-import javafx.scene.media.MediaPlayer;                                       
-import javafx.stage.Stage;                                                   
-
+//import java.net.URL;                                                         
 
 import org.luwrain.core.*;
 import org.luwrain.core.events.*;
 import org.luwrain.controls.*;
+import org.luwrain.player.*;
 
-class PlayerArea extends SimpleArea
+class PlayerArea extends NavigateArea
 {
     private Luwrain luwrain;
     private Actions actions;
     private Strings strings;
 
-    org.luwrain.player.backends.JLayer jlayer = new org.luwrain.player.backends.JLayer();
+    private Playlist playlist = null;
+    private int trackNum = 0;
+    private String trackTitle = "-";
+    private int trackTime;
 
-    PlayerArea(Luwrain luwrain, Actions actions, Strings strings)
+    PlayerArea(Luwrain luwrain, Actions actions,
+	       Strings strings, Playlist currentPlaylist, int currentTrackNum)
     {
-	super(new DefaultControlEnvironment(luwrain), strings.appName());
+	super(new DefaultControlEnvironment(luwrain));
 	this.luwrain = luwrain;
 	this.actions = actions;
 	this.strings = strings;
 	NullCheck.notNull(luwrain, "luwrain");
 	NullCheck.notNull(actions, "actions");
 	NullCheck.notNull(strings, "strigns");
+	this.playlist = currentPlaylist;
+	if (playlist != null)
+	{
+	    this.trackNum = currentTrackNum;
+	    final String[] items = playlist.getPlaylistItems();
+	    if (items != null && trackNum < items.length && items[trackNum] != null)
+		trackTitle = items[trackNum];
+	}
     }
+
+    @Override public int getLineCount()
+    {
+	return 4;
+    }
+
+    @Override public String getLine(int index)
+    {
+	switch(index)
+	{
+	case 0:
+	    if (playlist != null)
+	    {
+		final String title = playlist.getPlaylistTitle();
+		return title != null?title:"-";
+	    }
+	    return "";
+	case 1:
+	    return trackTitle != null?trackTitle:"";
+	case 2:
+	    return getTimeStr();
+	default:
+	    return "";
+	}
+    }
+
+		@Override public boolean onKeyboardEvent(KeyboardEvent event)
+		{
+		    NullCheck.notNull(event, "event");
+		    if (actions.commonKeys(event))
+			return true;
+		    if (event.isCommand() && !event.isModified())
+			switch(event.getCommand())
+			{
+			case KeyboardEvent.TAB:
+			    actions.goToDoc();
+			    return true;
+			case KeyboardEvent.BACKSPACE:
+			    actions.goToTree();
+			    return true;
+			}
+		    return super.onKeyboardEvent(event);
+		}
+
 
     @Override public boolean onEnvironmentEvent(EnvironmentEvent event)
     {
 	NullCheck.notNull(event, "event");
 	switch(event.getCode())
 	{
+	    /*
 	case EnvironmentEvent.THREAD_SYNC:
 	    if (event instanceof  ListenerEvent)
 		onListenerEvent((ListenerEvent)event);
 	    return true;
+	    */
 	case EnvironmentEvent.CLOSE:
 	    actions.closeApp();
 	    return true;
@@ -64,17 +117,61 @@ class PlayerArea extends SimpleArea
 	}
     }
 
+    @Override public String getAreaName()
+    {
+	return strings.controlAreaName();
+    }
+
+    private String getTimeStr()
+    {
+	final StringBuilder b = new StringBuilder();
+	final int min = trackTime / 60;
+	final int sec = trackTime % 60;
+	if (min < 10)
+	    b.append("0" + min); else
+	    b.append("" + min);
+	b.append(":");
+	if (sec < 10)
+	    b.append("0" + sec); else
+	    b.append("" + sec);
+	return new String(b);
+    }
+
+    /*
     private void play()
     {
 	final Media media = new Media("http://internet-radio.org.ua/go.php?site=http://www.radiovos.ru/radiovos-128.m3u");
     final MediaPlayer mediaPlayer = new MediaPlayer(media);                  
     mediaPlayer.play();                                                      
+    }
+    */
 
-
+    void onTrackTime(int sec)
+    {
+	trackTime = sec;
+luwrain.onAreaNewContent(this);
     }
 
-    private void onListenerEvent(ListenerEvent event)
+    void onNewPlaylist(Playlist playlist)
     {
-	NullCheck.notNull(event, "event");
+	if (playlist == null)
+	    return;
+	this.playlist = playlist;
+	trackNum = 0;
+	trackTitle = "-";
+	trackTime = 0;
+	luwrain.onAreaNewContent(this);
+    }
+
+    void onNewTrack(int trackNum)
+    {
+    }
+
+    void onStop()
+    {
+	trackTitle = "-";
+	trackNum = 0;
+	trackTime = 0;
+	luwrain.onAreaNewContent(this);
     }
 }

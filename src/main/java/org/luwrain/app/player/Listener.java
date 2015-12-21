@@ -7,9 +7,9 @@ import org.luwrain.player.Playlist;
 class Listener  implements org.luwrain.player.Listener
 {
     private Luwrain luwrain;
-    private Area area;
+    private PlayerArea area;
 
-    Listener(Luwrain luwrain, Area area)
+    Listener(Luwrain luwrain, PlayerArea area)
     {
 	this.luwrain = luwrain;
 	this.area = area;
@@ -17,9 +17,24 @@ class Listener  implements org.luwrain.player.Listener
 	NullCheck.notNull(area, "area");
     }
 
-    @Override public void onNewPlaylist(Playlist playlist)
+    @Override public void onNewPlaylist(final Playlist playlist)
     {
 	NullCheck.notNull(playlist, "playlist");
-	luwrain.enqueueEvent(new ListenerEvent(area, playlist));
+	luwrain.runInMainThread(()->area.onNewPlaylist(playlist));
+    }
+
+    @Override public void onNewTrack(int trackNum)
+    {
+	luwrain.runInMainThread(()->area.onNewTrack(trackNum));
+    }
+
+    @Override public void onTrackTime(int sec)
+    {
+	luwrain.runInMainThread(()->area.onTrackTime(sec));
+    }
+
+    @Override public void onPlayerStop()
+    {
+	luwrain.runInMainThread(()->area.onStop());
     }
 }

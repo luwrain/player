@@ -80,10 +80,24 @@ static public final String STRINGS_NAME = "luwrain.player";
 	final TreeArea.Params treeParams = new TreeArea.Params();
 	treeParams.environment = new DefaultControlEnvironment(luwrain);
 	treeParams.model = base.getTreeModel();
-	treeParams.name = "Альбомы и станции";//FIXME:
+	treeParams.name = strings.treeAreaName();
 	treeParams.clickHandler = (area, obj)->actions.onTreeClick(obj);
 
 	treeArea = new TreeArea(treeParams){
+		@Override public boolean onKeyboardEvent(KeyboardEvent event)
+		{
+		    NullCheck.notNull(event, "event");
+		    if (actions.commonKeys(event))
+			return true;
+		    if (event.isCommand() && !event.isModified())
+			switch(event.getCommand())
+			{
+			case KeyboardEvent.TAB:
+			    actions.goToControl();
+			    return true;
+			}
+		    return super.onKeyboardEvent(event);
+		}
 		@Override public boolean onEnvironmentEvent(EnvironmentEvent event)
 		{
 		    NullCheck.notNull(event, "event");
@@ -98,8 +112,71 @@ static public final String STRINGS_NAME = "luwrain.player";
 		}
 	    };
 
-	controlArea = new PlayerArea(luwrain, this, strings);
+	controlArea = new PlayerArea(luwrain, this, strings,
+				     base.getCurrentPlaylist(), base.getCurrentTrackNum());
 	base.setListener(controlArea);
+
+	docArea = new SimpleArea(new DefaultControlEnvironment(luwrain), strings.docAreaName()){
+		@Override public boolean onKeyboardEvent(KeyboardEvent event)
+		{
+		    NullCheck.notNull(event, "event");
+		    if (actions.commonKeys(event))
+			return true;
+		    if (event.isCommand() && !event.isModified())
+			switch(event.getCommand())
+		    {
+		    case KeyboardEvent.TAB:
+			actions.goToTree();
+			return true;
+		    case KeyboardEvent.BACKSPACE:
+			actions.goToControl();
+			return true;
+		    }
+		    return super.onKeyboardEvent(event);
+		}
+		@Override public boolean onEnvironmentEvent(EnvironmentEvent event)
+		{
+		    NullCheck.notNull(event, "event");
+		    switch(event.getCode())
+		    {
+		    case EnvironmentEvent.CLOSE:
+			actions.closeApp();
+			return true;
+		    default:
+			return super.onEnvironmentEvent(event);
+		    }
+		}
+	    };
+    }
+
+    @Override public boolean commonKeys(KeyboardEvent event)
+    {
+	NullCheck.notNull(event, "event");
+	if (!event.isCommand() || event.isModified())
+	    return false;
+	switch(event.getCommand())
+	{
+	case KeyboardEvent.F6:
+	    base.onStop();
+	    return true;
+	default:
+	    return false;
+	}
+    }
+
+    @Override public void goToTree()
+    {
+	luwrain.setActiveArea(treeArea);
+    }
+
+    @Override public void goToControl()
+    {
+	luwrain.setActiveArea(controlArea);
+    }
+
+    @Override public void goToDoc()
+    {
+	luwrain.setActiveArea(docArea);
     }
 
     @Override public String getAppName()
@@ -109,7 +186,7 @@ static public final String STRINGS_NAME = "luwrain.player";
 
     @Override public AreaLayout getAreasToShow()
     {
-	return new AreaLayout(AreaLayout.LEFT_RIGHT, treeArea, controlArea);
+	return new AreaLayout(AreaLayout.LEFT_TOP_BOTTOM, treeArea, controlArea, docArea);
     }
 
     @Override public void closeApp()

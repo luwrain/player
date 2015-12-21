@@ -16,6 +16,7 @@
 
 package org.luwrain.app.player;
 
+import java.net.*;
 import java.util.*;
 import org.luwrain.core.*;
 import org.luwrain.player.*;
@@ -78,6 +79,21 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		    return v.toArray(new Application[v.size()]);
 		}
 	    },
+
+	    new Shortcut() {
+		@Override public String getName()
+		{
+		    return "player-single-local";
+		}
+		@Override public Application[] prepareApp(String[] args)
+		{
+		    if (args == null || args.length != 1)
+			return null;
+		    luwrain.getPlayer().play(new SingleLocalFilePlaylist("file://" + args[0].replaceAll(" ", "%20")));
+		    return null;
+		}
+	    },
+
 
 	};
     }

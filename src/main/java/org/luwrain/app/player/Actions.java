@@ -16,8 +16,14 @@
 
 package org.luwrain.app.player;
 
+import org.luwrain.core.events.KeyboardEvent;
+
 interface Actions
 {
     void closeApp();
     boolean onTreeClick(Object obj);
+    void goToTree();
+    void goToControl();
+    void goToDoc();
+    boolean commonKeys(KeyboardEvent event);
 }

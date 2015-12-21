@@ -58,7 +58,22 @@ class Base
 	player.play(playlist);
     }
 
-    void setListener(Area area)
+    void onStop()
+    {
+	player.stop();
+    }
+
+    Playlist getCurrentPlaylist()
+    {
+	return player.getCurrentPlaylist();
+    }
+
+    int getCurrentTrackNum()
+    {
+	return player.getCurrentTrackNum();
+    }
+
+    void setListener(PlayerArea area)
     {
 	NullCheck.notNull(area, "area");
 	listener = new Listener(luwrain, area);

@@ -19,4 +19,7 @@ package org.luwrain.app.player;
 public interface Strings
 {
     String appName();
+    String treeAreaName();
+    String controlAreaName(); 
+    String docAreaName();
 }
