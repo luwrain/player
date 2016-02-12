@@ -14,16 +14,37 @@
    General Public License for more details.
 */
 
-package org.luwrain.app.player;
+package org.luwrain.player;
 
-import org.luwrain.core.events.KeyboardEvent;
+import org.luwrain.core.NullCheck;
 
-interface Actions
+public class SingleLocalFilePlaylist implements Playlist
 {
-    void closeApp();
-    boolean onTreeClick(Object obj);
-    void goToTree();
-    void goToControl();
-    void goToDoc();
-    boolean commonKeys(KeyboardEvent event);
+    private String uri ;
+
+    public SingleLocalFilePlaylist(String uri)
+    {
+	NullCheck.notNull(uri, "uri");
+	this.uri = uri;
+    }
+
+    @Override public String getPlaylistTitle()
+    {
+	return "-";
+    }
+
+    @Override public String[] getPlaylistItems()
+    {
+	return new String[]{uri};
+    }
+
+    @Override public boolean isStreaming()
+    {
+	return false;
+    }
+
+    @Override public boolean hasBookmark()
+    {
+	return false;
+    }
 }

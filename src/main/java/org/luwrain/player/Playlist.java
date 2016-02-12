@@ -14,16 +14,12 @@
    General Public License for more details.
 */
 
-package org.luwrain.app.player;
+package org.luwrain.player;
 
-import org.luwrain.core.events.KeyboardEvent;
-
-interface Actions
+public interface Playlist
 {
-    void closeApp();
-    boolean onTreeClick(Object obj);
-    void goToTree();
-    void goToControl();
-    void goToDoc();
-    boolean commonKeys(KeyboardEvent event);
+    String getPlaylistTitle();
+    String[] getPlaylistItems();
+    boolean isStreaming();
+    boolean hasBookmark();
 }
