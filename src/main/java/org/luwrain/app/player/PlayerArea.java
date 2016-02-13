@@ -109,7 +109,7 @@ class PlayerArea extends NavigateArea
 		onListenerEvent((ListenerEvent)event);
 	    return true;
 	    */
-	case EnvironmentEvent.CLOSE:
+	case CLOSE:
 	    actions.closeApp();
 	    return true;
 	default:

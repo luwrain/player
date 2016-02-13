@@ -39,7 +39,7 @@ class Base
     {
 	NullCheck.notNull(luwrain, "luwrain");
 	this.luwrain = luwrain;
-	player = luwrain.getPlayer();
+	player = null;//FIXME:
 	if (player == null)
 	    return false;
 	treeModelSource.setPlaylists(player.loadRegistryPlaylists());

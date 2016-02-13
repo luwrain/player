@@ -103,7 +103,7 @@ static public final String STRINGS_NAME = "luwrain.player";
 		    NullCheck.notNull(event, "event");
 		    switch(event.getCode())
 		    {
-		    case EnvironmentEvent.CLOSE:
+		    case CLOSE:
 			actions.closeApp();
 			return true;
 		    default:
@@ -139,7 +139,7 @@ static public final String STRINGS_NAME = "luwrain.player";
 		    NullCheck.notNull(event, "event");
 		    switch(event.getCode())
 		    {
-		    case EnvironmentEvent.CLOSE:
+		    case CLOSE:
 			actions.closeApp();
 			return true;
 		    default:

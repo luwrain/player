@@ -47,7 +47,7 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		}
 		@Override public void onCommand(Luwrain luwrain)
 		{
-		    final Player player = luwrain.getPlayer();
+		    final Player player = null;//FIXME:
 		    if (player != null)
 			player.stop();
 		}
@@ -68,6 +68,8 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		}
 		@Override public Application[] prepareApp(String[] args)
 		{
+		    return null;
+		    /*
 		    if (args == null || args.length < 1)
 			return new Application[]{new PlayerApp()};
 		    final LinkedList<Application> v = new LinkedList<Application>();
@@ -77,6 +79,7 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		    if (v.isEmpty())
 			return new Application[]{new PlayerApp()};
 		    return v.toArray(new Application[v.size()]);
+		    */
 		}
 	    },
 
@@ -89,7 +92,7 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		{
 		    if (args == null || args.length != 1)
 			return null;
-		    luwrain.getPlayer().play(new SingleLocalFilePlaylist("file://" + args[0].replaceAll(" ", "%20")));
+		    //		    luwrain.getPlayer().play(new SingleLocalFilePlaylist("file://" + args[0].replaceAll(" ", "%20")));
 		    return null;
 		}
 	    },
