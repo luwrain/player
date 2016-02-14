@@ -84,13 +84,13 @@ class PlayerArea extends NavigateArea
 		    NullCheck.notNull(event, "event");
 		    if (actions.commonKeys(event))
 			return true;
-		    if (event.isCommand() && !event.isModified())
-			switch(event.getCommand())
+		    if (event.isSpecial() && !event.isModified())
+			switch(event.getSpecial())
 			{
-			case KeyboardEvent.TAB:
+			case TAB:
 			    actions.goToDoc();
 			    return true;
-			case KeyboardEvent.BACKSPACE:
+			case BACKSPACE:
 			    actions.goToTree();
 			    return true;
 			}

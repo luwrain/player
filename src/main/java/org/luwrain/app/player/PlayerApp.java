@@ -89,10 +89,10 @@ static public final String STRINGS_NAME = "luwrain.player";
 		    NullCheck.notNull(event, "event");
 		    if (actions.commonKeys(event))
 			return true;
-		    if (event.isCommand() && !event.isModified())
-			switch(event.getCommand())
+		    if (event.isSpecial() && !event.isModified())
+			switch(event.getSpecial())
 			{
-			case KeyboardEvent.TAB:
+			case TAB:
 			    actions.goToControl();
 			    return true;
 			}
@@ -122,13 +122,13 @@ static public final String STRINGS_NAME = "luwrain.player";
 		    NullCheck.notNull(event, "event");
 		    if (actions.commonKeys(event))
 			return true;
-		    if (event.isCommand() && !event.isModified())
-			switch(event.getCommand())
+		    if (event.isSpecial() && !event.isModified())
+			switch(event.getSpecial())
 		    {
-		    case KeyboardEvent.TAB:
+		    case TAB:
 			actions.goToTree();
 			return true;
-		    case KeyboardEvent.BACKSPACE:
+		    case BACKSPACE:
 			actions.goToControl();
 			return true;
 		    }
@@ -152,11 +152,11 @@ static public final String STRINGS_NAME = "luwrain.player";
     @Override public boolean commonKeys(KeyboardEvent event)
     {
 	NullCheck.notNull(event, "event");
-	if (!event.isCommand() || event.isModified())
+	if (!event.isSpecial() || event.isModified())
 	    return false;
-	switch(event.getCommand())
+	switch(event.getSpecial())
 	{
-	case KeyboardEvent.F6:
+	case F6:
 	    base.onStop();
 	    return true;
 	default:
