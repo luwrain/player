@@ -1,0 +1,25 @@
+<project name="test" default="jar" basedir=".">
+  <path id="classpath">
+    <pathelement location="."/>
+     <fileset dir=".">
+      <include name="**/*.jar"/>
+    </fileset>
+  </path>
+  <target name="clean">
+    <delete dir="build"/>
+    <delete dir="test.jar"/>
+  </target>
+  <target name="compile" depends="clean">
+    <mkdir dir="build"/>
+    <javac srcdir="src" destdir="build" source="1.8" target="1.8">
+      <classpath refid="classpath"/>
+    </javac>
+  </target>
+  <target name="jar" depends="compile">
+    <jar jarfile="test.jar">
+      <fileset dir="./build">
+        <include name="**/*.class"/>
+      </fileset>
+    </jar>
+  </target>
+</project>
