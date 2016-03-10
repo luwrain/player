@@ -26,7 +26,7 @@ import org.luwrain.controls.*;
 import org.luwrain.player.*;
 import org.luwrain.popups.*;
 
-class PlayerApp implements Application, Actions
+public class PlayerApp implements Application, Actions
 {
 static public final String STRINGS_NAME = "luwrain.player";
 
@@ -39,16 +39,21 @@ static public final String STRINGS_NAME = "luwrain.player";
 
     private String arg = null;
 
-    PlayerApp()
+    public PlayerApp()
     {
 	arg = null;
     }
 
-    PlayerApp(String arg)
+    public PlayerApp(String arg)
     {
 	this.arg = arg;
 	NullCheck.notNull(arg, "arg");
     }
+
+    public PlayerApp(String[] args)
+    {
+    }
+
 
     @Override public boolean onLaunch(Luwrain luwrain)
     {

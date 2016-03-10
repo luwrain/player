@@ -20,7 +20,7 @@
     <jar jarfile="jar/luwrain-app-player.jar">
       <manifest>
         <section name="org/luwrain">
-          <attribute name="Extensions" value="org.luwrain.app.player.Extension"/>
+          <attribute name="Extensions" value="org.luwrain.player.Extension"/>
         </section>
       </manifest>
       <fileset dir="./build">

@@ -1,33 +1,25 @@
-/*
-   Copyright 2012-2016 Michael Pozhidaev <michael.pozhidaev@gmail.com>
-
-   This file is part of the LUWRAIN.
-
-   LUWRAIN is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public
-   License as published by the Free Software Foundation; either
-   version 3 of the License, or (at your option) any later version.
-
-   LUWRAIN is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-*/
 
 package org.luwrain.player;
 
 import java.net.*;
 import java.util.*;
 import org.luwrain.core.*;
-import org.luwrain.player.*;
+import org.luwrain.app.player.PlayerApp;
 
 public class Extension extends org.luwrain.core.extensions.EmptyExtension
 {
+    private Player player;
+
+    @Override public String init(Luwrain luwrain)
+    {
+	player = new Player(luwrain.getRegistry());
+	Log.debug("player", "player is initialized");
+	return null;
+    }
+
     @Override public Command[] getCommands(Luwrain luwrain)
     {
 	return new Command[]{
-
-
 
 	    new Command(){
 		@Override public String getName()
@@ -47,12 +39,11 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		}
 		@Override public void onCommand(Luwrain luwrain)
 		{
-		    final Player player = null;//FIXME:
+		    final Player player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
 		    if (player != null)
 			player.stop();
 		}
 	    },
-
 
 	};
     }
@@ -68,18 +59,8 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		}
 		@Override public Application[] prepareApp(String[] args)
 		{
-		    return null;
-		    /*
-		    if (args == null || args.length < 1)
-			return new Application[]{new PlayerApp()};
-		    final LinkedList<Application> v = new LinkedList<Application>();
-		    for(String s: args)
-			if (s != null)
-			    v.add(new PlayerApp(s));
-		    if (v.isEmpty())
-			return new Application[]{new PlayerApp()};
-		    return v.toArray(new Application[v.size()]);
-		    */
+		    NullCheck.notNullItems(args, "args");
+		    return new Application[]{new PlayerApp(args)};
 		}
 	    },
 
@@ -92,11 +73,30 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		{
 		    if (args == null || args.length != 1)
 			return null;
-		    //		    luwrain.getPlayer().play(new SingleLocalFilePlaylist("file://" + args[0].replaceAll(" ", "%20")));
+		    final Player player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
+		    if (player != null)
+			player.play(new SingleLocalFilePlaylist("file://" + args[0].replaceAll(" ", "%20")));
 		    return null;
 		}
 	    },
 
+	};
+    }
+
+    @Override public SharedObject[] getSharedObjects(Luwrain luwrain)
+    {
+	return new SharedObject[]{
+
+	    new SharedObject(){
+		@Override public String getName()
+		{
+		    return Player.SHARED_OBJECT_NAME;
+		}
+		@Override public Object getSharedObject()
+		{
+		    return player;
+		}
+	    },
 
 	};
     }
