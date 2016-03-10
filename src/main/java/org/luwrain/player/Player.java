@@ -47,8 +47,8 @@ public class Player
 	    return;
 	}
 
-	impl.regularBackEnd = new JavaFx(createBackEndStatus());
-	impl.streamingBackEnd = new JLayer(createBackEndStatus());
+	//	impl.regularBackEnd = new JavaFx(createBackEndStatus());
+	//	impl.streamingBackEnd = new JLayer(createBackEndStatus());
 
 
 

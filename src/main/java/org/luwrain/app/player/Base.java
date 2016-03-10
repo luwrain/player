@@ -47,7 +47,7 @@ class Base
 	return true;
     }
 
-    TreeModel getTreeModel()
+    TreeArea.Model getTreeModel()
     {
 	return treeModel;
     }
