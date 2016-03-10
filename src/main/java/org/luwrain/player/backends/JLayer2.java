@@ -28,6 +28,7 @@ import javazoom.jl.player.*;
 
 class JLayer2 implements BackEnd
 {
+    private Listener listener;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private AudioInputStream stream = null;
     private AdvancedPlayer player;
@@ -43,6 +44,14 @@ class JLayer2 implements BackEnd
     //    private boolean isNewPlaying=true;
 
     //    private long startTime;
+
+    JLayer2(Listener listener)
+    {
+	NullCheck.notNull(listener, "listener");
+	this.listener = listener;
+    }
+
+
 
     @Override public boolean play(Task task)
     {

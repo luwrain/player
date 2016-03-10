@@ -12,7 +12,7 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 
     @Override public String init(Luwrain luwrain)
     {
-	player = new Player(luwrain.getRegistry());
+	player = new PlayerImpl(luwrain.getRegistry());
 	Log.debug("player", "player is initialized");
 	return null;
     }

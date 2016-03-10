@@ -43,7 +43,7 @@ class Listener  implements org.luwrain.player.Listener
 	luwrain.runInMainThread(()->area.onNewTrack(trackNum));
     }
 
-    @Override public void onTrackTime(int sec)
+    @Override public void onTrackTime(long sec)
     {
 	luwrain.runInMainThread(()->area.onTrackTime(sec));
     }

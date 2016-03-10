@@ -9,23 +9,23 @@ import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
 
 import org.luwrain.core.NullCheck;
-import org.luwrain.player.BackEndStatus;
 
-public class JLayer implements org.luwrain.player.BackEnd
+public class JLayer implements org.luwrain.player.backends.BackEnd
 {                                                                                                
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private Player player = null;
     private FutureTask task = null;
-    private BackEndStatus status;
+    private Listener listener;
 
-    public JLayer(BackEndStatus status)
+    public JLayer(Listener listener)
     {
-	this.status = status;
-	NullCheck.notNull(status, "status");
+	NullCheck.notNull(listener, "listener");
+	this.listener = listener;
     }
 
-    @Override public boolean play(String uri)
+    @Override public boolean play(Task task)
     {
+	/*
 	NullCheck.notNull(uri, "uri");
 	if (task != null && !task.isDone())
 	    return false;
@@ -49,6 +49,8 @@ player = new Player(urlConnection.getInputStream());
 	    }, null);
 	executor.execute(task);
 	return true;
+	*/
+	return false;
     }                                                                                            
 
     @Override public void stop()

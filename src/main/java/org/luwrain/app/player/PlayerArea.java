@@ -32,7 +32,7 @@ class PlayerArea extends NavigateArea
     private Playlist playlist = null;
     private int trackNum = 0;
     private String trackTitle = "-";
-    private int trackTime;
+    private long trackTime;
 
     PlayerArea(Luwrain luwrain, Actions actions,
 	       Strings strings, Playlist currentPlaylist, int currentTrackNum)
@@ -125,8 +125,8 @@ class PlayerArea extends NavigateArea
     private String getTimeStr()
     {
 	final StringBuilder b = new StringBuilder();
-	final int min = trackTime / 60;
-	final int sec = trackTime % 60;
+	final long min = trackTime / 60;
+	final long sec = trackTime % 60;
 	if (min < 10)
 	    b.append("0" + min); else
 	    b.append("" + min);
@@ -146,7 +146,7 @@ class PlayerArea extends NavigateArea
     }
     */
 
-    void onTrackTime(int sec)
+    void onTrackTime(long sec)
     {
 	trackTime = sec;
 luwrain.onAreaNewContent(this);
