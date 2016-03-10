@@ -21,7 +21,7 @@ class PlayerThread
     private BackEnd currentPlayer = null;
     private long lastSec = 0;
 
-synchronized void play(Playlist playlist)
+    synchronized void play(Playlist playlist)
     {
 	NullCheck.notNull(playlist, "playlist");
 	if (playlist.getPlaylistItems() == null || playlist.getPlaylistItems().length < 1)
@@ -31,7 +31,7 @@ synchronized void play(Playlist playlist)
 	currentTrackNum = 0;
 	Task task = null;
 	try {
-task = new Task(new URL(currentPlaylist.getPlaylistItems()[currentTrackNum]));
+	task = new Task(new URL(currentPlaylist.getPlaylistItems()[currentTrackNum]));
 	if (task.url().getProtocol().equals("file"))
 	    task = new Task(Paths.get(task.url().toURI()));
 
@@ -47,10 +47,10 @@ task = new Task(new URL(currentPlaylist.getPlaylistItems()[currentTrackNum]));
 	    l.onNewPlaylist(playlist);
 	    l.onNewTrack(currentTrackNum);
 	}
-currentPlayer.play(task);
+	currentPlayer.play(task);
     }
 
-synchronized void stop()
+	synchronized void stop()
     {
 	if (currentPlayer == null)
 	    return;
@@ -60,7 +60,7 @@ synchronized void stop()
 	currentPlayer = null;
     }
 
-synchronized Playlist getCurrentPlaylist()
+	synchronized Playlist getCurrentPlaylist()
     {
 	return currentPlaylist;
     }
