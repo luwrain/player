@@ -48,4 +48,5 @@ public class Task
 	public boolean isUrl() {return url != null;}
     public Path path() {return path;}
     public URL url() {return url;}
+    public long startPosMsec() {return startPosMsec;}
 }
