@@ -1,3 +1,4 @@
+
 package org.luwrain.player;
 
 import java.util.*;
@@ -16,12 +17,14 @@ class PlayerThread
     private FutureTask futureTask;
 
     private final Vector<Listener> listeners = new Vector<Listener>();
+    private org.luwrain.player.backends.Listener backendListener = null;
     private Playlist currentPlaylist;
-    private int currentTrackNum = 0;
     private BackEnd currentPlayer = null;
-    private long lastSec = 0;
+    private int currentTrackNum = 0;
+    private long currentPos = 0;
 
-    synchronized void play(Playlist playlist)
+    synchronized void play(Playlist playlist,
+			   int startingTrackNum, long startingPosMsec)
     {
 	NullCheck.notNull(playlist, "playlist");
 	if (playlist.getPlaylistItems() == null || playlist.getPlaylistItems().length < 1)
@@ -29,18 +32,9 @@ class PlayerThread
 	stop();
 	this.currentPlaylist = playlist;
 	currentTrackNum = 0;
-	Task task = null;
-	try {
-	task = new Task(new URL(currentPlaylist.getPlaylistItems()[currentTrackNum]));
-	if (task.url().getProtocol().equals("file"))
-	    task = new Task(Paths.get(task.url().toURI()));
-
-    }
-    catch (Exception e)
-    {
-	Log.error("player", "unable to start playing:" + e.getMessage());
-	e.printStackTrace();
-    }
+	final Task task = createTask();
+	if (task == null)
+	    return;
 	currentPlayer = BackEnd.createBackEnd(createBackEndListener(), "mp3", false);
 	for(Listener l: listeners)
 	{
@@ -60,6 +54,23 @@ class PlayerThread
 	currentPlayer = null;
     }
 
+    synchronized void jump(long offsetMsec)
+    {
+	if (currentPlayer == null)
+	    return;
+	currentPlayer.stop();
+	final Task task = createTask();
+	if (task == null)
+	{
+	    currentPlayer = null;
+	    return;
+	}
+	currentPos += offsetMsec;
+	task.setStartPosMsec(currentPos);
+	currentPlayer.play(task); 
+    }
+
+
 	synchronized Playlist getCurrentPlaylist()
     {
 	return currentPlaylist;
@@ -70,14 +81,13 @@ class PlayerThread
 	return currentTrackNum;
     } 
 
-    synchronized void onBackEndTime(long sec)
+    synchronized void onBackEndTime(long msec)
     {
-	if (lastSec == sec)
+	if (currentPos == msec)
 	    return;
-	lastSec = sec;
-	//	System.out.println("" + listeners.size() + " listeners");
+currentPos = msec;
 	for(Listener l: listeners)
-	    l.onTrackTime(lastSec);
+	    l.onTrackTime(currentPos);
     }
 
     synchronized void onBackEndFinish()
@@ -130,16 +140,33 @@ class PlayerThread
 
     private org.luwrain.player.backends.Listener createBackEndListener()
     {
-	return new org.luwrain.player.backends.Listener(){
-	    @Override public void onPlayerBackEndTime(long msecs)
+	if (backendListener == null)
+	    backendListener = new org.luwrain.player.backends.Listener(){
+	    @Override public void onPlayerBackEndTime(long msec)
 	    {
-		run(()->onBackEndTime(msecs));
+		run(()->onBackEndTime(msec));
 	    }
 	    @Override public void onPlayerBackEndFinish()
 	    {
 		run(()->onBackEndFinish());
 	    }
 	};
+	return backendListener;
     }
 
+    private Task createTask()
+    {
+	try {
+	    Task task = new Task(new URL(currentPlaylist.getPlaylistItems()[currentTrackNum]));
+	    if (task.url().getProtocol().equals("file"))
+		task = new Task(Paths.get(task.url().toURI()));
+	    return task;
+	}
+	catch (Exception e)
+	{
+	    Log.error("player", "unable to create a task:" + e.getMessage());
+	    e.printStackTrace();
+	    return null;
+	}
+    }
 }

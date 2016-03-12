@@ -75,7 +75,7 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 			return null;
 		    final Player player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
 		    if (player != null)
-			player.play(new SingleLocalFilePlaylist("file://" + args[0].replaceAll(" ", "%20")));
+			player.play(new SingleLocalFilePlaylist("file://" + args[0].replaceAll(" ", "%20")), 0, 0);
 		    return null;
 		}
 	    },

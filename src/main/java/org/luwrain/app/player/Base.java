@@ -39,9 +39,12 @@ class Base
     {
 	NullCheck.notNull(luwrain, "luwrain");
 	this.luwrain = luwrain;
-	player = null;//FIXME:
+	player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
 	if (player == null)
+	{
+	    Log.error("player", "unable to obtain a reference to the player needed for PlayerApp");
 	    return false;
+	}
 	treeModelSource.setPlaylists(player.loadRegistryPlaylists());
 	treeModel = new CachedTreeModel(treeModelSource);
 	return true;
@@ -55,13 +58,19 @@ class Base
     void onPlaylistClick(Playlist playlist)
     {
 	NullCheck.notNull(playlist, "playlist");
-	player.play(playlist);
+	player.play(playlist, 0, 0);
     }
 
     void onStop()
     {
 	player.stop();
     }
+
+    void onJump(long offsetMsec)
+    {
+	player.jump(offsetMsec);
+    }
+
 
     Playlist getCurrentPlaylist()
     {

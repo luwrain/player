@@ -82,11 +82,17 @@ class PlayerArea extends NavigateArea
 		@Override public boolean onKeyboardEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
-		    if (actions.commonKeys(event))
-			return true;
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
 			{
+
+			case F7:
+			    return actions.onJump(-5000);
+
+			case F8:
+			    return actions.onJump(5000);
+
+
 			case TAB:
 			    actions.goToDoc();
 			    return true;

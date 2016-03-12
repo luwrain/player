@@ -44,6 +44,11 @@ public class Task
 	this.startPosMsec = startPosMsec;
     }
 
+    public void setStartPosMsec(long startPosMsec)
+    {
+	this.startPosMsec = startPosMsec;
+    }
+
     public boolean isPath() {return path != null;}
 	public boolean isUrl() {return url != null;}
     public Path path() {return path;}

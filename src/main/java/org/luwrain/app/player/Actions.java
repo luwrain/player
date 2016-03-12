@@ -22,6 +22,7 @@ interface Actions
 {
     void closeApp();
     boolean onTreeClick(Object obj);
+    boolean onJump(long offsetMsec);
     void goToTree();
     void goToControl();
     void goToDoc();

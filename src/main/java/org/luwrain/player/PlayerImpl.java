@@ -20,16 +20,23 @@ PlayerImpl(Registry registry)
 	thread.startThread();
     }
 
-    @Override public void play(Playlist playlist)
+    @Override public void play(Playlist playlist,
+			       int startingTrackNum, long startingPosMsec)
     {
 	NullCheck.notNull(playlist, "playlist");
-	thread.run(()->thread.play(playlist));
+	thread.run(()->thread.play(playlist, startingTrackNum, startingPosMsec));
     }
 
     @Override public void stop()
     {
 	thread.run(()->thread.stop());
     }
+
+    @Override public void jump(long offsetMsec)
+    {
+	thread.run(()->thread.jump(offsetMsec));
+    }
+
 
     @Override public Playlist getCurrentPlaylist()
     {

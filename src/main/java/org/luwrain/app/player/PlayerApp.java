@@ -46,23 +46,20 @@ static public final String STRINGS_NAME = "luwrain.player";
 
     public PlayerApp(String arg)
     {
-	this.arg = arg;
 	NullCheck.notNull(arg, "arg");
+	this.arg = arg;
     }
 
     public PlayerApp(String[] args)
     {
     }
 
-
     @Override public boolean onLaunch(Luwrain luwrain)
     {
-	System.out.println("start");
 	final Object o = luwrain.i18n().getStrings(STRINGS_NAME);
 	if (o == null || !(o instanceof Strings))
 	    return false;
 	strings = (Strings)o;
-	//	System.out.println("here");
 	this.luwrain = luwrain;
 	if (!base.init(luwrain))
 	    return false;
@@ -77,6 +74,13 @@ static public final String STRINGS_NAME = "luwrain.player";
 	base.onPlaylistClick((Playlist)obj);
 	return true;
     }
+
+    @Override public boolean onJump(long offsetMsec)
+    {
+	base.onJump(offsetMsec);
+	return true;
+    }
+
 
     private void createAreas()
     {
