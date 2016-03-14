@@ -18,6 +18,7 @@ class JLayer2 implements BackEnd
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private Listener listener;
     private FutureTask<Boolean> futureTask = null; 
+    private boolean mustStop = false;
 
 	JLayer2(Listener listener)
     {
@@ -28,7 +29,7 @@ class JLayer2 implements BackEnd
     @Override public boolean play(Task task)
     {
 	NullCheck.notNull(task, "task");
-	
+	mustStop = false;
 	futureTask = new FutureTask<>(()->{
 
 AudioDevice device = null;
@@ -74,7 +75,7 @@ long lastNotifiedMsec = 0;
 	listener.onPlayerBackEndTime(0);//FIXME:
         while(currentPosition<offsetEnd)
         {
-            if(Thread.currentThread().interrupted())
+            if(mustStop || Thread.currentThread().interrupted())
 	    {
 		System.out.println("interrupted");
                 return false;
@@ -122,6 +123,7 @@ device.close();
     @Override public void stop()
     {
 	System.out.println("Stopping JLayer2 ");
+	mustStop = true;
     	futureTask.cancel(true);
     }
 }
