@@ -31,15 +31,17 @@ class PlayerThread
 	    return;
 	stop();
 	this.currentPlaylist = playlist;
-	currentTrackNum = 0;
+	currentTrackNum = startingTrackNum;
+	currentPos = startingPosMsec;
 	final Task task = createTask();
 	if (task == null)
 	    return;
+	task.setStartPosMsec(currentPos);
 	currentPlayer = BackEnd.createBackEnd(createBackEndListener(), "mp3", false);
 	for(Listener l: listeners)
 	{
 	    l.onNewPlaylist(playlist);
-	    l.onNewTrack(currentTrackNum);
+	    l.onNewTrack(playlist, currentTrackNum);
 	}
 	currentPlayer.play(task);
     }
@@ -83,11 +85,11 @@ class PlayerThread
 
     synchronized void onBackEndTime(long msec)
     {
-	if (currentPos == msec)
+	if (currentPos + 50 > msec)
 	    return;
 currentPos = msec;
 	for(Listener l: listeners)
-	    l.onTrackTime(currentPos);
+	    l.onTrackTime(currentPlaylist, currentTrackNum, currentPos);
     }
 
     synchronized void onBackEndFinish()

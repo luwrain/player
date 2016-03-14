@@ -38,14 +38,14 @@ class Listener  implements org.luwrain.player.Listener
 	luwrain.runInMainThread(()->area.onNewPlaylist(playlist));
     }
 
-    @Override public void onNewTrack(int trackNum)
+    @Override public void onNewTrack(Playlist playlist, int trackNum)
     {
 	luwrain.runInMainThread(()->area.onNewTrack(trackNum));
     }
 
-    @Override public void onTrackTime(long sec)
+    @Override public void onTrackTime(Playlist playlist, int trackNum, long msec)
     {
-	luwrain.runInMainThread(()->area.onTrackTime(sec));
+	luwrain.runInMainThread(()->area.onTrackTime(msec));
     }
 
     @Override public void onPlayerStop()
