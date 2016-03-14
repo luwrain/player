@@ -129,6 +129,7 @@ device.close();
 
     @Override public void stop()
     {
+	System.out.println("Stopping JLayer2 ");
     	futureTask.cancel(true);
     }
 }

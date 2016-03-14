@@ -48,12 +48,14 @@ class PlayerThread
 
 	synchronized void stop()
     {
+	Log.debug("player", "stopping...");
 	if (currentPlayer == null)
 	    return;
 	currentPlayer.stop();
 	for(Listener l: listeners)
 	    l.onPlayerStop();
 	currentPlayer = null;
+currentPlaylist = null;
     }
 
     synchronized void jump(long offsetMsec)
