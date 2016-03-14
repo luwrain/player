@@ -18,17 +18,6 @@ class JLayer2 implements BackEnd
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private Listener listener;
     private FutureTask<Boolean> futureTask = null; 
-    /*
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private AudioDevice device = null;
-    private AudioInputStream stream = null;
-   	private Bitstream bitstream = null;
-   	private AudioFormat bitFormat = null;
-
-	// current frame and millisecond position while custom playing
-	private long currentFrame = 0;
-	private float currentPosition = 0;
-    */
 
 	JLayer2(Listener listener)
     {
@@ -63,6 +52,8 @@ long lastNotifiedMsec = 0;
 	    bitFormat = stream.getFormat();
 		// audio device
 	    device = FactoryRegistry.systemRegistry().createAudioDevice();
+            if(device==null)
+            	return false;
 	    Decoder decoder=new Decoder();
 		device.open(decoder);
 		//System.out.println("vbr:"+bitFormat.properties().get("mp3.vbr")+", vbrscale:"+bitFormat.properties().get("mp3.vbr.scale"));
@@ -80,20 +71,21 @@ long lastNotifiedMsec = 0;
         	bitstream.closeFrame();
         }
         // play
-		listener.onPlayerBackEndTime(0);
+	listener.onPlayerBackEndTime(0);//FIXME:
         while(currentPosition<offsetEnd)
         {
-            if(device==null)
-            	return false;
-            if(Thread.currentThread().isInterrupted())
+            if(Thread.currentThread().interrupted())
+	    {
+		System.out.println("interrupted");
                 return false;
+	    }
             final Header h=bitstream.readFrame();
             if(h == null)
                 return false;
             final SampleBuffer output = (SampleBuffer) decoder.decodeFrame(h, bitstream);
             synchronized (this)
             {
-                if(device!=null)
+		//                if(device!=null)
                     device.write(output.getBuffer(), 0, output.getBufferLength());
             }
             ++currentFrame;
@@ -104,7 +96,7 @@ long lastNotifiedMsec = 0;
 		listener.onPlayerBackEndTime(lastNotifiedMsec);
 	    }
             bitstream.closeFrame();
-        }
+	}
 listener.onPlayerBackEndFinish();
     }
     catch (Exception ex)
