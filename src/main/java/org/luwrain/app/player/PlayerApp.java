@@ -26,7 +26,7 @@ import org.luwrain.controls.*;
 import org.luwrain.player.*;
 import org.luwrain.popups.*;
 
-public class PlayerApp implements Application, Actions
+public class PlayerApp implements Application, MonoApp, Actions
 {
 static public final String STRINGS_NAME = "luwrain.player";
 
@@ -65,6 +65,12 @@ static public final String STRINGS_NAME = "luwrain.player";
 	    return false;
 	createAreas();
 	return true;
+    }
+
+    @Override public MonoApp.Result onMonoAppSecondInstance(Application app)
+    {
+	NullCheck.notNull(app, "app");
+	return MonoApp.Result.BRING_FOREGROUND;
     }
 
     @Override public boolean onTreeClick(Object obj)
