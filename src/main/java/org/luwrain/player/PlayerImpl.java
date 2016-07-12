@@ -4,7 +4,6 @@ package org.luwrain.player;
 import java.util.*;
 
 import org.luwrain.core.*;
-import org.luwrain.util.RegistryPath;
 
 //import org.luwrain.player.backends.*;
 
@@ -55,7 +54,7 @@ PlayerImpl(Registry registry)
 	final LinkedList<Playlist> res = new LinkedList<Playlist>();
 	for(String s: dirs)
 	{
-	    final String path = RegistryPath.join(dir, s);
+	    final String path = Registry.join(dir, s);
 	    final RegistryPlaylist playlist = new RegistryPlaylist(registry);
 	    if (playlist.init(path))
 		res.add(playlist);

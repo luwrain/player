@@ -23,7 +23,7 @@ import org.luwrain.core.events.*;
 import org.luwrain.controls.*;
 import org.luwrain.player.*;
 
-class PlayerArea extends NavigateArea
+class PlayerArea extends NavigationArea
 {
     private Luwrain luwrain;
     private Actions actions;

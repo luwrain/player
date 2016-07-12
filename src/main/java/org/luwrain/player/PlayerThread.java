@@ -8,7 +8,6 @@ import java.nio.file.*;
 
 import org.luwrain.core.*;
 import org.luwrain.player.backends.*;
-import org.luwrain.util.RegistryPath;
 
 class PlayerThread
 {
