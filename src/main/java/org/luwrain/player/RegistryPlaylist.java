@@ -20,43 +20,41 @@ import org.luwrain.core.*;
 
 class RegistryPlaylist extends PlaylistBase
 {
-    private interface Params
+    private interface Settings
     {
 	String getTitle(String defValue);
+	void setTitle(String value);
 	String getUrl(String defValue);
 	boolean getStreaming(boolean defValue);
+	void setStreaming(boolean value);
 	boolean getHasBookmark(boolean defValue);
+	void setHasBookmark(boolean value);
     }
 
     private Registry registry;
+    private Settings settings;
 
     RegistryPlaylist(Registry registry)
     {
-	this.registry = registry;
 	NullCheck.notNull(registry, "registry");
+	this.registry = registry;
     }
 
     boolean init(String path)
     {
 	NullCheck.notNull(path, "path");
-	final Params params = RegistryProxy.create(registry, path, Params.class);
-	try {
-	    title = params.getTitle("");
-	    url = params.getUrl("");
-	    streaming = params.getStreaming(false);
-	    hasBookmark = params.getHasBookmark(false);
-
+	settings = RegistryProxy.create(registry, path, Settings.class);
+	    title = settings.getTitle("");
+	    url = settings.getUrl("");
+	    streaming = settings.getStreaming(false);
+	    hasBookmark = settings.getHasBookmark(false);
 	    if (url != null && !url.toLowerCase().endsWith(".m3u"))
 	    {
 		items.add(url);
 		url = "";
 	    }
 	    return title != null;
-	}
-	catch (Exception e)
-	{
-	    e.printStackTrace();
-	    return false;
-	}
     }
+
+
 }

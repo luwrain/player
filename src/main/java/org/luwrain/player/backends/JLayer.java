@@ -10,33 +10,33 @@ import javazoom.jl.player.Player;
 
 import org.luwrain.core.NullCheck;
 
-public class JLayer implements org.luwrain.player.backends.BackEnd
+class JLayer implements org.luwrain.player.backends.BackEnd
 {                                                                                                
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private Player player = null;
     private FutureTask task = null;
     private Listener listener;
 
-    public JLayer(Listener listener)
+JLayer(Listener listener)
     {
 	NullCheck.notNull(listener, "listener");
 	this.listener = listener;
     }
 
-    @Override public boolean play(Task task)
+    @Override public boolean play(Task trackTask)
     {
-	/*
-	NullCheck.notNull(uri, "uri");
+	NullCheck.notNull(trackTask, "trackTask");
+	if (trackTask.isPath())
+	    throw new IllegalArgumentException("trackTask should not be a path task"); 
 	if (task != null && !task.isDone())
 	    return false;
 	task = new FutureTask(()->{
-	try
-	{
-	    final URLConnection urlConnection = new URL(uri).openConnection();
+	try {
+	    final URLConnection urlConnection = trackTask.url().openConnection();
 	urlConnection.connect();
 player = new Player(urlConnection.getInputStream());
 	player.play();
-	    status.onBackEndFinish();
+	    listener.onPlayerBackEndFinish();
 	}                                                                                        
 	catch (IOException e)
 	{
@@ -49,8 +49,6 @@ player = new Player(urlConnection.getInputStream());
 	    }, null);
 	executor.execute(task);
 	return true;
-	*/
-	return false;
     }                                                                                            
 
     @Override public void stop()

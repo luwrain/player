@@ -30,15 +30,18 @@ import org.luwrain.player.*;
 class Base
 {
     private Luwrain luwrain;
+    private Strings strings;
     private CachedTreeModel treeModel;
     private final TreeModelSource treeModelSource = new TreeModelSource();
     private Player player;
     private Listener listener;
 
-    boolean init(Luwrain luwrain)
+    boolean init(Luwrain luwrain, Strings strings)
     {
 	NullCheck.notNull(luwrain, "luwrain");
+	NullCheck.notNull(strings, "strings");
 	this.luwrain = luwrain;
+	this.strings = strings;
 	player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
 	if (player == null)
 	{
@@ -80,6 +83,20 @@ class Base
     int getCurrentTrackNum()
     {
 	return player.getCurrentTrackNum();
+    }
+
+    void fillPlaylistProperties(Playlist playlist, FormArea area)
+    {
+	NullCheck.notNull(playlist, "playlist");
+	NullCheck.notNull(area, "area");
+	area.addEdit("title", strings.playlistPropertiesAreaTitle(), playlist.getPlaylistTitle());
+	if (playlist.isStreaming())
+	{
+	    final String[] items = playlist.getPlaylistItems();
+	    if (items != null && items.length >= 1 && items[0] != null)
+		area.addEdit("url", strings.playlistPropertiesAreaUrl(), items[0]); else
+		area.addEdit("url", strings.playlistPropertiesAreaUrl(), "");
+	}
     }
 
     void setListener(PlayerArea area)

@@ -8,6 +8,7 @@ import java.nio.file.*;
 
 import org.luwrain.core.*;
 import org.luwrain.player.backends.*;
+//import org.luwrain.util.RegistryPath;
 
 class PlayerThread
 {
@@ -36,7 +37,7 @@ class PlayerThread
 	if (task == null)
 	    return;
 	task.setStartPosMsec(currentPos);
-	currentPlayer = BackEnd.createBackEnd(createBackEndListener(), "mp3", false);
+	currentPlayer = BackEnd.createBackEnd(createBackEndListener(), "mp3");
 	for(Listener l: listeners)
 	{
 	    l.onNewPlaylist(playlist);

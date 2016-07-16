@@ -21,10 +21,9 @@ import org.luwrain.core.events.KeyboardEvent;
 interface Actions
 {
     void closeApp();
-    boolean onTreeClick(Object obj);
     boolean onJump(long offsetMsec);
     void goToTree();
+    void goToPlaylist();
     void goToControl();
-    void goToDoc();
     boolean commonKeys(KeyboardEvent event);
 }

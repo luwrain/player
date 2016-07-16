@@ -94,7 +94,7 @@ class PlayerArea extends NavigationArea
 
 
 			case TAB:
-			    actions.goToDoc();
+			    actions.goToControl();
 			    return true;
 			case BACKSPACE:
 			    actions.goToTree();

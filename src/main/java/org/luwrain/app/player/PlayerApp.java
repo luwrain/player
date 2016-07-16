@@ -28,14 +28,17 @@ import org.luwrain.popups.*;
 
 public class PlayerApp implements Application, MonoApp, Actions
 {
-static public final String STRINGS_NAME = "luwrain.player";
+    static private final int MAIN_LAYOUT_INDEX = 0;
+    static private final int PLAYLIST_PROPERTIES_LAYOUT_INDEX = 1;
 
     private Luwrain luwrain;
     private final Base base = new Base();
     private Strings strings;
     private TreeArea treeArea;
-    private PlayerArea controlArea;
-    private SimpleArea docArea;
+    private ListArea playlistArea;
+    private ControlArea controlArea;
+    private FormArea playlistPropertiesArea;
+    private AreaLayoutSwitch layouts;
 
     private String arg = null;
 
@@ -56,24 +59,21 @@ static public final String STRINGS_NAME = "luwrain.player";
 
     @Override public boolean onLaunch(Luwrain luwrain)
     {
-	final Object o = luwrain.i18n().getStrings(STRINGS_NAME);
+	final Object o = luwrain.i18n().getStrings(Strings.NAME);
 	if (o == null || !(o instanceof Strings))
 	    return false;
 	strings = (Strings)o;
 	this.luwrain = luwrain;
-	if (!base.init(luwrain))
+	if (!base.init(luwrain, strings))
 	    return false;
 	createAreas();
+	layouts = new AreaLayoutSwitch(luwrain);
+	layouts.add(new AreaLayout(AreaLayout.LEFT_TOP_BOTTOM, treeArea, playlistArea, controlArea));
+	layouts.add(new AreaLayout(playlistPropertiesArea));
 	return true;
     }
 
-    @Override public MonoApp.Result onMonoAppSecondInstance(Application app)
-    {
-	NullCheck.notNull(app, "app");
-	return MonoApp.Result.BRING_FOREGROUND;
-    }
-
-    @Override public boolean onTreeClick(Object obj)
+    private boolean onTreeClick(Object obj)
     {
 	if (obj == null || !(obj instanceof Playlist))
 	    return false;
@@ -87,7 +87,6 @@ static public final String STRINGS_NAME = "luwrain.player";
 	return true;
     }
 
-
     private void createAreas()
     {
 	final Actions actions = this;
@@ -96,7 +95,7 @@ static public final String STRINGS_NAME = "luwrain.player";
 	treeParams.environment = new DefaultControlEnvironment(luwrain);
 	treeParams.model = base.getTreeModel();
 	treeParams.name = strings.treeAreaName();
-	treeParams.clickHandler = (area, obj)->actions.onTreeClick(obj);
+	treeParams.clickHandler = (area, obj)->onTreeClick(obj);
 
 	treeArea = new TreeArea(treeParams){
 		@Override public boolean onKeyboardEvent(KeyboardEvent event)
@@ -108,7 +107,7 @@ static public final String STRINGS_NAME = "luwrain.player";
 			switch(event.getSpecial())
 			{
 			case TAB:
-			    actions.goToControl();
+			    actions.goToPlaylist();
 			    return true;
 			}
 		    return super.onKeyboardEvent(event);
@@ -119,49 +118,46 @@ static public final String STRINGS_NAME = "luwrain.player";
 		    switch(event.getCode())
 		    {
 		    case CLOSE:
-			actions.closeApp();
+			closeApp();
 			return true;
+		    case PROPERTIES:
+			return onTreeProperties();
 		    default:
 			return super.onEnvironmentEvent(event);
 		    }
 		}
 	    };
 
-	controlArea = new PlayerArea(luwrain, this, strings,
-				     base.getCurrentPlaylist(), base.getCurrentTrackNum());
-	base.setListener(controlArea);
+	final ListArea.Params params = new ListArea.Params();
+	params.environment = new DefaultControlEnvironment(luwrain);
+	params.model = new FixedListModel();
+	params.appearance = new DefaultListItemAppearance(params.environment);
+	params.name = strings.playlistAreaName();
 
-	docArea = new SimpleArea(new DefaultControlEnvironment(luwrain), strings.docAreaName()){
-		@Override public boolean onKeyboardEvent(KeyboardEvent event)
-		{
-		    NullCheck.notNull(event, "event");
-		    if (actions.commonKeys(event))
-			return true;
-		    if (event.isSpecial() && !event.isModified())
-			switch(event.getSpecial())
-		    {
-		    case TAB:
-			actions.goToTree();
-			return true;
-		    case BACKSPACE:
-			actions.goToControl();
-			return true;
-		    }
-		    return super.onKeyboardEvent(event);
-		}
+	playlistArea = new ListArea(params){
 		@Override public boolean onEnvironmentEvent(EnvironmentEvent event)
 		{
 		    NullCheck.notNull(event, "event");
 		    switch(event.getCode())
 		    {
 		    case CLOSE:
-			actions.closeApp();
+			closeApp();
 			return true;
 		    default:
 			return super.onEnvironmentEvent(event);
 		    }
 		}
 	    };
+
+	/*
+	playlistArea = new PlayerArea(luwrain, this, strings,
+				     base.getCurrentPlaylist(), base.getCurrentTrackNum());
+	base.setListener(playlistArea);
+	*/
+
+	controlArea = new ControlArea(luwrain, this, strings);
+
+	playlistPropertiesArea = new FormArea(new DefaultControlEnvironment(luwrain), strings.playlistPropertiesAreaName());
     }
 
     @Override public boolean commonKeys(KeyboardEvent event)
@@ -179,19 +175,30 @@ static public final String STRINGS_NAME = "luwrain.player";
 	}
     }
 
+    private boolean onTreeProperties()
+    {
+	final Object obj = treeArea.selected();
+	if (obj == null || !(obj instanceof Playlist))
+	    return false;
+	base.fillPlaylistProperties((Playlist)obj, playlistPropertiesArea);
+	luwrain.announceActiveArea();
+	layouts.show(PLAYLIST_PROPERTIES_LAYOUT_INDEX);
+	return true;
+    }
+
     @Override public void goToTree()
     {
 	luwrain.setActiveArea(treeArea);
     }
 
+    @Override public void goToPlaylist()
+    {
+	luwrain.setActiveArea(playlistArea);
+    }
+
     @Override public void goToControl()
     {
 	luwrain.setActiveArea(controlArea);
-    }
-
-    @Override public void goToDoc()
-    {
-	luwrain.setActiveArea(docArea);
     }
 
     @Override public String getAppName()
@@ -201,12 +208,18 @@ static public final String STRINGS_NAME = "luwrain.player";
 
     @Override public AreaLayout getAreasToShow()
     {
-	return new AreaLayout(AreaLayout.LEFT_TOP_BOTTOM, treeArea, controlArea, docArea);
+	return layouts.getCurrentLayout();
     }
 
     @Override public void closeApp()
     {
 	base.removeListener();
 	luwrain.closeApp();
+    }
+
+    @Override public MonoApp.Result onMonoAppSecondInstance(Application app)
+    {
+	NullCheck.notNull(app, "app");
+	return MonoApp.Result.BRING_FOREGROUND;
     }
 }
