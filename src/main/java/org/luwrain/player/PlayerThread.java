@@ -11,9 +11,9 @@ import org.luwrain.player.backends.*;
 
 class PlayerThread implements org.luwrain.player.backends.Listener
 {
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private final LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>(1024); 
-    private FutureTask futureTask;
+    //    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    //    private final LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>(1024); 
+    //    private FutureTask futureTask;
 
     private final Vector<Listener> listeners = new Vector<Listener>();
     private org.luwrain.player.backends.Listener backendListener = null;
@@ -28,8 +28,9 @@ class PlayerThread implements org.luwrain.player.backends.Listener
 	NullCheck.notNull(playlist, "playlist");
 	if (playlist.getPlaylistItems() == null || playlist.getPlaylistItems().length < 1)
 	    return;
+	if (currentPlaylist != null)
 	stop();
-	this.currentPlaylist = playlist;
+	currentPlaylist = playlist;
 	currentTrackNum = startingTrackNum;
 	currentPos = startingPosMsec;
 	final Task task = createTask();
@@ -55,6 +56,27 @@ class PlayerThread implements org.luwrain.player.backends.Listener
 currentPlaylist = null;
     }
 
+    synchronized void pauseResume()
+    {
+	if (currentPlayer != null)
+	{
+	    //pausing
+	    currentPlayer.stop();
+	    currentPlayer = null;
+	    return;
+	}
+	if (currentPlaylist == null)
+	    return;
+	//resuming
+	final Task task = createTask();
+	if (task == null)
+	    return;
+	task.setStartPosMsec(currentPos);
+	notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, currentPos));
+	currentPlayer = BackEnd.createBackEnd(this, "jlayer");
+	currentPlayer.play(task);
+    }
+
     synchronized void jump(long offsetMsec)
     {
 	if (currentPlayer == null)
@@ -71,7 +93,7 @@ currentPlaylist = null;
 	currentPlayer.play(task); 
     }
 
-	synchronized Playlist getCurrentPlaylist()
+    synchronized Playlist getCurrentPlaylist()
     {
 	return currentPlaylist;
     }
@@ -81,7 +103,7 @@ currentPlaylist = null;
 	return currentTrackNum;
     } 
 
-@Override public synchronized void onPlayerBackEndTime(long msec)
+    @Override public synchronized void onPlayerBackEndTime(long msec)
     {
 	if (currentPos + 50 > msec)
 	    return;
@@ -113,6 +135,7 @@ currentPos = msec;
 	    }
     }
 
+    /*
     void startThread()
     {
 	futureTask = new FutureTask(()->{
@@ -131,7 +154,9 @@ currentPos = msec;
 	    }, null);
 	executor.execute(futureTask);
     }
+    */
 
+    /*
     synchronized void run(Runnable runnable)
     {
 	NullCheck.notNull(runnable, "runnable");
@@ -143,6 +168,7 @@ currentPos = msec;
 	    Thread.currentThread().interrupt();
 	}
     }
+    */
 
     private void notifyListeners(ListenerNotification notification)
     {

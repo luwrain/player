@@ -119,7 +119,9 @@ public class PlayerApp implements Application, MonoApp, Actions
 	params.environment = new DefaultControlEnvironment(luwrain);
 	params.model = base.getPlaylistModel();
 	params.appearance = new DefaultListItemAppearance(params.environment);
+	params.clickHandler = (area, index, obj)->onPlaylistClick(index, obj);
 	params.name = strings.playlistAreaName();
+	params.loadRegularFlags(luwrain.getRegistry());
 
 	playlistArea = new ListArea(params){
 		@Override public boolean onKeyboardEvent(KeyboardEvent event)
@@ -156,6 +158,12 @@ public class PlayerApp implements Application, MonoApp, Actions
 	propertiesFormArea = new FormArea(new DefaultControlEnvironment(luwrain), strings.playlistPropertiesAreaName());
     }
 
+    private boolean onPlaylistClick(int index, Object item)
+    {
+	NullCheck.notNull(item, "item");
+	return base.playPlaylistItem(index);
+    }
+
     private boolean onTreeClick(Object obj)
     {
 	if (obj == null || !(obj instanceof Playlist))
@@ -170,6 +178,24 @@ public class PlayerApp implements Application, MonoApp, Actions
 	return true;
     }
 
+    @Override public void pauseResume()
+    {
+	base.pauseResume();
+    }
+
+    @Override public void stop()
+    {
+	base.stop();
+    }
+
+    @Override public void prevTrack()
+    {
+    }
+
+    @Override public void nextTrack()
+    {
+    }
+
     @Override public boolean commonKeys(KeyboardEvent event)
     {
 	NullCheck.notNull(event, "event");
@@ -178,11 +204,16 @@ public class PlayerApp implements Application, MonoApp, Actions
 	switch(event.getSpecial())
 	{
 	case F6:
-	    base.onStop();
+	    base.stop();
 	    return true;
 	default:
 	    return false;
 	}
+    }
+
+    @Override public void refreshPlaylist()
+    {
+	playlistArea.refresh();
     }
 
     private boolean onTreeProperties()

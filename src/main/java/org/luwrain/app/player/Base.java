@@ -57,24 +57,8 @@ class Base
 	treeModel = new CachedTreeModel(treeModelSource);
 	currentPlaylist = player.getCurrentPlaylist();
 	if (currentPlaylist != null)
-	{
-	    currentPlaylistItems = currentPlaylist.getPlaylistItems();
-	    if (currentPlaylistItems == null)
-		currentPlaylistItems = new String[0];
-	    if (currentPlaylistItems.length > 0)
-	    {
-		playlistModel.setItems(currentPlaylistItems);
-		currentTrackNum = player.getCurrentTrackNum();
-		if (currentTrackNum < 0 || currentTrackNum >= currentPlaylistItems.length)
-		    currentTrackNum = -1;
-	    }
-	}
+	    onNewPlaylist(currentPlaylist);
 	return true;
-    }
-
-    TreeArea.Model getTreeModel()
-    {
-	return treeModel;
     }
 
     void onPlaylistClick(Playlist playlist)
@@ -83,7 +67,23 @@ class Base
 	player.play(playlist, 0, 0);
     }
 
-    void onStop()
+    void pauseResume()
+    {
+	player.pauseResume();
+    }
+
+    boolean playPlaylistItem(int index)
+    {
+	if (currentPlaylist == null)
+	    return false;
+	if (index < 0 || index >= currentPlaylistItems.length)
+	    return false;
+	player.play(currentPlaylist, index, 0);
+	currentTrackNum = index;
+	return true;
+    }
+
+    void stop()
     {
 	player.stop();
     }
@@ -93,6 +93,33 @@ class Base
 	player.jump(offsetMsec);
     }
 
+    void onNewPlaylist(Playlist playlist)
+    {
+	NullCheck.notNull(playlist, "playlist");
+	currentPlaylist = playlist;
+	currentPlaylistItems = playlist.getPlaylistItems();
+	if (currentPlaylistItems == null)
+	    currentPlaylistItems = new String[0];
+	if (currentPlaylistItems.length > 0)
+	{
+	    playlistModel.setItems(currentPlaylistItems);
+	    currentTrackNum = player.getCurrentTrackNum();
+	    if (currentTrackNum < 0 || currentTrackNum >= currentPlaylistItems.length)
+		currentTrackNum = -1;
+	}
+    }
+
+void onNewTrack(int trackNum)
+{
+    if (trackNum < 0 || trackNum >= currentPlaylistItems.length)
+	currentTrackNum = -1; else
+	currentTrackNum = trackNum;
+}
+
+    void onStop()
+    {
+	currentTrackNum = -1;
+    }
 
     Playlist getCurrentPlaylist()
     {
@@ -149,6 +176,11 @@ class Base
     ListArea.Model getPlaylistModel()
     {
 	return playlistModel;
+    }
+
+    TreeArea.Model getTreeModel()
+    {
+	return treeModel;
     }
 
     static String getTimeStr(long sec)

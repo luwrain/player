@@ -17,24 +17,29 @@ PlayerImpl(Registry registry)
     {
 	NullCheck.notNull(registry, "registry");
 	this.registry = registry;
-	thread.startThread();
+	//	thread.startThread();
     }
 
     @Override public void play(Playlist playlist,
 			       int startingTrackNum, long startingPosMsec)
     {
 	NullCheck.notNull(playlist, "playlist");
-	thread.run(()->thread.play(playlist, startingTrackNum, startingPosMsec));
+thread.play(playlist, startingTrackNum, startingPosMsec);
     }
 
     @Override public void stop()
     {
-	thread.run(()->thread.stop());
+	thread.stop();
+    }
+
+    @Override public void pauseResume()
+    {
+	thread.pauseResume();
     }
 
     @Override public void jump(long offsetMsec)
     {
-	thread.run(()->thread.jump(offsetMsec));
+thread.jump(offsetMsec);
     }
 
     @Override public Playlist getCurrentPlaylist()

@@ -9,7 +9,7 @@ static final String NAME = "luwrain.player";
     String treeAreaName();
     String playlistAreaName();
     String controlAreaName(); 
-    String opPlayPause();
+    String opPauseResume();
     String opStop();
     String opNextTrack();
     String opPrevTrack();

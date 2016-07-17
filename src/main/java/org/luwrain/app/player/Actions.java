@@ -27,4 +27,9 @@ interface Actions
     void goToPlaylist();
     void goToControl();
     boolean commonKeys(KeyboardEvent event);
+    void pauseResume();
+    void stop();
+    void nextTrack();
+    void prevTrack();
+    void refreshPlaylist();
 }

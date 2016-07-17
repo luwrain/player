@@ -13,7 +13,7 @@ class ControlArea extends NavigationArea
     private Strings strings;
     private Base base;
 
-    private String opPlayPause, opStop, opPrevTrack, opNextTrack;
+    private String opPauseResume, opStop, opPrevTrack, opNextTrack;
 
     private long timeSec = -1;
 
@@ -28,7 +28,7 @@ ControlArea(Luwrain luwrain, Actions actions,
 	this.actions = actions;
 	this.strings = strings;
 	base = actions.getBase();
-	opPlayPause = strings.opPlayPause();
+	opPauseResume = strings.opPauseResume();
 	opStop = strings.opStop();
 	opPrevTrack = strings.opPrevTrack();
 	opNextTrack = strings.opNextTrack();
@@ -36,10 +36,16 @@ ControlArea(Luwrain luwrain, Actions actions,
 
     void onNewPlaylist(Playlist playlist)
     {
+	NullCheck.notNull(playlist, "playlist");
+	base.onNewPlaylist(playlist);
+	actions.refreshPlaylist();
+	luwrain.onAreaNewContent(this);
     }
 
     void onNewTrack(int trackNum)
     {
+	base.onNewTrack(trackNum);
+	luwrain.onAreaNewContent(this);
     }
 
     void onTrackTime(long msec)
@@ -54,6 +60,9 @@ ControlArea(Luwrain luwrain, Actions actions,
 
     void onStop()
     {
+	base.onStop();
+	timeSec = -1;
+	luwrain.onAreaNewContent(this);
     }
 
     @Override public int getLineCount()
@@ -88,7 +97,7 @@ ControlArea(Luwrain luwrain, Actions actions,
 	case 3:
 	    return "";
 	case 4:
-	    return opPlayPause;
+	    return opPauseResume;
 	case 5:
 	    return opStop;
 	case 6:
@@ -112,6 +121,8 @@ ControlArea(Luwrain luwrain, Actions actions,
 			case BACKSPACE:
 			    actions.goToTree();
 			    return true;
+			case ENTER:
+			    return onEnter(event);
 			}
 		    return super.onKeyboardEvent(event);
 		}
@@ -136,11 +147,41 @@ ControlArea(Luwrain luwrain, Actions actions,
 
     @Override public void announceLine(int index, String line)
     {
-	if (line == opPlayPause || line == opStop ||
+	if (line == opPauseResume || line == opStop ||
 line == opPrevTrack || line == opNextTrack)
 	    luwrain.playSound(Sounds.LIST_ITEM);
 	if (line.isEmpty())
 	    luwrain.hint(Hints.EMPTY_LINE); else
 	    luwrain.say(line);
+    }
+
+    private boolean onEnter(KeyboardEvent event)
+    {
+	final String line = getLine(getHotPointY());
+	if (line == opPauseResume)
+	{
+	    actions.pauseResume();
+	    luwrain.playSound(Sounds.LIST_ITEM);
+	    return true;
+	}
+	if (line == opStop)
+	{
+	    actions.stop();
+	    luwrain.playSound(Sounds.LIST_ITEM);
+	    return true;
+	}
+	if (line == opPrevTrack)
+	{
+	    actions.prevTrack();
+	    luwrain.playSound(Sounds.LIST_ITEM);
+	    return true;
+	}
+	if (line == opNextTrack)
+	{
+	    actions.nextTrack();
+	    luwrain.playSound(Sounds.LIST_ITEM);
+	    return true;
+	}
+	return false;
     }
 }
