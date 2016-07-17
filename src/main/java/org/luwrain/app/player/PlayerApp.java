@@ -37,7 +37,7 @@ public class PlayerApp implements Application, MonoApp, Actions
     private TreeArea treeArea;
     private ListArea playlistArea;
     private ControlArea controlArea;
-    private FormArea playlistPropertiesArea;
+    private FormArea propertiesFormArea;
     private AreaLayoutSwitch layouts;
 
     private String arg = null;
@@ -69,21 +69,8 @@ public class PlayerApp implements Application, MonoApp, Actions
 	createAreas();
 	layouts = new AreaLayoutSwitch(luwrain);
 	layouts.add(new AreaLayout(AreaLayout.LEFT_TOP_BOTTOM, treeArea, playlistArea, controlArea));
-	layouts.add(new AreaLayout(playlistPropertiesArea));
-	return true;
-    }
-
-    private boolean onTreeClick(Object obj)
-    {
-	if (obj == null || !(obj instanceof Playlist))
-	    return false;
-	base.onPlaylistClick((Playlist)obj);
-	return true;
-    }
-
-    @Override public boolean onJump(long offsetMsec)
-    {
-	base.onJump(offsetMsec);
+	layouts.add(new AreaLayout(propertiesFormArea));
+	base.setListener(controlArea);
 	return true;
     }
 
@@ -130,11 +117,26 @@ public class PlayerApp implements Application, MonoApp, Actions
 
 	final ListArea.Params params = new ListArea.Params();
 	params.environment = new DefaultControlEnvironment(luwrain);
-	params.model = new FixedListModel();
+	params.model = base.getPlaylistModel();
 	params.appearance = new DefaultListItemAppearance(params.environment);
 	params.name = strings.playlistAreaName();
 
 	playlistArea = new ListArea(params){
+		@Override public boolean onKeyboardEvent(KeyboardEvent event)
+		{
+		    NullCheck.notNull(event, "event");
+		    if (event.isSpecial() && !event.isModified())
+			switch(event.getSpecial())
+			       {
+			       case TAB:
+				   goToControl();
+				   return true;
+			       case BACKSPACE:
+				   goToTree();
+				   return true;
+			       }
+			       return super.onKeyboardEvent(event);
+		}
 		@Override public boolean onEnvironmentEvent(EnvironmentEvent event)
 		{
 		    NullCheck.notNull(event, "event");
@@ -149,15 +151,23 @@ public class PlayerApp implements Application, MonoApp, Actions
 		}
 	    };
 
-	/*
-	playlistArea = new PlayerArea(luwrain, this, strings,
-				     base.getCurrentPlaylist(), base.getCurrentTrackNum());
-	base.setListener(playlistArea);
-	*/
-
 	controlArea = new ControlArea(luwrain, this, strings);
 
-	playlistPropertiesArea = new FormArea(new DefaultControlEnvironment(luwrain), strings.playlistPropertiesAreaName());
+	propertiesFormArea = new FormArea(new DefaultControlEnvironment(luwrain), strings.playlistPropertiesAreaName());
+    }
+
+    private boolean onTreeClick(Object obj)
+    {
+	if (obj == null || !(obj instanceof Playlist))
+	    return false;
+	base.onPlaylistClick((Playlist)obj);
+	return true;
+    }
+
+    @Override public boolean onJump(long offsetMsec)
+    {
+	base.onJump(offsetMsec);
+	return true;
     }
 
     @Override public boolean commonKeys(KeyboardEvent event)
@@ -180,7 +190,7 @@ public class PlayerApp implements Application, MonoApp, Actions
 	final Object obj = treeArea.selected();
 	if (obj == null || !(obj instanceof Playlist))
 	    return false;
-	base.fillPlaylistProperties((Playlist)obj, playlistPropertiesArea);
+	base.fillPlaylistProperties((Playlist)obj, propertiesFormArea);
 	luwrain.announceActiveArea();
 	layouts.show(PLAYLIST_PROPERTIES_LAYOUT_INDEX);
 	return true;
@@ -209,6 +219,11 @@ public class PlayerApp implements Application, MonoApp, Actions
     @Override public AreaLayout getAreasToShow()
     {
 	return layouts.getCurrentLayout();
+    }
+
+    @Override public Base getBase()
+    {
+	return base;
     }
 
     @Override public void closeApp()

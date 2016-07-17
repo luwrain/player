@@ -37,7 +37,6 @@ PlayerImpl(Registry registry)
 	thread.run(()->thread.jump(offsetMsec));
     }
 
-
     @Override public Playlist getCurrentPlaylist()
     {
 	return thread.getCurrentPlaylist();
@@ -66,12 +65,12 @@ PlayerImpl(Registry registry)
     @Override public void addListener(Listener listener)
     {
 	NullCheck.notNull(listener, "listener");
-	thread.run(()->thread.addListener(listener));
+thread.addListener(listener);
     }
 
     @Override public void removeListener(Listener listener)
     {
 	NullCheck.notNull(listener, "listener");
-	thread.run(()->thread.removeListener(listener));
+	thread.removeListener(listener);
     }
 }

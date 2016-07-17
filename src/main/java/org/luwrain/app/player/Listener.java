@@ -22,14 +22,14 @@ import org.luwrain.player.Playlist;
 class Listener  implements org.luwrain.player.Listener
 {
     private Luwrain luwrain;
-    private PlayerArea area;
+    private ControlArea area;
 
-    Listener(Luwrain luwrain, PlayerArea area)
+    Listener(Luwrain luwrain, ControlArea area)
     {
-	this.luwrain = luwrain;
-	this.area = area;
 	NullCheck.notNull(luwrain, "luwrain");
 	NullCheck.notNull(area, "area");
+	this.luwrain = luwrain;
+	this.area = area;
     }
 
     @Override public void onNewPlaylist(final Playlist playlist)

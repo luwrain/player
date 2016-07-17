@@ -34,7 +34,12 @@ class Base
     private CachedTreeModel treeModel;
     private final TreeModelSource treeModelSource = new TreeModelSource();
     private Player player;
+    private final FixedListModel playlistModel = new FixedListModel();
     private Listener listener;
+
+    private Playlist currentPlaylist = null;
+    private String[] currentPlaylistItems = new String[0];
+    private int currentTrackNum = -1;
 
     boolean init(Luwrain luwrain, Strings strings)
     {
@@ -50,6 +55,20 @@ class Base
 	}
 	treeModelSource.setPlaylists(player.loadRegistryPlaylists());
 	treeModel = new CachedTreeModel(treeModelSource);
+	currentPlaylist = player.getCurrentPlaylist();
+	if (currentPlaylist != null)
+	{
+	    currentPlaylistItems = currentPlaylist.getPlaylistItems();
+	    if (currentPlaylistItems == null)
+		currentPlaylistItems = new String[0];
+	    if (currentPlaylistItems.length > 0)
+	    {
+		playlistModel.setItems(currentPlaylistItems);
+		currentTrackNum = player.getCurrentTrackNum();
+		if (currentTrackNum < 0 || currentTrackNum >= currentPlaylistItems.length)
+		    currentTrackNum = -1;
+	    }
+	}
 	return true;
     }
 
@@ -99,7 +118,7 @@ class Base
 	}
     }
 
-    void setListener(PlayerArea area)
+    void setListener(ControlArea area)
     {
 	NullCheck.notNull(area, "area");
 	listener = new Listener(luwrain, area);
@@ -109,5 +128,41 @@ class Base
     void removeListener()
     {
 	player.removeListener(listener);
+    }
+
+    String getCurrentPlaylistTitle()
+    {
+	if (currentPlaylist == null)
+	    return "";
+	final String res = currentPlaylist.getPlaylistTitle();
+	return res != null?res:"";
+    }
+
+    String getCurrentTrackTitle()
+    {
+	if (currentPlaylistItems.length < 1 || currentTrackNum < 0)
+	    return "";
+	final String res = currentPlaylistItems[currentTrackNum];
+	return res != null?res:"";
+    }
+
+    ListArea.Model getPlaylistModel()
+    {
+	return playlistModel;
+    }
+
+    static String getTimeStr(long sec)
+    {
+	final StringBuilder b = new StringBuilder();
+	final long min = sec / 60;
+	final long seconds = sec % 60;
+	if (min < 10)
+	    b.append("0" + min); else
+	    b.append("" + min);
+	b.append(":");
+	if (seconds < 10)
+	    b.append("0" + seconds); else
+	    b.append("" + seconds);
+	return new String(b);
     }
 }

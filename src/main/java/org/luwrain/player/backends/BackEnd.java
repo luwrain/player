@@ -13,6 +13,15 @@ public interface BackEnd
     {
 	NullCheck.notNull(listener, "listener");
 	NullCheck.notNull(name, "name");
-	return new JLayer2(listener);
+	switch(name.toLowerCase())
+	{
+	case "jlayer":
+	return new JLayer(listener);
+
+	case "jlayer-streaming":
+	return new JLayerStreaming(listener);
+	default:
+	    return null;
+	}
     }
 }

@@ -11,8 +11,11 @@ class ControlArea extends NavigationArea
     private Luwrain luwrain;
     private Actions actions;
     private Strings strings;
+    private Base base;
 
     private String opPlayPause, opStop, opPrevTrack, opNextTrack;
+
+    private long timeSec = -1;
 
 ControlArea(Luwrain luwrain, Actions actions,
 	       Strings strings)
@@ -24,34 +27,73 @@ ControlArea(Luwrain luwrain, Actions actions,
 	this.luwrain = luwrain;
 	this.actions = actions;
 	this.strings = strings;
+	base = actions.getBase();
 	opPlayPause = strings.opPlayPause();
 	opStop = strings.opStop();
 	opPrevTrack = strings.opPrevTrack();
 	opNextTrack = strings.opNextTrack();
     }
 
+    void onNewPlaylist(Playlist playlist)
+    {
+    }
+
+    void onNewTrack(int trackNum)
+    {
+    }
+
+    void onTrackTime(long msec)
+    {
+	long sec = msec / 1000;
+	if (sec != timeSec)
+	{
+	timeSec = sec;
+	luwrain.onAreaNewContent(this);
+	}
+    }
+
+    void onStop()
+    {
+    }
+
     @Override public int getLineCount()
     {
-	return 7;
+	int count = 0;
+	if (!base.getCurrentPlaylistTitle().isEmpty())
+	    ++count;
+	if (!base.getCurrentTrackTitle().isEmpty())
+	    ++count;
+	if (timeSec >= 0)
+	    ++count;
+	return count + 6;
     }
 
     @Override public String getLine(int index)
     {
-	switch(index)
+	int offset = 0;
+	if (base.getCurrentPlaylistTitle().isEmpty())
+	    ++offset;
+	if (base.getCurrentTrackTitle().isEmpty())
+	    ++offset;
+	if (timeSec < 0)
+	    ++offset;
+	switch(index + offset)
 	{
 	case 0:
-	    return "";
+	    return base.getCurrentPlaylistTitle();
 	case 1:
-	    return "";
+	    return base.getCurrentTrackTitle();
 	case 2:
-	    return "";
+	    return Base.getTimeStr(timeSec);
 	case 3:
-	    return opPlayPause;
+	    return "";
 	case 4:
-	    return opStop;
+	    return opPlayPause;
 	case 5:
-	    return opPrevTrack;
+	    return opStop;
 	case 6:
+	    return opPrevTrack;
+	case 7:
 	    return opNextTrack;
 	default:
 	    return "";

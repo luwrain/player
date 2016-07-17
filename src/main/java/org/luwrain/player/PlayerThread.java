@@ -8,9 +8,8 @@ import java.nio.file.*;
 
 import org.luwrain.core.*;
 import org.luwrain.player.backends.*;
-//import org.luwrain.util.RegistryPath;
 
-class PlayerThread
+class PlayerThread implements org.luwrain.player.backends.Listener
 {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>(1024); 
@@ -37,7 +36,7 @@ class PlayerThread
 	if (task == null)
 	    return;
 	task.setStartPosMsec(currentPos);
-	currentPlayer = BackEnd.createBackEnd(createBackEndListener(), "mp3");
+	currentPlayer = BackEnd.createBackEnd(this, "jlayer");
 	for(Listener l: listeners)
 	{
 	    l.onNewPlaylist(playlist);
@@ -48,12 +47,10 @@ class PlayerThread
 
 	synchronized void stop()
     {
-	Log.debug("player", "stopping...");
 	if (currentPlayer == null)
 	    return;
 	currentPlayer.stop();
-	for(Listener l: listeners)
-	    l.onPlayerStop();
+	notifyListeners((listener)->listener.onPlayerStop());
 	currentPlayer = null;
 currentPlaylist = null;
     }
@@ -74,7 +71,6 @@ currentPlaylist = null;
 	currentPlayer.play(task); 
     }
 
-
 	synchronized Playlist getCurrentPlaylist()
     {
 	return currentPlaylist;
@@ -85,16 +81,15 @@ currentPlaylist = null;
 	return currentTrackNum;
     } 
 
-    synchronized void onBackEndTime(long msec)
+@Override public synchronized void onPlayerBackEndTime(long msec)
     {
 	if (currentPos + 50 > msec)
 	    return;
 currentPos = msec;
-	for(Listener l: listeners)
-	    l.onTrackTime(currentPlaylist, currentTrackNum, currentPos);
+	    notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, currentPos));
     }
 
-    synchronized void onBackEndFinish()
+    @Override public synchronized void onPlayerBackEndFinish()
     {
     }
 
@@ -109,6 +104,13 @@ currentPos = msec;
 
     synchronized void removeListener(Listener listener)
     {
+	NullCheck.notNull(listener, "listener");
+	for(int i = 0;i < listeners.size();++i)
+	    if (listeners.get(i) == listener)
+	    {
+		listeners.remove(i);
+		break;
+	    }
     }
 
     void startThread()
@@ -142,20 +144,10 @@ currentPos = msec;
 	}
     }
 
-    private org.luwrain.player.backends.Listener createBackEndListener()
+    private void notifyListeners(ListenerNotification notification)
     {
-	if (backendListener == null)
-	    backendListener = new org.luwrain.player.backends.Listener(){
-	    @Override public void onPlayerBackEndTime(long msec)
-	    {
-		run(()->onBackEndTime(msec));
-	    }
-	    @Override public void onPlayerBackEndFinish()
-	    {
-		run(()->onBackEndFinish());
-	    }
-	};
-	return backendListener;
+	for(Listener l: listeners)
+	    notification.notify(l);
     }
 
     private Task createTask()
@@ -173,4 +165,9 @@ currentPos = msec;
 	    return null;
 	}
     }
+
+private interface ListenerNotification
+{
+    void notify(Listener listener);
+}
 }
