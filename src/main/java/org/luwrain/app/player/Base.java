@@ -61,10 +61,11 @@ class Base
 	return true;
     }
 
-    void onPlaylistClick(Playlist playlist)
+    void playPlaylist(Playlist playlist)
     {
 	NullCheck.notNull(playlist, "playlist");
 	player.play(playlist, 0, 0);
+	onNewPlaylist(playlist);
     }
 
     void pauseResume()

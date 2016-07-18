@@ -16,4 +16,6 @@ static final String NAME = "luwrain.player";
     String playlistPropertiesAreaName();
     String playlistPropertiesAreaTitle();
     String playlistPropertiesAreaUrl();
+    String badPlaylistPath(String value);
+    String errorLoadingPlaylist(String path);
 }

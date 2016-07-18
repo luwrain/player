@@ -2,7 +2,6 @@
 package org.luwrain.player;
 
 import java.util.*;
-import java.util.concurrent.*;
 import java.net.*;
 import java.nio.file.*;
 
@@ -11,15 +10,10 @@ import org.luwrain.player.backends.*;
 
 class PlayerThread implements org.luwrain.player.backends.Listener
 {
-    //    private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    //    private final LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>(1024); 
-    //    private FutureTask futureTask;
-
     private final Vector<Listener> listeners = new Vector<Listener>();
-    private org.luwrain.player.backends.Listener backendListener = null;
-    private Playlist currentPlaylist;
+    private Playlist currentPlaylist = null;
     private BackEnd currentPlayer = null;
-    private int currentTrackNum = 0;
+    private int currentTrackNum = -1;
     private long currentPos = 0;
 
     synchronized void play(Playlist playlist,
@@ -29,7 +23,7 @@ class PlayerThread implements org.luwrain.player.backends.Listener
 	if (playlist.getPlaylistItems() == null || playlist.getPlaylistItems().length < 1)
 	    return;
 	if (currentPlaylist != null)
-	stop();
+	    stop();
 	currentPlaylist = playlist;
 	currentTrackNum = startingTrackNum;
 	currentPos = startingPosMsec;
@@ -46,14 +40,14 @@ class PlayerThread implements org.luwrain.player.backends.Listener
 	currentPlayer.play(task);
     }
 
-	synchronized void stop()
+    synchronized void stop()
     {
 	if (currentPlayer == null)
 	    return;
 	currentPlayer.stop();
 	notifyListeners((listener)->listener.onPlayerStop());
 	currentPlayer = null;
-currentPlaylist = null;
+	currentPlaylist = null;
     }
 
     synchronized void pauseResume()
@@ -107,8 +101,8 @@ currentPlaylist = null;
     {
 	if (currentPos + 50 > msec)
 	    return;
-currentPos = msec;
-	    notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, currentPos));
+	currentPos = msec;
+	notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, currentPos));
     }
 
     @Override public synchronized void onPlayerBackEndFinish()
@@ -135,41 +129,6 @@ currentPos = msec;
 	    }
     }
 
-    /*
-    void startThread()
-    {
-	futureTask = new FutureTask(()->{
-		while(!Thread.currentThread().interrupted())
-		{
-		    try {
-		    final Runnable r = queue.take();
-		    if (r != null)
-			r.run();
-		    }
-		    catch (InterruptedException e)
-		    {
-			Thread.currentThread().interrupt();
-		    }
-		}
-	    }, null);
-	executor.execute(futureTask);
-    }
-    */
-
-    /*
-    synchronized void run(Runnable runnable)
-    {
-	NullCheck.notNull(runnable, "runnable");
-	try {
-	    queue.put(runnable);
-	}
-	catch(InterruptedException e)
-	{
-	    Thread.currentThread().interrupt();
-	}
-    }
-    */
-
     private void notifyListeners(ListenerNotification notification)
     {
 	for(Listener l: listeners)
@@ -192,8 +151,8 @@ currentPos = msec;
 	}
     }
 
-private interface ListenerNotification
-{
-    void notify(Listener listener);
-}
+    private interface ListenerNotification
+    {
+	void notify(Listener listener);
+    }
 }

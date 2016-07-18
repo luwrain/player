@@ -40,21 +40,17 @@ public class PlayerApp implements Application, MonoApp, Actions
     private FormArea propertiesFormArea;
     private AreaLayoutSwitch layouts;
 
-    private String arg = null;
+    private Playlist startingPlaylist = null;
 
     public PlayerApp()
     {
-	arg = null;
+	startingPlaylist = null;
     }
 
-    public PlayerApp(String arg)
+    public PlayerApp(Playlist startingPlaylist)
     {
-	NullCheck.notNull(arg, "arg");
-	this.arg = arg;
-    }
-
-    public PlayerApp(String[] args)
-    {
+	NullCheck.notNull(startingPlaylist, "startingPlaylist");
+	this.startingPlaylist = startingPlaylist;
     }
 
     @Override public boolean onLaunch(Luwrain luwrain)
@@ -71,6 +67,8 @@ public class PlayerApp implements Application, MonoApp, Actions
 	layouts.add(new AreaLayout(AreaLayout.LEFT_TOP_BOTTOM, treeArea, playlistArea, controlArea));
 	layouts.add(new AreaLayout(propertiesFormArea));
 	base.setListener(controlArea);
+	if (startingPlaylist != null)
+	    base.playPlaylist(startingPlaylist);
 	return true;
     }
 
@@ -168,7 +166,7 @@ public class PlayerApp implements Application, MonoApp, Actions
     {
 	if (obj == null || !(obj instanceof Playlist))
 	    return false;
-	base.onPlaylistClick((Playlist)obj);
+	base.playPlaylist((Playlist)obj);
 	return true;
     }
 

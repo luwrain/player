@@ -17,7 +17,6 @@ PlayerImpl(Registry registry)
     {
 	NullCheck.notNull(registry, "registry");
 	this.registry = registry;
-	//	thread.startThread();
     }
 
     @Override public void play(Playlist playlist,

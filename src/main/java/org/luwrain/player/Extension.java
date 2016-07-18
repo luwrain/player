@@ -3,8 +3,11 @@ package org.luwrain.player;
 
 import java.net.*;
 import java.util.*;
+import java.nio.file.*;
+
 import org.luwrain.core.*;
 import org.luwrain.app.player.PlayerApp;
+import org.luwrain.app.player.Strings;
 
 public class Extension extends org.luwrain.core.extensions.EmptyExtension
 {
@@ -60,7 +63,25 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		@Override public Application[] prepareApp(String[] args)
 		{
 		    NullCheck.notNullItems(args, "args");
-		    return new Application[]{new PlayerApp(args)};
+		    final Strings strings = (Strings)luwrain.i18n().getStrings(Strings.NAME);
+		    if (args.length == 1 && FileTypes.getExtension(args[0]).toLowerCase().equals("m3u"))
+		    {
+			final Path path = Paths.get(args[0]);
+			if (path == null)
+			{
+			    luwrain.message(strings.badPlaylistPath(args[0]), Luwrain.MESSAGE_ERROR);
+			    return null;
+			}
+			final M3uPlaylist playlist = new M3uPlaylist();
+			if (!playlist.load(path))
+			{
+			    luwrain.message(strings.errorLoadingPlaylist(path.toString()), Luwrain.MESSAGE_ERROR);
+			    return null;
+			}
+			return new Application[]{new PlayerApp(playlist)};
+		    }
+
+		    return new Application[]{new PlayerApp()};
 		}
 	    },
 
