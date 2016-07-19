@@ -88,6 +88,8 @@ class PlayerThread implements org.luwrain.player.backends.Listener
 
     synchronized void jump(long offsetMsec)
     {
+	if (currentPlaylist == null || currentPlaylist.isStreaming())
+	    return;
 	if (currentPlayer == null)
 	    return;
 	currentPlayer.stop();
@@ -99,6 +101,45 @@ class PlayerThread implements org.luwrain.player.backends.Listener
 	}
 	currentPos += offsetMsec;
 	task.setStartPosMsec(currentPos);
+	notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, currentPos));
+	currentPlayer.play(task); 
+    }
+
+	synchronized void nextTrack()
+			  {
+	if (currentPlaylist == null || currentPlaylist.isStreaming())
+	    return;
+	if (currentTrackNum + 1 >= currentPlaylist.getPlaylistItems().length)
+	    return;
+	++currentTrackNum;
+	if (currentPlayer != null)
+	currentPlayer.stop();
+	final Task task = createTask();
+	if (task == null)
+	    return;
+	currentPlayer = BackEnd.createBackEnd(this, "jlayer");
+	currentPos = 0;
+	notifyListeners((listener)->listener.onNewTrack(currentPlaylist, currentTrackNum));
+	notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, 0));
+	currentPlayer.play(task); 
+			  }
+
+    synchronized void prevTrack()
+    {
+	if (currentPlaylist == null || currentPlaylist.isStreaming())
+	    return;
+	if (currentTrackNum <= 0)
+	    return;
+	--currentTrackNum;
+	if (currentPlayer != null)
+	currentPlayer.stop();
+	final Task task = createTask();
+	if (task == null)
+	    return;
+	currentPlayer = BackEnd.createBackEnd(this, "jlayer");
+	currentPos = 0;
+	notifyListeners((listener)->listener.onNewTrack(currentPlaylist, currentTrackNum));
+	notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, 0));
 	currentPlayer.play(task); 
     }
 

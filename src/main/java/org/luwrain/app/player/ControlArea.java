@@ -127,6 +127,8 @@ ControlArea(Luwrain luwrain, Actions actions,
 		@Override public boolean onKeyboardEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
+		    if (actions.commonKeys(event))
+			return true;
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
 			{

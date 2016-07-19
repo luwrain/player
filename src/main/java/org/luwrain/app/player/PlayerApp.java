@@ -131,6 +131,8 @@ public class PlayerApp implements Application, MonoApp, Actions
 		@Override public boolean onKeyboardEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
+		    if (commonKeys(event))
+			return true;
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
 			       {
@@ -163,6 +165,8 @@ public class PlayerApp implements Application, MonoApp, Actions
 		@Override public boolean onKeyboardEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
+		    if (commonKeys(event))
+			return true;
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
 		    {
@@ -231,23 +235,10 @@ public class PlayerApp implements Application, MonoApp, Actions
 	return true;
     }
 
-
-
-
-
-
-
     private boolean onPlaylistClick(int index, Object item)
     {
 	NullCheck.notNull(item, "item");
 	return base.playPlaylistItem(index);
-    }
-
-
-    @Override public boolean onJump(long offsetMsec)
-    {
-	base.onJump(offsetMsec);
-	return true;
     }
 
     @Override public void pauseResume()
@@ -262,21 +253,50 @@ public class PlayerApp implements Application, MonoApp, Actions
 
     @Override public void prevTrack()
     {
+	base.prevTrack();
     }
 
     @Override public void nextTrack()
     {
+	base.nextTrack();
     }
 
     @Override public boolean commonKeys(KeyboardEvent event)
     {
 	NullCheck.notNull(event, "event");
-	if (!event.isSpecial() || event.isModified())
+	if (event.isModified())
 	    return false;
-	switch(event.getSpecial())
+	if (event.isSpecial())
+	    switch(event.getSpecial())
+	    {
+	    case F5:
+		pauseResume();
+		return true;
+	    case F6:
+		stop();
+		return true;
+	    case F7:
+		prevTrack();
+		return true;
+	    case F8:
+		nextTrack();
+		return true;
+	    case F9:
+		base.jump(-5000);
+		return true;
+	    case F10:
+		base.jump(5000);
+		return true;
+	    default:
+		return false;
+	    }
+	switch(event.getChar())
 	{
-	case F6:
-	    base.stop();
+	case '[':
+	    base.jump(-60000);
+	    return true;
+	case ']':
+	    base.jump(60000);
 	    return true;
 	default:
 	    return false;

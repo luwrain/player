@@ -56,6 +56,16 @@ thread.play(playlist, startingTrackNum, startingPosMsec);
 thread.jump(offsetMsec);
     }
 
+    @Override public void nextTrack()
+    {
+	thread.nextTrack();
+    }
+
+    @Override public void prevTrack()
+    {
+	thread.prevTrack();
+    }
+
     @Override public Playlist getCurrentPlaylist()
     {
 	return thread.getCurrentPlaylist();

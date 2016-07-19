@@ -22,7 +22,6 @@ interface Actions
 {
     void closeApp();
     Base getBase();
-    boolean onJump(long offsetMsec);
     void goToTree();
     void goToPlaylist();
     void goToControl();

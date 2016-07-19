@@ -89,12 +89,28 @@ class Base
 	return true;
     }
 
+    boolean prevTrack()
+    {
+	player.prevTrack();
+	currentTrackNum = player.getCurrentTrackNum();
+	return true;
+    }
+
+    boolean nextTrack()
+    {
+	player.nextTrack();
+	currentTrackNum = player.getCurrentTrackNum();
+	return true;
+    }
+
+
+
     void stop()
     {
 	player.stop();
     }
 
-    void onJump(long offsetMsec)
+    void jump(long offsetMsec)
     {
 	player.jump(offsetMsec);
     }
