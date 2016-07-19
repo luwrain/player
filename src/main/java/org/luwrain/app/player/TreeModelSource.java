@@ -16,18 +16,29 @@
 
 package org.luwrain.app.player;
 
+import java.util.*;
+
 import org.luwrain.core.NullCheck;
 import org.luwrain.controls.*;
 import org.luwrain.player.Playlist;
 
 class TreeModelSource implements CachedTreeModelSource
 {
-    private final String root = "Альбомы и станции";//FIXME:
-    private final String playlistsWithoutBookmarks = "Альбомы без закладок";//FIXME:
-    private final String playlistsWithBookmarks = "Альбомы с закладками";//FIXME:
-    private final String streamingResources = "Интернет-радио";//FIXME:
+    private String root;
+    private String playlistsWithoutBookmarks = "Альбомы без закладок";//FIXME:;
+    private String playlistsWithBookmarks;
+    private String streamingPlaylists;
 
     private Playlist[] playlists ;
+
+    TreeModelSource(Strings strings)
+    {
+	NullCheck.notNull(strings, "strings");
+	root = strings.treeRoot();
+	playlistsWithBookmarks = strings.treePlaylistsWithBookmarks();
+	playlistsWithoutBookmarks = strings.treePlaylistsWithoutBookmarks();
+	streamingPlaylists = strings.treeStreamingPlaylists();
+    }
 
     @Override public Object getRoot()
     {
@@ -37,10 +48,20 @@ class TreeModelSource implements CachedTreeModelSource
     @Override public Object[] getChildObjs(Object obj)
     {
 	if (obj == root)
-	    return new Object[]{playlistsWithoutBookmarks, playlistsWithBookmarks, streamingResources};
-	if (obj == streamingResources)
-	    return playlists;
-	return new Object[0];
+	    return new Object[]{playlistsWithoutBookmarks, playlistsWithBookmarks, streamingPlaylists};
+	final LinkedList res = new LinkedList();
+	for(Playlist p: playlists)
+	{
+	    if (obj == streamingPlaylists && p.isStreaming())
+		res.add(p);
+	    if (obj == playlistsWithBookmarks && p.hasBookmark() && !p.isStreaming())
+		res.add(p);
+	    if (obj == playlistsWithoutBookmarks &&! p.hasBookmark() && !p.isStreaming())
+		res.add(p);
+	}
+	final Object[] toSort = res.toArray(new Object[res.size()]);
+	Arrays.sort(toSort);
+	return toSort;
     }
 
     void setPlaylists(Playlist[] playlists)

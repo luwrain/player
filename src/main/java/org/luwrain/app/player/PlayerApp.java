@@ -68,7 +68,7 @@ public class PlayerApp implements Application, MonoApp, Actions
 	layouts.add(new AreaLayout(propertiesFormArea));
 	base.setListener(controlArea);
 	if (startingPlaylist != null)
-	    base.playPlaylist(startingPlaylist);
+	    base.playPlaylist(startingPlaylist, 0, 0);
 	return true;
     }
 
@@ -86,13 +86,13 @@ public class PlayerApp implements Application, MonoApp, Actions
 		@Override public boolean onKeyboardEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
-		    if (actions.commonKeys(event))
+		    if (commonKeys(event))
 			return true;
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
 			{
 			case TAB:
-			    actions.goToPlaylist();
+			    goToPlaylist();
 			    return true;
 			}
 		    return super.onKeyboardEvent(event);
@@ -105,11 +105,17 @@ public class PlayerApp implements Application, MonoApp, Actions
 		    case CLOSE:
 			closeApp();
 			return true;
+		    case ACTION:
+			return onTreeActionEvent(event);
 		    case PROPERTIES:
 			return onTreeProperties();
 		    default:
 			return super.onEnvironmentEvent(event);
 		    }
+		}
+		@Override public Action[] getAreaActions()
+		{
+		    return getTreeActions();
 		}
 	    };
 
@@ -153,8 +159,83 @@ public class PlayerApp implements Application, MonoApp, Actions
 
 	controlArea = new ControlArea(luwrain, this, strings);
 
-	propertiesFormArea = new FormArea(new DefaultControlEnvironment(luwrain), strings.playlistPropertiesAreaName());
+	propertiesFormArea = new FormArea(new DefaultControlEnvironment(luwrain), strings.playlistPropertiesAreaName()) {
+		@Override public boolean onKeyboardEvent(KeyboardEvent event)
+		{
+		    NullCheck.notNull(event, "event");
+		    if (event.isSpecial() && !event.isModified())
+			switch(event.getSpecial())
+		    {
+		    case ESCAPE:
+			return closeTreeProperties(false);
+		    }
+		    return super.onKeyboardEvent(event);
+		}
+		@Override public boolean onEnvironmentEvent(EnvironmentEvent event)
+		{
+		    NullCheck.notNull(event, "event");
+		    switch(event.getCode())
+		    {
+		    case CLOSE:
+			closeApp();
+		    case OK:
+			return closeTreeProperties(true );
+		    default:
+			return super.onEnvironmentEvent(event);
+		    }
+		}
+	    };
     }
+
+    private Action[] getTreeActions()
+    {
+	return new Action[]{
+	    new Action("add-playlist-without-bookmark", strings.actionAddPlaylistWithoutBookmark()),
+	    new Action("add-playlist-with-bookmark", strings.actionAddPlaylistWithBookmark()),
+	    new Action("add-streaming-playlist", strings.actionAddStreamingPlaylist()),
+	};
+    }
+
+    private boolean onTreeActionEvent(EnvironmentEvent event)
+    {
+	NullCheck.notNull(event, "event");
+	if (ActionEvent.isAction(event, "add-playlist-with-bookmark"))
+	{
+	    if (base.onAddPlaylistWithBookmark())
+	    treeArea.refresh();
+	    return true;
+	}
+	if (ActionEvent.isAction(event, "add-playlist-without-bookmark"))
+	{
+	    if (base.onAddPlaylistWithoutBookmark())
+	    treeArea.refresh();
+	    return true;
+	}
+	if (ActionEvent.isAction(event, "add-streaming-playlist"))
+	{
+	    if (base.onAddStreamingPlaylist())
+	    treeArea.refresh();
+	    return true;
+	}
+	return false;
+    }
+
+    private boolean onTreeClick(Object obj)
+    {
+	if (obj == null || !(obj instanceof RegistryPlaylist))
+	    return false;
+	final RegistryPlaylist playlist = (RegistryPlaylist)obj;
+	if (playlist.hasBookmark() && !playlist.isStreaming())
+	    base.playPlaylist(playlist, playlist.getStartingTrackNum(), playlist.getStartingPosMsec()); else
+	    base.playPlaylist(playlist, 0, 0);
+	return true;
+    }
+
+
+
+
+
+
 
     private boolean onPlaylistClick(int index, Object item)
     {
@@ -162,13 +243,6 @@ public class PlayerApp implements Application, MonoApp, Actions
 	return base.playPlaylistItem(index);
     }
 
-    private boolean onTreeClick(Object obj)
-    {
-	if (obj == null || !(obj instanceof Playlist))
-	    return false;
-	base.playPlaylist((Playlist)obj);
-	return true;
-    }
 
     @Override public boolean onJump(long offsetMsec)
     {
@@ -217,11 +291,22 @@ public class PlayerApp implements Application, MonoApp, Actions
     private boolean onTreeProperties()
     {
 	final Object obj = treeArea.selected();
-	if (obj == null || !(obj instanceof Playlist))
+	if (obj == null || !(obj instanceof RegistryPlaylist))
 	    return false;
-	base.fillPlaylistProperties((Playlist)obj, propertiesFormArea);
-	luwrain.announceActiveArea();
+	base.fillPlaylistProperties((RegistryPlaylist)obj, propertiesFormArea);
+	treeArea.refresh();
 	layouts.show(PLAYLIST_PROPERTIES_LAYOUT_INDEX);
+	luwrain.announceActiveArea();
+	return true;
+    }
+
+    private boolean closeTreeProperties(boolean save)
+    {
+	if (save)
+	    base.savePlaylistProperties(propertiesFormArea);
+	treeArea.refresh();
+	layouts.show(MAIN_LAYOUT_INDEX);
+	luwrain.announceActiveArea();
 	return true;
     }
 

@@ -26,16 +26,19 @@ import java.nio.channels.*;
 import org.luwrain.core.*;
 import org.luwrain.controls.*;
 import org.luwrain.player.*;
+import org.luwrain.popups.Popups;
 
 class Base
 {
     private Luwrain luwrain;
     private Strings strings;
     private CachedTreeModel treeModel;
-    private final TreeModelSource treeModelSource = new TreeModelSource();
+    private TreeModelSource treeModelSource;
     private Player player;
     private final FixedListModel playlistModel = new FixedListModel();
     private Listener listener;
+
+    private RegistryPlaylist playlistInEdit = null;
 
     private Playlist currentPlaylist = null;
     private String[] currentPlaylistItems = new String[0];
@@ -47,6 +50,7 @@ class Base
 	NullCheck.notNull(strings, "strings");
 	this.luwrain = luwrain;
 	this.strings = strings;
+	treeModelSource = new TreeModelSource(strings);
 	player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
 	if (player == null)
 	{
@@ -61,10 +65,11 @@ class Base
 	return true;
     }
 
-    void playPlaylist(Playlist playlist)
+    void playPlaylist(Playlist playlist,
+		      int startingTrackNum, long startingPosMsec)
     {
 	NullCheck.notNull(playlist, "playlist");
-	player.play(playlist, 0, 0);
+	player.play(playlist, startingTrackNum, startingPosMsec);
 	onNewPlaylist(playlist);
     }
 
@@ -132,19 +137,26 @@ void onNewTrack(int trackNum)
 	return player.getCurrentTrackNum();
     }
 
-    void fillPlaylistProperties(Playlist playlist, FormArea area)
+    void fillPlaylistProperties(RegistryPlaylist playlist, FormArea area)
     {
 	NullCheck.notNull(playlist, "playlist");
 	NullCheck.notNull(area, "area");
+	area.clear();
 	area.addEdit("title", strings.playlistPropertiesAreaTitle(), playlist.getPlaylistTitle());
-	if (playlist.isStreaming())
-	{
-	    final String[] items = playlist.getPlaylistItems();
-	    if (items != null && items.length >= 1 && items[0] != null)
-		area.addEdit("url", strings.playlistPropertiesAreaUrl(), items[0]); else
-		area.addEdit("url", strings.playlistPropertiesAreaUrl(), "");
-	}
+	area.addEdit("url", strings.playlistPropertiesAreaUrl(), playlist.getPlaylistUrl());
+	playlistInEdit = playlist;
     }
+
+    void savePlaylistProperties(FormArea area)
+    {
+	NullCheck.notNull(area, "area");
+	NullCheck.notNull(playlistInEdit, "playlistInEdit");
+	playlistInEdit.setPlaylistTitle(area.getEnteredText("title"));
+	playlistInEdit.setPlaylistUrl(area.getEnteredText("url"));
+	playlistInEdit = null;
+	treeModelSource.setPlaylists(player.loadRegistryPlaylists());
+    }
+
 
     void setListener(ControlArea area)
     {
@@ -156,6 +168,46 @@ void onNewTrack(int trackNum)
     void removeListener()
     {
 	player.removeListener(listener);
+    }
+
+boolean onAddPlaylistWithBookmark()
+    {
+	return addPlaylist(true);
+    }
+
+boolean onAddPlaylistWithoutBookmark()
+    {
+	return addPlaylist(false);
+    }
+
+boolean onAddStreamingPlaylist()
+    {
+	return false;
+    }
+
+    private boolean addPlaylist(boolean hasBookmark)
+    {
+	final String title = Popups.simple(luwrain, strings.addPlaylistPopupName(), strings.addPlaylistPopupPrefix(), ""); 
+	if (title == null)
+	    return false;
+	if (title.trim().isEmpty())
+	{
+	    luwrain.message(strings.playlistTitleMayNotBeEmpty(), Luwrain.MESSAGE_ERROR);
+	    return false;
+	}
+	final Path path = Popups.path(luwrain, strings.choosePlaylistFilePopupName(), strings.choosePlaylistFilePopupPrefix(),
+				      luwrain.getPathProperty("luwrain.dir.userhome"),
+				      (pathToCheck)->{
+					  if (Files.isDirectory(pathToCheck))
+					  {
+					      luwrain.message(strings.playlistFileMayNotBeDir(pathToCheck.toString()), Luwrain.MESSAGE_ERROR);
+					      return false;
+					  }
+					  return true;
+				      });
+	RegistryPlaylist.add(luwrain.getRegistry(), title.trim(), path.toString(), false, hasBookmark);
+	treeModelSource.setPlaylists(player.loadRegistryPlaylists());
+		return true;
     }
 
     String getCurrentPlaylistTitle()

@@ -114,14 +114,19 @@ class PlayerThread implements org.luwrain.player.backends.Listener
 
     @Override public synchronized void onPlayerBackEndTime(long msec)
     {
+	if (currentPlaylist == null)
+	    return;
 	if (currentPos + 50 > msec)
 	    return;
 	currentPos = msec;
 	notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, currentPos));
+	currentPlaylist.updateStartingPos(currentTrackNum, currentPos);
     }
 
     @Override public synchronized void onPlayerBackEndFinish()
     {
+	if (currentPlaylist == null)
+	    return;
     }
 
     synchronized void addListener(Listener listener)

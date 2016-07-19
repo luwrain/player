@@ -33,4 +33,17 @@ static final String NAME = "luwrain.player";
     String playlistPropertiesAreaUrl();
     String badPlaylistPath(String value);
     String errorLoadingPlaylist(String path);
+    String actionAddPlaylistWithoutBookmark();
+    String actionAddPlaylistWithBookmark();
+    String actionAddStreamingPlaylist();
+    String addPlaylistPopupName();
+    String addPlaylistPopupPrefix();
+    String choosePlaylistFilePopupName();
+    String choosePlaylistFilePopupPrefix();
+    String playlistFileMayNotBeDir(String path);
+    String playlistTitleMayNotBeEmpty();
+    String treeRoot();
+    String treePlaylistsWithBookmarks();
+    String treePlaylistsWithoutBookmarks();
+    String treeStreamingPlaylists();
 }
