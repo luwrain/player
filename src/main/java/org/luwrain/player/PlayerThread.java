@@ -90,18 +90,20 @@ class PlayerThread implements org.luwrain.player.backends.Listener
     {
 	if (currentPlaylist == null || currentPlaylist.isStreaming())
 	    return;
-	if (currentPlayer == null)
-	    return;
-	currentPlayer.stop();
+	if (currentPlayer != null)
+	    {
+			currentPlayer.stop();
+	currentPlayer = null;
+	    }
 	final Task task = createTask();
 	if (task == null)
-	{
-	    currentPlayer = null;
 	    return;
-	}
 	currentPos += offsetMsec;
+	if (currentPos < 0)
+	    currentPos = 0;
 	task.setStartPosMsec(currentPos);
 	notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, currentPos));
+		currentPlayer = BackEnd.createBackEnd(this, "jlayer");
 	currentPlayer.play(task); 
     }
 
@@ -155,9 +157,9 @@ class PlayerThread implements org.luwrain.player.backends.Listener
 
     @Override public synchronized void onPlayerBackEndTime(long msec)
     {
-	if (currentPlaylist == null)
+	if (currentPlaylist == null || currentPlayer == null)
 	    return;
-	if (currentPos + 50 > msec)
+	if (currentPos <= msec && msec < currentPos + 50)
 	    return;
 	currentPos = msec;
 	notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, currentPos));
