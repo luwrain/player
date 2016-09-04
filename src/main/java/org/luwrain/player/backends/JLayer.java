@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import javax.sound.sampled.*;
 
-import org.luwrain.core.NullCheck;
+import org.luwrain.core.*;
 
 import javazoom.jl.player.advanced.*;
 import javazoom.jl.decoder.*;
@@ -41,6 +41,7 @@ class JLayer implements BackEnd
 		try
 		{
 		    long offsetStart=task.startPosMsec();
+		    Log.debug("jlayer", "offsetStart=" + offsetStart);
 		    long offsetEnd=Long.MAX_VALUE;
 		    if (task.isPath())
 			stream = AudioSystem.getAudioInputStream(Files.newInputStream(task.path()));else

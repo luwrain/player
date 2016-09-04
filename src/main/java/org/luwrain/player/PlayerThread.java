@@ -45,6 +45,7 @@ class PlayerThread implements org.luwrain.player.backends.Listener
 	final Task task = createTask();
 	if (task == null)
 	    return;
+	Log.debug("player", "starting pos is " + currentPos);
 	task.setStartPosMsec(currentPos);
 	currentPlayer = BackEnd.createBackEnd(this, "jlayer");
 	for(Listener l: listeners)
