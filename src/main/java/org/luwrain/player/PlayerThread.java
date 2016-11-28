@@ -201,15 +201,19 @@ class PlayerThread implements org.luwrain.player.backends.Listener
 
     private Task createTask()
     {
+	    final String url = currentPlaylist.getPlaylistItems()[currentTrackNum];
 	try {
-	    Task task = new Task(new URL(currentPlaylist.getPlaylistItems()[currentTrackNum]));
+	    Log.debug("player", "creating task for " + url);
+	    Task task = new Task(new URL(url));
 	    if (task.url().getProtocol().equals("file"))
-		task = new Task(Paths.get(task.url().toURI()));
+	    {
+		task = new Task(Paths.get(task.url().getFile()));
+	    }
 	    return task;
 	}
 	catch (Exception e)
 	{
-	    Log.error("player", "unable to create a task:" + e.getMessage());
+	    Log.error("player", "unable to create a task for " + url + ":" + e.getClass().getName() + ":" + e.getMessage());
 	    e.printStackTrace();
 	    return null;
 	}
