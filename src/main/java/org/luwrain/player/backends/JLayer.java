@@ -2,6 +2,8 @@
 package org.luwrain.player.backends;
 
 import java.nio.file.*;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -43,9 +45,11 @@ class JLayer implements BackEnd
 		    long offsetStart=task.startPosMsec();
 		    Log.debug("jlayer", "offsetStart=" + offsetStart);
 		    long offsetEnd=Long.MAX_VALUE;
+		    BufferedInputStream bufferedIn;
 		    if (task.isPath())
-			stream = AudioSystem.getAudioInputStream(Files.newInputStream(task.path()));else
-			stream = AudioSystem.getAudioInputStream(task.url());
+		    	bufferedIn = new BufferedInputStream(Files.newInputStream(task.path()));else
+	    		bufferedIn = new BufferedInputStream(task.url().openStream());
+		    stream = AudioSystem.getAudioInputStream(bufferedIn);
 		    bitFormat = stream.getFormat();
 		    device = FactoryRegistry.systemRegistry().createAudioDevice();
 		    if(device==null)

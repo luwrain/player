@@ -47,7 +47,9 @@ class PlayerThread implements org.luwrain.player.backends.Listener
 	    return;
 	Log.debug("player", "starting pos is " + currentPos);
 	task.setStartPosMsec(currentPos);
-	currentPlayer = BackEnd.createBackEnd(this, "jlayer");
+	//currentPlayer = BackEnd.createBackEnd(this, "jlayer");
+	//currentPlayer = BackEnd.createBackEnd(this, "SoundPlayer");
+	currentPlayer = BackEnd.createBackEnd(this, "OggPlayer");
 	for(Listener l: listeners)
 	{
 	    l.onNewPlaylist(playlist);

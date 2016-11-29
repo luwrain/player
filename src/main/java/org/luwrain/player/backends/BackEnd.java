@@ -16,10 +16,13 @@ public interface BackEnd
 	switch(name.toLowerCase())
 	{
 	case "jlayer":
-	return new JLayer(listener);
-
+		return new JLayer(listener);
 	case "jlayer-streaming":
-	return new JLayerStreaming(listener);
+		return new JLayerStreaming(listener);
+	case "soundplayer":
+		return new SoundPlayer(listener);
+	case "oggplayer":
+		return new OggPlayer(listener);
 	default:
 	    return null;
 	}
