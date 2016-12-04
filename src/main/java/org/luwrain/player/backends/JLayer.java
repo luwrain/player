@@ -45,10 +45,7 @@ class JLayer implements BackEnd
 		    long offsetStart=task.startPosMsec();
 		    Log.debug("jlayer", "offsetStart=" + offsetStart);
 		    long offsetEnd=Long.MAX_VALUE;
-		    BufferedInputStream bufferedIn;
-		    if (task.isPath())
-		    	bufferedIn = new BufferedInputStream(Files.newInputStream(task.path()));else
-	    		bufferedIn = new BufferedInputStream(task.url().openStream());
+		    final BufferedInputStream bufferedIn = new BufferedInputStream(task.openStream());
 		    stream = AudioSystem.getAudioInputStream(bufferedIn);
 		    bitFormat = stream.getFormat();
 		    device = FactoryRegistry.systemRegistry().createAudioDevice();

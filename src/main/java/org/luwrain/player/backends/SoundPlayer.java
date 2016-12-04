@@ -49,12 +49,12 @@ public class SoundPlayer implements BackEnd
 		{
 			if(task.isPath())
 			{
-				audioInputStream=AudioSystem.getAudioInputStream(task.path().toFile());
+				audioInputStream=AudioSystem.getAudioInputStream(task.path.toFile());
 				
 			} else
 			if(task.isUrl())
 			{
-				audioInputStream=AudioSystem.getAudioInputStream(task.url().openStream());
+				audioInputStream=AudioSystem.getAudioInputStream(task.url.openStream());
 			} else
 			{
 				// task have no any file info

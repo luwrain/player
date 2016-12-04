@@ -32,7 +32,7 @@ JLayerStreaming(Listener listener)
 	    return false;
 	task = new FutureTask(()->{
 	try {
-	    final URLConnection urlConnection = trackTask.url().openConnection();
+	    final URLConnection urlConnection = trackTask.url.openConnection();
 	urlConnection.connect();
 player = new Player(urlConnection.getInputStream());
 	player.play();

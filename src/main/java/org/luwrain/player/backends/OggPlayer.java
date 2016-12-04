@@ -76,11 +76,11 @@ public class OggPlayer implements BackEnd
 		{
 			if(task.isPath())
 			{
-				inputStream=Files.newInputStream(task.path());
+				inputStream=Files.newInputStream(task.path);
 			} else
 			if(task.isUrl())
 			{
-				inputStream=task.url().openStream();
+				inputStream=task.url.openStream();
 			} else
 			{
 				// task have no any file info

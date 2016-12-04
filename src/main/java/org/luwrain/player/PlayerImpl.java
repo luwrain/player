@@ -56,7 +56,7 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 	if (task == null)
 	    return;
 	Log.debug("player", "starting pos is " + currentPos);
-	task.setStartPosMsec(currentPos);
+	task.startPosMsec = currentPos;
 	currentPlayer = BackEnd.createBackEnd(this, "jlayer");
 	//currentPlayer = BackEnd.createBackEnd(this, "SoundPlayer");
 	//	currentPlayer = BackEnd.createBackEnd(this, "OggPlayer");
@@ -93,7 +93,7 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 	final Task task = createTask();
 	if (task == null)
 	    return;
-	task.setStartPosMsec(currentPos);
+	task.startPosMsec = currentPos;
 	notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, currentPos));
 	currentPlayer = BackEnd.createBackEnd(this, "jlayer");
 	currentPlayer.play(task);
@@ -114,7 +114,7 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 	currentPos += offsetMsec;
 	if (currentPos < 0)
 	    currentPos = 0;
-	task.setStartPosMsec(currentPos);
+	task.startPosMsec = currentPos;
 	notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, currentPos));
 		currentPlayer = BackEnd.createBackEnd(this, "jlayer");
 	currentPlayer.play(task); 
@@ -217,10 +217,12 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 	try {
 	    Log.debug("player", "creating task for " + url);
 	    Task task = new Task(new URL(url));
-	    if (task.url().getProtocol().equals("file"))
+	    /*
+	    if (task.url.getProtocol().equals("file"))
 	    {
 		task = new Task(Paths.get(task.url().getFile()));
 	    }
+	    */
 	    return task;
 	}
 	catch (Exception e)

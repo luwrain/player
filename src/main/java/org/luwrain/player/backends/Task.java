@@ -1,22 +1,23 @@
 
 package org.luwrain.player.backends;
 
+import java.io.*;
 import java.nio.file.*;
 import java.net.*;
 
-import org.luwrain.core.NullCheck;
+import org.luwrain.core.*;
 
 public class Task
 {
-    private Path path;
-    private URL url;
-    private long startPosMsec = 0;
+    final Path path;
+final URL url;
+public long startPosMsec = 0;
 
     public Task(Path path)
     {
 	NullCheck.notNull(path, "path");
 	this.path = path;
-	this.url = url;
+	this.url = null;
 	this.startPosMsec = 0;
     }
 
@@ -24,7 +25,7 @@ public class Task
     {
 	NullCheck.notNull(path, "path");
 	this.path = path;
-	this.url = url;
+	this.url = null;
 	this.startPosMsec = startPosMsec;
     }
 
@@ -44,14 +45,14 @@ public class Task
 	this.startPosMsec = startPosMsec;
     }
 
-    public void setStartPosMsec(long startPosMsec)
+    InputStream openStream() throws IOException
     {
-	this.startPosMsec = startPosMsec;
+	if (isPath())
+	    return Files.newInputStream(path);
+	return url.openStream();
     }
 
     public boolean isPath() {return path != null;}
 	public boolean isUrl() {return url != null;}
-    public Path path() {return path;}
-    public URL url() {return url;}
     public long startPosMsec() {return startPosMsec;}
 }
