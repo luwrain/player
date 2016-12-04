@@ -26,8 +26,6 @@ JLayerStreaming(Listener listener)
     @Override public boolean play(Task trackTask)
     {
 	NullCheck.notNull(trackTask, "trackTask");
-	if (trackTask.isPath())
-	    throw new IllegalArgumentException("trackTask should not be a path task"); 
 	if (task != null && !task.isDone())
 	    return false;
 	task = new FutureTask(()->{

@@ -45,22 +45,10 @@ public class SoundPlayer implements BackEnd
 		this.task=task;
 		//
 		AudioInputStream audioInputStream;
-		try
-		{
-			if(task.isPath())
-			{
-				audioInputStream=AudioSystem.getAudioInputStream(task.path.toFile());
-				
-			} else
-			if(task.isUrl())
-			{
-				audioInputStream=AudioSystem.getAudioInputStream(task.url.openStream());
-			} else
-			{
-				// task have no any file info
-				return false;
-			}
-		} catch(Exception e)
+		try {
+				audioInputStream=AudioSystem.getAudioInputStream(task.openStream());
+		} 
+catch(Exception e)
 		{
 			e.printStackTrace();
 			listener.onPlayerBackEndFinish();

@@ -71,21 +71,8 @@ public class OggPlayer implements BackEnd
 	{
 		NullCheck.notEmpty(task, "task");
 		this.task=task;
-
-		try
-		{
-			if(task.isPath())
-			{
-				inputStream=Files.newInputStream(task.path);
-			} else
-			if(task.isUrl())
-			{
-				inputStream=task.url.openStream();
-			} else
-			{
-				// task have no any file info
-				return false;
-			}
+		try {
+				inputStream=task.openStream();
 		} catch(Exception e)
 		{
 			e.printStackTrace();

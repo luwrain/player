@@ -1,18 +1,3 @@
-/*
-   Copyright 2012-2016 Michael Pozhidaev <michael.pozhidaev@gmail.com>
-
-   This file is part of the LUWRAIN.
-
-   LUWRAIN is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public
-   License as published by the Free Software Foundation; either
-   version 3 of the License, or (at your option) any later version.
-
-   LUWRAIN is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-*/
 
 package org.luwrain.player;
 
@@ -39,33 +24,24 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 	this.registry = registry;
     }
 
-
-
-    @Override public synchronized void play(Playlist playlist,
+    @Override public synchronized Result play(Playlist playlist,
 			   int startingTrackNum, long startingPosMsec)
     {
 	NullCheck.notNull(playlist, "playlist");
-	if (playlist.getPlaylistItems() == null || playlist.getPlaylistItems().length < 1)
-	    return;
-	if (currentPlaylist != null)
+	if (playlist.getPlaylistItems() == null)
+	    return Result.INVALID_PLAYLIST;
+	if (startingTrackNum < 0 || startingTrackNum >= playlist.getPlaylistItems().length)
+	    return Result.INVALID_PLAYLIST;
 	    stop();
 	currentPlaylist = playlist;
 	currentTrackNum = startingTrackNum;
 	currentPos = startingPosMsec;
-	final Task task = createTask();
-	if (task == null)
-	    return;
-	Log.debug("player", "starting pos is " + currentPos);
-	task.startPosMsec = currentPos;
-	currentPlayer = BackEnd.createBackEnd(this, "jlayer");
-	//currentPlayer = BackEnd.createBackEnd(this, "SoundPlayer");
-	//	currentPlayer = BackEnd.createBackEnd(this, "OggPlayer");
-	for(Listener l: listeners)
-	{
-	    l.onNewPlaylist(playlist);
-	    l.onNewTrack(playlist, currentTrackNum);
-	}
-	currentPlayer.play(task);
+	final Result res = runPlayer();
+	if (res != Result.OK)
+	    return res;
+	notifyListeners((l)->l.onNewPlaylist(playlist));
+    notifyListeners((l)->l.onNewTrack(playlist, currentTrackNum));
+    return Result.OK;
     }
 
     @Override public synchronized void stop()
@@ -158,16 +134,6 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 	currentPlayer.play(task); 
     }
 
-    @Override public synchronized Playlist getCurrentPlaylist()
-    {
-	return currentPlaylist;
-    }
-
-    @Override public synchronized int getCurrentTrackNum()
-    {
-	return currentTrackNum;
-    } 
-
     @Override public synchronized void onPlayerBackEndTime(long msec)
     {
 	if (currentPlaylist == null || currentPlayer == null)
@@ -184,6 +150,16 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 	if (currentPlaylist == null)
 	    return;
     }
+
+    @Override public synchronized Playlist getCurrentPlaylist()
+    {
+	return currentPlaylist;
+    }
+
+    @Override public synchronized int getCurrentTrackNum()
+    {
+	return currentTrackNum;
+    } 
 
     @Override public synchronized void addListener(Listener listener)
     {
@@ -205,39 +181,6 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 	    }
     }
 
-    private void notifyListeners(ListenerNotification notification)
-    {
-	for(Listener l: listeners)
-	    notification.notify(l);
-    }
-
-    private Task createTask()
-    {
-	    final String url = currentPlaylist.getPlaylistItems()[currentTrackNum];
-	try {
-	    Log.debug("player", "creating task for " + url);
-	    Task task = new Task(new URL(url));
-	    /*
-	    if (task.url.getProtocol().equals("file"))
-	    {
-		task = new Task(Paths.get(task.url().getFile()));
-	    }
-	    */
-	    return task;
-	}
-	catch (Exception e)
-	{
-	    Log.error("player", "unable to create a task for " + url + ":" + e.getClass().getName() + ":" + e.getMessage());
-	    e.printStackTrace();
-	    return null;
-	}
-    }
-
-    private interface ListenerNotification
-    {
-	void notify(Listener listener);
-    }
-
     @Override public Playlist[] loadRegistryPlaylists()
     {
 	final String dir = "/org/luwrain/player/playlists";//FIXME:
@@ -253,5 +196,51 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 	return res.toArray(new Playlist[res.size()]);
     }
 
+    private void notifyListeners(ListenerNotification notification)
+    {
+	NullCheck.notNull(notification, "notification");
+	for(Listener l: listeners)
+	    notification.notify(l);
+    }
 
+    private Task createTask()
+    {
+	final String[] items = currentPlaylist.getPlaylistItems();
+	if (items == null || currentTrackNum < 0 || currentTrackNum >= items.length)
+	    return null;
+	for(int i = 0;i < items.length;++i)
+	    if (items[i] == null)
+		return null;
+	    final String url = items[currentTrackNum];
+	try {
+	    return new Task(new URL(url), currentPos);
+	}
+	catch (Exception e)
+	{
+	    Log.error("player", "unable to create the URL object for " + url + ":" + e.getClass().getName() + ":" + e.getMessage());
+	    return null;
+	}
+    }
+
+    private Result runPlayer()
+    {
+	final Task task = createTask();
+	if (task == null)
+	    return Result.INVALID_PLAYLIST;
+	Log.debug("player", "starting playing " + task.url.toString() + " from " + task.startPosMsec);
+	final String fileName = task.url.getFile();
+	if (fileName.toLowerCase().endsWith(".mp3"))
+	    currentPlayer = BackEnd.createBackEnd(this, "jlayer"); else
+	{
+	    Log.error("player", "unable to play due to unsupported format:" + task.url.toString());
+	    return Result.UNSUPPORTED_FORMAT_STARTING_TRACK;
+	}
+	currentPlayer.play(task);
+	return Result.OK;
+    }
+
+    private interface ListenerNotification
+    {
+	void notify(Listener listener);
+    }
 }
