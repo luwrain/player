@@ -15,7 +15,7 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 
     private Playlist currentPlaylist = null;
     private BackEnd currentPlayer = null;
-    private int currentTrackNum = -1;
+    private int currentTrackNum = 0;
     private long currentPos = 0;
 
     PlayerImpl(Registry registry)
@@ -46,34 +46,35 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 
     @Override public synchronized void stop()
     {
-	if (currentPlayer == null)
+	if (currentPlaylist == null)
 	    return;
+	//Current player may be null, this means we are paused
+	if (currentPlayer != null)
 	currentPlayer.stop();
 	notifyListeners((listener)->listener.onPlayerStop());
 	currentPlayer = null;
 	currentPlaylist = null;
+	currentTrackNum = 0;
+	currentPos = 0;
     }
 
     @Override public synchronized void pauseResume()
     {
+	if (currentPlaylist == null)
+	    return;
 	if (currentPlayer != null)
 	{
 	    //pausing
 	    currentPlayer.stop();
 	    currentPlayer = null;
-	    return;
-	}
-	if (currentPlaylist == null)
-	    return;
+	} else
+	{
 	//resuming
-	final Task task = createTask();
-	if (task == null)
+	if (runPlayer() != Result.OK)
 	    return;
-	task.startPosMsec = currentPos;
 	notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, currentPos));
-	currentPlayer = BackEnd.createBackEnd(this, "jlayer");
-	currentPlayer.play(task);
-    }
+	}
+	}
 
     @Override public synchronized void jump(long offsetMsec)
     {
@@ -84,54 +85,43 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 			currentPlayer.stop();
 	currentPlayer = null;
 	    }
-	final Task task = createTask();
-	if (task == null)
-	    return;
 	currentPos += offsetMsec;
 	if (currentPos < 0)
 	    currentPos = 0;
-	task.startPosMsec = currentPos;
+	runPlayer();
 	notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, currentPos));
-		currentPlayer = BackEnd.createBackEnd(this, "jlayer");
-	currentPlayer.play(task); 
     }
 
 	@Override public synchronized void nextTrack()
 			  {
 	if (currentPlaylist == null || currentPlaylist.isStreaming())
 	    return;
-	if (currentTrackNum + 1 >= currentPlaylist.getPlaylistItems().length)
+	final String[] items = currentPlaylist.getPlaylistItems();
+	if (items == null || currentTrackNum + 1 >= items.length)
 	    return;
-	++currentTrackNum;
 	if (currentPlayer != null)
 	currentPlayer.stop();
-	final Task task = createTask();
-	if (task == null)
-	    return;
-	currentPlayer = BackEnd.createBackEnd(this, "jlayer");
+	++currentTrackNum;
 	currentPos = 0;
+	runPlayer();
 	notifyListeners((listener)->listener.onNewTrack(currentPlaylist, currentTrackNum));
 	notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, 0));
-	currentPlayer.play(task); 
 			  }
 
     @Override public synchronized void prevTrack()
     {
 	if (currentPlaylist == null || currentPlaylist.isStreaming())
 	    return;
-	if (currentTrackNum <= 0)
+	final String[] items = currentPlaylist.getPlaylistItems();
+	if (items == null || currentTrackNum + 1 >= items.length)
 	    return;
-	--currentTrackNum;
 	if (currentPlayer != null)
 	currentPlayer.stop();
-	final Task task = createTask();
-	if (task == null)
-	    return;
-	currentPlayer = BackEnd.createBackEnd(this, "jlayer");
+	++currentTrackNum;
 	currentPos = 0;
+	runPlayer();
 	notifyListeners((listener)->listener.onNewTrack(currentPlaylist, currentTrackNum));
 	notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, 0));
-	currentPlayer.play(task); 
     }
 
     @Override public synchronized void onPlayerBackEndTime(long msec)
@@ -147,8 +137,12 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 
     @Override public synchronized void onPlayerBackEndFinish()
     {
-	if (currentPlaylist == null)
+	if (currentPlaylist == null || currentPlayer == null)
 	    return;
+	final String[] items = currentPlaylist.getPlaylistItems();
+	if (items != null && currentTrackNum + 1 < items.length)
+	    nextTrack(); else
+	stop();
     }
 
     @Override public synchronized Playlist getCurrentPlaylist()
