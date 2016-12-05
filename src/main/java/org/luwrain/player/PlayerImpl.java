@@ -223,8 +223,13 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 	    return Result.INVALID_PLAYLIST;
 	Log.debug("player", "starting playing " + task.url.toString() + " from " + task.startPosMsec);
 	final String fileName = task.url.getFile();
-	if (fileName.toLowerCase().endsWith(".mp3"))
+	if (currentPlaylist.isStreaming() || fileName.toLowerCase().endsWith(".mp3"))
 	    currentPlayer = BackEnd.createBackEnd(this, "jlayer"); else
+
+	if (fileName.toLowerCase().endsWith(".ogg"))
+	    currentPlayer = BackEnd.createBackEnd(this, "jorbis"); else
+	if (fileName.toLowerCase().endsWith(".wav"))
+	    currentPlayer = BackEnd.createBackEnd(this, "internal"); else
 	{
 	    Log.error("player", "unable to play due to unsupported format:" + task.url.toString());
 	    return Result.UNSUPPORTED_FORMAT_STARTING_TRACK;
