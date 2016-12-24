@@ -35,7 +35,7 @@ class Base
     private CachedTreeModel treeModel;
     private TreeModelSource treeModelSource;
     private Player player;
-    private final FixedListModel playlistModel = new FixedListModel();
+    private final ListUtils.FixedModel playlistModel = new ListUtils.FixedModel();
     private Listener listener;
 
     private RegistryPlaylist playlistInEdit = null;

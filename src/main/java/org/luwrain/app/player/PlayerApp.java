@@ -122,10 +122,9 @@ public class PlayerApp implements Application, MonoApp, Actions
 	final ListArea.Params params = new ListArea.Params();
 	params.environment = new DefaultControlEnvironment(luwrain);
 	params.model = base.getPlaylistModel();
-	params.appearance = new DefaultListItemAppearance(params.environment);
+	params.appearance = new ListUtils.DefaultAppearance(params.environment);
 	params.clickHandler = (area, index, obj)->onPlaylistClick(index, obj);
 	params.name = strings.playlistAreaName();
-	params.loadRegularFlags(luwrain.getRegistry());
 
 	playlistArea = new ListArea(params){
 		@Override public boolean onKeyboardEvent(KeyboardEvent event)
