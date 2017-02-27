@@ -22,7 +22,7 @@ interface Actions
 {
     void closeApp();
     Base getBase();
-    void goToTree();
+    void goToPlaylists();
     void goToPlaylist();
     void goToControl();
     boolean commonKeys(KeyboardEvent event);

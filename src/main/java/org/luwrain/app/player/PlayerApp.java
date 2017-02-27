@@ -74,15 +74,21 @@ public class PlayerApp implements Application, MonoApp, Actions
 
     private void createAreas()
     {
-	final Actions actions = this;
-
 	final ListArea.Params playlistsParams = new ListArea.Params();
-playlistsParams.environment = new DefaultControlEnvironment(luwrain);
-playlistsParams.model = base.getPlaylistsModel();
-playlistsParams.name = strings.treeAreaName();
-playlistsParams.clickHandler = (area, index, obj)->onTreeClick(obj);
+	playlistsParams.environment = new DefaultControlEnvironment(luwrain);
+	playlistsParams.model = base.getPlaylistsModel();
+	playlistsParams.name = strings.treeAreaName();
+	playlistsParams.clickHandler = (area, index, obj)->onPlaylistsClick(obj);
 
-playlistsArea = new ListArea(playlistsParams){
+	playlistsParams.appearance = new ListUtils.DoubleLevelAppearance(playlistsParams.environment){
+		@Override public boolean isSectionItem(Object item)
+		{
+		    NullCheck.notNull(item, "item");
+		    return (item instanceof String);
+		}
+	    };
+
+	playlistsArea = new ListArea(playlistsParams){
 		@Override public boolean onKeyboardEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
@@ -106,7 +112,7 @@ playlistsArea = new ListArea(playlistsParams){
 			closeApp();
 			return true;
 		    case ACTION:
-			return onTreeActionEvent(event);
+			return onPlaylistsActionEvent(event);
 		    case PROPERTIES:
 			return onTreeProperties();
 		    default:
@@ -134,15 +140,15 @@ playlistsArea = new ListArea(playlistsParams){
 			return true;
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
-			       {
-			       case TAB:
-				   goToControl();
-				   return true;
-			       case BACKSPACE:
-				   goToTree();
-				   return true;
-			       }
-			       return super.onKeyboardEvent(event);
+			{
+			case TAB:
+			    goToControl();
+			    return true;
+			case BACKSPACE:
+			    goToPlaylists();
+			    return true;
+			}
+		    return super.onKeyboardEvent(event);
 		}
 		@Override public boolean onEnvironmentEvent(EnvironmentEvent event)
 		{
@@ -168,10 +174,10 @@ playlistsArea = new ListArea(playlistsParams){
 			return true;
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
-		    {
-		    case ESCAPE:
-			return closeTreeProperties(false);
-		    }
+			{
+			case ESCAPE:
+			    return closeTreeProperties(false);
+			}
 		    return super.onKeyboardEvent(event);
 		}
 		@Override public boolean onEnvironmentEvent(EnvironmentEvent event)
@@ -199,31 +205,31 @@ playlistsArea = new ListArea(playlistsParams){
 	};
     }
 
-    private boolean onTreeActionEvent(EnvironmentEvent event)
+    private boolean onPlaylistsActionEvent(EnvironmentEvent event)
     {
 	NullCheck.notNull(event, "event");
 	if (ActionEvent.isAction(event, "add-playlist-with-bookmark"))
 	{
 	    if (base.onAddPlaylistWithBookmark())
-playlistsArea.refresh();
+		playlistsArea.refresh();
 	    return true;
 	}
 	if (ActionEvent.isAction(event, "add-playlist-without-bookmark"))
 	{
 	    if (base.onAddPlaylistWithoutBookmark())
-playlistsArea.refresh();
+		playlistsArea.refresh();
 	    return true;
 	}
 	if (ActionEvent.isAction(event, "add-streaming-playlist"))
 	{
 	    if (base.onAddStreamingPlaylist())
-playlistsArea.refresh();
+		playlistsArea.refresh();
 	    return true;
 	}
 	return false;
     }
 
-    private boolean onTreeClick(Object obj)
+    private boolean onPlaylistsClick(Object obj)
     {
 	if (obj == null || !(obj instanceof RegistryPlaylist))
 	    return false;
@@ -313,7 +319,7 @@ playlistsArea.refresh();
 	if (obj == null || !(obj instanceof RegistryPlaylist))
 	    return false;
 	base.fillPlaylistProperties((RegistryPlaylist)obj, propertiesFormArea);
-playlistsArea.refresh();
+	playlistsArea.refresh();
 	layouts.show(PLAYLIST_PROPERTIES_LAYOUT_INDEX);
 	luwrain.announceActiveArea();
 	return true;
@@ -323,13 +329,13 @@ playlistsArea.refresh();
     {
 	if (save)
 	    base.savePlaylistProperties(propertiesFormArea);
-playlistsArea.refresh();
+	playlistsArea.refresh();
 	layouts.show(MAIN_LAYOUT_INDEX);
 	luwrain.announceActiveArea();
 	return true;
     }
 
-    @Override public void goToTree()
+    @Override public void goToPlaylists()
     {
 	luwrain.setActiveArea(playlistsArea);
     }

@@ -29,7 +29,7 @@ class PlaylistsModel implements ListArea.Model
     private final String streamingPlaylists;
 
     private Object[] items = new Object[0];
-
+    
     PlaylistsModel(Strings strings)
     {
 	NullCheck.notNull(strings, "strings");
@@ -47,11 +47,11 @@ class PlaylistsModel implements ListArea.Model
 	for(Playlist p: playlists)
 	{
 	    if (p.isStreaming())
-streaming.add(p);
+		streaming.add(p);
 	    if (p.hasBookmark() && !p.isStreaming())
-withBookmarks.add(p);
-	    if ( p.hasBookmark() && !p.isStreaming())
-withoutBookmarks.add(p);
+		withBookmarks.add(p);
+	    if (!p.hasBookmark() && !p.isStreaming())
+		withoutBookmarks.add(p);
 	}
 	final Playlist[] sortingWithBookmarks = withBookmarks.toArray(new Playlist[withBookmarks.size()]);
 	final Playlist[] sortingWithoutBookmarks = withoutBookmarks.toArray(new Playlist[withoutBookmarks.size()]);
@@ -84,7 +84,6 @@ withoutBookmarks.add(p);
 	return items[index];
     }
 
-
     @Override public void refresh()
     {
     }
@@ -93,5 +92,4 @@ withoutBookmarks.add(p);
     {
 	return false;
     }
-
 }

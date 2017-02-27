@@ -133,10 +133,10 @@ ControlArea(Luwrain luwrain, Actions actions,
 			switch(event.getSpecial())
 			{
 			case TAB:
-			    actions.goToTree();
+			    actions.goToPlaylists();
 			    return true;
 			case BACKSPACE:
-			    actions.goToTree();
+			    actions.goToPlaylists();
 			    return true;
 			case ENTER:
 			    return onEnter(event);
