@@ -1,7 +1,7 @@
 /*
-   Copyright 2012-2016 Michael Pozhidaev <michael.pozhidaev@gmail.com>
+   Copyright 2012-2017 Michael Pozhidaev <michael.pozhidaev@gmail.com>
 
-   This file is part of the LUWRAIN.
+   This file is part of LUWRAIN.
 
    LUWRAIN is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public
@@ -34,7 +34,7 @@ public class PlayerApp implements Application, MonoApp, Actions
     private Luwrain luwrain;
     private final Base base = new Base();
     private Strings strings;
-    private TreeArea treeArea;
+    private ListArea playlistsArea;
     private ListArea playlistArea;
     private ControlArea controlArea;
     private FormArea propertiesFormArea;
@@ -64,7 +64,7 @@ public class PlayerApp implements Application, MonoApp, Actions
 	    return false;
 	createAreas();
 	layouts = new AreaLayoutSwitch(luwrain);
-	layouts.add(new AreaLayout(AreaLayout.LEFT_TOP_BOTTOM, treeArea, playlistArea, controlArea));
+	layouts.add(new AreaLayout(AreaLayout.LEFT_TOP_BOTTOM, playlistsArea, playlistArea, controlArea));
 	layouts.add(new AreaLayout(propertiesFormArea));
 	base.setListener(controlArea);
 	if (startingPlaylist != null)
@@ -76,13 +76,13 @@ public class PlayerApp implements Application, MonoApp, Actions
     {
 	final Actions actions = this;
 
-	final TreeArea.Params treeParams = new TreeArea.Params();
-	treeParams.environment = new DefaultControlEnvironment(luwrain);
-	treeParams.model = base.getTreeModel();
-	treeParams.name = strings.treeAreaName();
-	treeParams.clickHandler = (area, obj)->onTreeClick(obj);
+	final ListArea.Params playlistsParams = new ListArea.Params();
+playlistsParams.environment = new DefaultControlEnvironment(luwrain);
+playlistsParams.model = base.getPlaylistsModel();
+playlistsParams.name = strings.treeAreaName();
+playlistsParams.clickHandler = (area, index, obj)->onTreeClick(obj);
 
-	treeArea = new TreeArea(treeParams){
+playlistsArea = new ListArea(playlistsParams){
 		@Override public boolean onKeyboardEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
@@ -205,19 +205,19 @@ public class PlayerApp implements Application, MonoApp, Actions
 	if (ActionEvent.isAction(event, "add-playlist-with-bookmark"))
 	{
 	    if (base.onAddPlaylistWithBookmark())
-	    treeArea.refresh();
+playlistsArea.refresh();
 	    return true;
 	}
 	if (ActionEvent.isAction(event, "add-playlist-without-bookmark"))
 	{
 	    if (base.onAddPlaylistWithoutBookmark())
-	    treeArea.refresh();
+playlistsArea.refresh();
 	    return true;
 	}
 	if (ActionEvent.isAction(event, "add-streaming-playlist"))
 	{
 	    if (base.onAddStreamingPlaylist())
-	    treeArea.refresh();
+playlistsArea.refresh();
 	    return true;
 	}
 	return false;
@@ -309,11 +309,11 @@ public class PlayerApp implements Application, MonoApp, Actions
 
     private boolean onTreeProperties()
     {
-	final Object obj = treeArea.selected();
+	final Object obj = playlistsArea.selected();
 	if (obj == null || !(obj instanceof RegistryPlaylist))
 	    return false;
 	base.fillPlaylistProperties((RegistryPlaylist)obj, propertiesFormArea);
-	treeArea.refresh();
+playlistsArea.refresh();
 	layouts.show(PLAYLIST_PROPERTIES_LAYOUT_INDEX);
 	luwrain.announceActiveArea();
 	return true;
@@ -323,7 +323,7 @@ public class PlayerApp implements Application, MonoApp, Actions
     {
 	if (save)
 	    base.savePlaylistProperties(propertiesFormArea);
-	treeArea.refresh();
+playlistsArea.refresh();
 	layouts.show(MAIN_LAYOUT_INDEX);
 	luwrain.announceActiveArea();
 	return true;
@@ -331,7 +331,7 @@ public class PlayerApp implements Application, MonoApp, Actions
 
     @Override public void goToTree()
     {
-	luwrain.setActiveArea(treeArea);
+	luwrain.setActiveArea(playlistsArea);
     }
 
     @Override public void goToPlaylist()

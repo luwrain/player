@@ -1,7 +1,7 @@
 /*
-   Copyright 2012-2016 Michael Pozhidaev <michael.pozhidaev@gmail.com>
+   Copyright 2012-2017 Michael Pozhidaev <michael.pozhidaev@gmail.com>
 
-   This file is part of the LUWRAIN.
+   This file is part of LUWRAIN.
 
    LUWRAIN is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public
@@ -32,8 +32,7 @@ class Base
 {
     private Luwrain luwrain;
     private Strings strings;
-    private CachedTreeModel treeModel;
-    private TreeModelSource treeModelSource;
+    private PlaylistsModel playlistsModel;
     private Player player;
     private final ListUtils.FixedModel playlistModel = new ListUtils.FixedModel();
     private Listener listener;
@@ -50,15 +49,14 @@ class Base
 	NullCheck.notNull(strings, "strings");
 	this.luwrain = luwrain;
 	this.strings = strings;
-	treeModelSource = new TreeModelSource(strings);
+	playlistsModel = new PlaylistsModel(strings);
 	player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
 	if (player == null)
 	{
 	    Log.error("player", "unable to obtain a reference to the player needed for PlayerApp");
 	    return false;
 	}
-	treeModelSource.setPlaylists(player.loadRegistryPlaylists());
-	treeModel = new CachedTreeModel(treeModelSource);
+	playlistsModel.setPlaylists(player.loadRegistryPlaylists());
 	currentPlaylist = player.getCurrentPlaylist();
 	if (currentPlaylist != null)
 	    onNewPlaylist(currentPlaylist);
@@ -170,7 +168,7 @@ void onNewTrack(int trackNum)
 	playlistInEdit.setPlaylistTitle(area.getEnteredText("title"));
 	playlistInEdit.setPlaylistUrl(area.getEnteredText("url"));
 	playlistInEdit = null;
-	treeModelSource.setPlaylists(player.loadRegistryPlaylists());
+	playlistsModel.setPlaylists(player.loadRegistryPlaylists());
     }
 
 
@@ -222,7 +220,7 @@ boolean onAddStreamingPlaylist()
 					  return true;
 				      });
 	RegistryPlaylist.add(luwrain.getRegistry(), title.trim(), path.toString(), false, hasBookmark);
-	treeModelSource.setPlaylists(player.loadRegistryPlaylists());
+	playlistsModel.setPlaylists(player.loadRegistryPlaylists());
 		return true;
     }
 
@@ -247,9 +245,9 @@ boolean onAddStreamingPlaylist()
 	return playlistModel;
     }
 
-    TreeArea.Model getTreeModel()
+    ListArea.Model getPlaylistsModel()
     {
-	return treeModel;
+	return playlistsModel;
     }
 
     static String getTimeStr(long sec)
