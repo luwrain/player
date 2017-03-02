@@ -63,7 +63,7 @@ class PlaylistsModel implements ListArea.Model
 	res.add(playlistsWithoutBookmarks);
 	for(Playlist p: sortingWithoutBookmarks)
 	    res.add(p);
-	res.add(playlistsWithoutBookmarks);
+	res.add(playlistsWithBookmarks);
 	for(Playlist p: sortingWithBookmarks)
 	    res.add(p);
 	res.add(streamingPlaylists);
