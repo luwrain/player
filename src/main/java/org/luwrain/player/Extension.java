@@ -1,18 +1,3 @@
-/*
-   Copyright 2012-2016 Michael Pozhidaev <michael.pozhidaev@gmail.com>
-
-   This file is part of the LUWRAIN.
-
-   LUWRAIN is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public
-   License as published by the Free Software Foundation; either
-   version 3 of the License, or (at your option) any later version.
-
-   LUWRAIN is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-*/
 
 package org.luwrain.player;
 
@@ -87,6 +72,7 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 			    luwrain.message(strings.badPlaylistPath(args[0]), Luwrain.MESSAGE_ERROR);
 			    return null;
 			}
+			/*
 			final M3uPlaylist playlist = new M3uPlaylist();
 			if (!playlist.load(path))
 			{
@@ -94,6 +80,8 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 			    return null;
 			}
 			return new Application[]{new PlayerApp(playlist)};
+			*/
+			return null;
 		    }
 
 		    return new Application[]{new PlayerApp()};
@@ -110,8 +98,10 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		    if (args == null || args.length != 1)
 			return null;
 		    final Player player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
+		    /*
 		    if (player != null)
 			player.play(new SingleLocalFilePlaylist("file://" + args[0].replaceAll(" ", "%20")), 0, 0);
+		    */
 		    return null;
 		}
 	    },

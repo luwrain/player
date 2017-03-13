@@ -1,18 +1,3 @@
-/*
-   Copyright 2012-2017 Michael Pozhidaev <michael.pozhidaev@gmail.com>
-
-   This file is part of LUWRAIN.
-
-   LUWRAIN is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public
-   License as published by the Free Software Foundation; either
-   version 3 of the License, or (at your option) any later version.
-
-   LUWRAIN is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-*/
 
 package org.luwrain.app.player;
 
@@ -37,9 +22,10 @@ class Base
     private final ListUtils.FixedModel playlistModel = new ListUtils.FixedModel();
     private Listener listener;
 
-    private RegistryPlaylist playlistInEdit = null;
+    private Playlist playlistInEdit = null;
 
-    private Playlist currentPlaylist = null;
+    private RegistryPlaylists playlists = null;
+    private org.luwrain.player.Playlist currentPlaylist = null;
     private String[] currentPlaylistItems = new String[0];
     private int currentTrackNum = -1;
 
@@ -49,6 +35,7 @@ class Base
 	NullCheck.notNull(strings, "strings");
 	this.luwrain = luwrain;
 	this.strings = strings;
+	playlists = new RegistryPlaylists(luwrain.getRegistry());
 	playlistsModel = new PlaylistsModel(strings);
 	player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
 	if (player == null)
@@ -56,7 +43,7 @@ class Base
 	    Log.error("player", "unable to obtain a reference to the player needed for PlayerApp");
 	    return false;
 	}
-	playlistsModel.setPlaylists(player.loadRegistryPlaylists());
+	playlistsModel.setPlaylists(playlists.loadRegistryPlaylists());
 	currentPlaylist = player.getCurrentPlaylist();
 	if (currentPlaylist != null)
 	    onNewPlaylist(currentPlaylist);
@@ -113,7 +100,7 @@ class Base
 	player.jump(offsetMsec);
     }
 
-    void onNewPlaylist(Playlist playlist)
+    void onNewPlaylist(org.luwrain.player.Playlist playlist)
     {
 	NullCheck.notNull(playlist, "playlist");
 	currentPlaylist = playlist;
@@ -141,34 +128,40 @@ void onNewTrack(int trackNum)
 	currentTrackNum = -1;
     }
 
+    /*
     Playlist getCurrentPlaylist()
     {
 	return player.getCurrentPlaylist();
     }
+    */
 
     int getCurrentTrackNum()
     {
 	return player.getCurrentTrackNum();
     }
 
-    void fillPlaylistProperties(RegistryPlaylist playlist, FormArea area)
+    void fillPlaylistProperties(Playlist playlist, FormArea area)
     {
 	NullCheck.notNull(playlist, "playlist");
 	NullCheck.notNull(area, "area");
+	/*
 	area.clear();
 	area.addEdit("title", strings.playlistPropertiesAreaTitle(), playlist.getPlaylistTitle());
 	area.addEdit("url", strings.playlistPropertiesAreaUrl(), playlist.getPlaylistUrl());
 	playlistInEdit = playlist;
+	*/
     }
 
     void savePlaylistProperties(FormArea area)
     {
 	NullCheck.notNull(area, "area");
 	NullCheck.notNull(playlistInEdit, "playlistInEdit");
+	/*
 	playlistInEdit.setPlaylistTitle(area.getEnteredText("title"));
 	playlistInEdit.setPlaylistUrl(area.getEnteredText("url"));
 	playlistInEdit = null;
 	playlistsModel.setPlaylists(player.loadRegistryPlaylists());
+	*/
     }
 
 
@@ -201,6 +194,7 @@ boolean onAddStreamingPlaylist()
 
     private boolean addPlaylist(boolean hasBookmark)
     {
+	/*
 	final String title = Popups.simple(luwrain, strings.addPlaylistPopupName(), strings.addPlaylistPopupPrefix(), ""); 
 	if (title == null)
 	    return false;
@@ -221,6 +215,7 @@ boolean onAddStreamingPlaylist()
 				      });
 	RegistryPlaylist.add(luwrain.getRegistry(), title.trim(), path.toString(), false, hasBookmark);
 	playlistsModel.setPlaylists(player.loadRegistryPlaylists());
+	*/
 		return true;
     }
 

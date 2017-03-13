@@ -1,18 +1,3 @@
-/*
-   Copyright 2012-2017 Michael Pozhidaev <michael.pozhidaev@gmail.com>
-
-   This file is part of LUWRAIN.
-
-   LUWRAIN is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public
-   License as published by the Free Software Foundation; either
-   version 3 of the License, or (at your option) any later version.
-
-   LUWRAIN is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-*/
 
 package org.luwrain.app.player;
 
@@ -20,7 +5,6 @@ import java.util.*;
 
 import org.luwrain.core.*;
 import org.luwrain.controls.*;
-import org.luwrain.player.Playlist;
 
 class PlaylistsModel implements ListArea.Model 
 {
@@ -46,11 +30,11 @@ class PlaylistsModel implements ListArea.Model
 	final LinkedList<Playlist> streaming = new LinkedList<Playlist>();
 	for(Playlist p: playlists)
 	{
-	    if (p.isStreaming())
+	    if (p.getFlags().contains(Playlist.Flags.STREAMING))
 		streaming.add(p);
-	    if (p.hasBookmark() && !p.isStreaming())
+	    if (p.getFlags().contains(Playlist.Flags.HAS_BOOKMARK) && !p.getFlags().contains(Playlist.Flags.STREAMING))
 		withBookmarks.add(p);
-	    if (!p.hasBookmark() && !p.isStreaming())
+	    if (!p.getFlags().contains(Playlist.Flags.HAS_BOOKMARK) && !p.getFlags().contains(Playlist.Flags.STREAMING))
 		withoutBookmarks.add(p);
 	}
 	final Playlist[] sortingWithBookmarks = withBookmarks.toArray(new Playlist[withBookmarks.size()]);

@@ -1,18 +1,3 @@
-/*
-   Copyright 2012-2017 Michael Pozhidaev <michael.pozhidaev@gmail.com>
-
-   This file is part of LUWRAIN.
-
-   LUWRAIN is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public
-   License as published by the Free Software Foundation; either
-   version 3 of the License, or (at your option) any later version.
-
-   LUWRAIN is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-*/
 
 package org.luwrain.app.player;
 
@@ -231,10 +216,10 @@ public class PlayerApp implements Application, MonoApp, Actions
 
     private boolean onPlaylistsClick(Object obj)
     {
-	if (obj == null || !(obj instanceof RegistryPlaylist))
+	if (obj == null || !(obj instanceof Playlist))
 	    return false;
-	final RegistryPlaylist playlist = (RegistryPlaylist)obj;
-	if (playlist.hasBookmark() && !playlist.isStreaming())
+	final Playlist playlist = (Playlist)obj;
+	if (playlist.getFlags().contains(Playlist.Flags.HAS_BOOKMARK) && !playlist.getFlags().contains(Playlist.Flags.STREAMING))
 	    base.playPlaylist(playlist, playlist.getStartingTrackNum(), playlist.getStartingPosMsec()); else
 	    base.playPlaylist(playlist, 0, 0);
 	return true;
@@ -316,9 +301,9 @@ public class PlayerApp implements Application, MonoApp, Actions
     private boolean onTreeProperties()
     {
 	final Object obj = playlistsArea.selected();
-	if (obj == null || !(obj instanceof RegistryPlaylist))
+	if (obj == null || !(obj instanceof Playlist))
 	    return false;
-	base.fillPlaylistProperties((RegistryPlaylist)obj, propertiesFormArea);
+	base.fillPlaylistProperties((Playlist)obj, propertiesFormArea);
 	playlistsArea.refresh();
 	layouts.show(PLAYLIST_PROPERTIES_LAYOUT_INDEX);
 	luwrain.announceActiveArea();

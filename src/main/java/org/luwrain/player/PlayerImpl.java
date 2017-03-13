@@ -78,7 +78,7 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 
     @Override public synchronized void jump(long offsetMsec)
     {
-	if (currentPlaylist == null || currentPlaylist.isStreaming())
+	if (currentPlaylist == null/* || currentPlaylist.isStreaming()*/)
 	    return;
 	if (currentPlayer != null)
 	    {
@@ -94,7 +94,7 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 
 	@Override public synchronized void nextTrack()
 			  {
-	if (currentPlaylist == null || currentPlaylist.isStreaming())
+			      if (currentPlaylist == null/* || currentPlaylist.isStreaming()*/)
 	    return;
 	final String[] items = currentPlaylist.getPlaylistItems();
 	if (items == null || currentTrackNum + 1 >= items.length)
@@ -110,7 +110,7 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 
     @Override public synchronized void prevTrack()
     {
-	if (currentPlaylist == null || currentPlaylist.isStreaming())
+	if (currentPlaylist == null/* || currentPlaylist.isStreaming()*/)
 	    return;
 	final String[] items = currentPlaylist.getPlaylistItems();
 	if (items == null || currentTrackNum + 1 >= items.length)
@@ -175,21 +175,6 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 	    }
     }
 
-    @Override public Playlist[] loadRegistryPlaylists()
-    {
-	final String dir = "/org/luwrain/player/playlists";//FIXME:
-	final String[] dirs = registry.getDirectories(dir); 
-	final LinkedList<Playlist> res = new LinkedList<Playlist>();
-	for(String s: dirs)
-	{
-	    final String path = Registry.join(dir, s);
-	    final RegistryPlaylist playlist = new RegistryPlaylist(registry);
-	    if (playlist.init(path))
-		res.add(playlist);
-	}
-	return res.toArray(new Playlist[res.size()]);
-    }
-
     private void notifyListeners(ListenerNotification notification)
     {
 	NullCheck.notNull(notification, "notification");
@@ -223,7 +208,7 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 	    return Result.INVALID_PLAYLIST;
 	Log.debug("player", "starting playing " + task.url.toString() + " from " + task.startPosMsec);
 	final String fileName = task.url.getFile();
-	if (currentPlaylist.isStreaming() || fileName.toLowerCase().endsWith(".mp3"))
+	if (/*currentPlaylist.isStreaming() ||*/ fileName.toLowerCase().endsWith(".mp3"))
 	    currentPlayer = BackEnd.createBackEnd(this, "jlayer"); else
 
 	if (fileName.toLowerCase().endsWith(".ogg"))
