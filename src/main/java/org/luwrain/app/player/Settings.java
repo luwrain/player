@@ -5,6 +5,9 @@ import org.luwrain.core.*;
 
 interface Settings
 {
+    static final String PLAYLISTS_PATH = "/org/luwrain/player/playlists";
+    static final String TYPE_VALUE = "type";
+
     interface Base
     {
 	String getTitle(String defValue);
@@ -13,8 +16,8 @@ interface Settings
 
     interface StreamingPlaylist extends Base
     {
-	String getStreamingUrl(String defValue);
-	void setStreamingUrl(String value);
+	String getUrl(String defValue);
+	void setUrl(String value);
     }
 
     interface DirectoryPlaylist extends Base
@@ -28,5 +31,12 @@ interface Settings
 	NullCheck.notNull(registry, "registry");
 	NullCheck.notNull(path, "path");
 return RegistryProxy.create(registry, path, DirectoryPlaylist.class);
+    }
+
+    static StreamingPlaylist createStreamingPlaylist(Registry registry, String path)
+    {
+	NullCheck.notNull(registry, "registry");
+	NullCheck.notNull(path, "path");
+return RegistryProxy.create(registry, path, StreamingPlaylist.class);
     }
 }

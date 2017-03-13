@@ -208,7 +208,7 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 	    return Result.INVALID_PLAYLIST;
 	Log.debug("player", "starting playing " + task.url.toString() + " from " + task.startPosMsec);
 	final String fileName = task.url.getFile();
-	if (/*currentPlaylist.isStreaming() ||*/ fileName.toLowerCase().endsWith(".mp3"))
+	if (true ||  fileName.toLowerCase().endsWith(".mp3"))
 	    currentPlayer = BackEnd.createBackEnd(this, "jlayer"); else
 
 	if (fileName.toLowerCase().endsWith(".ogg"))
