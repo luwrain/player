@@ -9,23 +9,41 @@ class Playlist extends org.luwrain.player.DefaultPlaylist
 {
     enum Flags {HAS_BOOKMARK, STREAMING };
 
-    final Set<Flags> flags;
-
-    Playlist(String title, String[] items)
+    interface TracksLoader
     {
-	super(title, items, 0, 0, null);
-	this.flags = EnumSet.noneOf(Flags.class);
+	String[] loadTracks();
     }
 
-    Playlist(String title, String[] items, Set<Flags> flags)
+    final Set<Flags> flags;
+    final TracksLoader tracksLoader;
+    private String[] loadedTracks = null;
+
+    Playlist(String title, TracksLoader tracksLoader)
     {
-	super(title, items, 0, 0, null);
+	super(title, new String[0], 0, 0, null);
+	NullCheck.notNull(tracksLoader, "tracksLoader");
+	this.flags = EnumSet.noneOf(Flags.class);
+	this.tracksLoader = tracksLoader;
+    }
+
+    Playlist(String title, TracksLoader tracksLoader, Set<Flags> flags)
+    {
+	super(title, new String[0], 0, 0, null);
 	NullCheck.notNull(flags, "flags");
+	NullCheck.notNull(tracksLoader, "tracksLoader");
 	this.flags = flags;
+	this.tracksLoader = tracksLoader;
     }
 
     Set<Flags> getFlags()
     {
 	return flags;
+    }
+
+    @Override public String[] getPlaylistItems()
+    {
+	if (loadedTracks == null)
+	    loadedTracks = tracksLoader.loadTracks();
+	    return loadedTracks;
     }
 }

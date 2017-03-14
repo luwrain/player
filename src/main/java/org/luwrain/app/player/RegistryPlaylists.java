@@ -3,16 +3,20 @@ package org.luwrain.app.player;
 
 import java.util.*;
 import java.io.*;
+import java.net.*;
 
 import org.luwrain.core.*;
 
 class RegistryPlaylists
 {
+    private final Base base;
     private final Registry registry;
 
-    RegistryPlaylists(Registry registry)
+    RegistryPlaylists(Base base, Registry registry)
     {
+	NullCheck.notNull(base, "base");
 	NullCheck.notNull(registry, "registry");
+	this.base = base;
 	this.registry = registry;
     }
 
@@ -55,10 +59,23 @@ class RegistryPlaylists
 	final String dirPath = sett.getPath("");
 	if (title.isEmpty() || dirPath.isEmpty())
 	    return null;
-	final LinkedList<String> filesList = new LinkedList<String>();
-	loadFilesList(new File(dirPath), new String[0], filesList);
-	final String[] files = filesList.toArray(new String[filesList.size()]);
-	return new Playlist(title, files);
+	return new Playlist(title, ()->{
+		final LinkedList<String> filesList = new LinkedList<String>();
+		loadFilesList(new File(dirPath), new String[0], filesList);
+final String[] items = filesList.toArray(new String[filesList.size()]);
+final HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
+		for(String s: items)
+		    try {
+			trackInfoMap.put(s, new TrackInfo(new URL(s)));
+		    }
+		    catch(IOException e)
+		    {
+			Log.warning("player", "unable to read tags for " + s + ":" + e.getClass().getName() + ":" + e.getMessage());
+		    }
+		Log.debug("comparing", "" + trackInfoMap.size());
+		Arrays.sort(items, new PlaylistComparator(base, trackInfoMap));
+return items;
+	});
     }
 
     private Playlist loadStreamingPlaylist(String path)
@@ -69,7 +86,9 @@ class RegistryPlaylists
 	final String url = sett.getUrl("");
 	if (title.isEmpty() || url.isEmpty())
 	    return null;
-	return new Playlist(title, new String[]{url}, EnumSet.of(Playlist.Flags.STREAMING));
+	return new Playlist(title, ()->{
+		return new String[]{url};
+	}, EnumSet.of(Playlist.Flags.STREAMING));
     }
 
 
@@ -115,6 +134,43 @@ String title, String url,
 	    {
 		Log.warning("player", "unable to get URL of " + f.getAbsolutePath() + ":" + e.getMessage());
 	    }
+	}
+    }
+
+    static private class PlaylistComparator implements Comparator
+    {
+	private final Base base;
+	private final HashMap<String, TrackInfo> trackInfoMap;
+
+	PlaylistComparator(Base base, HashMap<String, TrackInfo> trackInfoMap)
+	{
+	    NullCheck.notNull(base, "base");
+	    NullCheck.notNull(trackInfoMap, "trackInfoMap");
+	    this.base = base;
+	    this.trackInfoMap = trackInfoMap;
+	}
+
+	@Override public int compare(Object o1, Object o2)
+	{
+	    NullCheck.notNull(o1, "oo1");
+	    NullCheck.notNull(o2, "oo2");
+	    if (!(o1 instanceof String) || !(o2 instanceof String))
+		return o1.toString().compareTo(o2.toString());
+	    /*
+	    final String title1;
+	    if (trackInfoMap.containsKey((String)o1))
+		title1 = base.getTrackTextAppearanceWithMap((String)o1, trackInfoMap); else
+		title1 = (String)o1;
+	    final String title2;
+	    if (trackInfoMap.containsKey((String)o2))
+		title2 = base.getTrackTextAppearanceWithMap((String)o2, trackInfoMap); else
+		title2 = (String)o2;
+	    */
+
+		final String title1 = base.getTrackTextAppearanceWithMap((String)o1, trackInfoMap);
+		final String title2 = base.getTrackTextAppearanceWithMap((String)o2, trackInfoMap);
+		//		Log.debug("comparing", title1 + " " + title2);
+	    return title1.compareTo(title2);
 	}
     }
 }

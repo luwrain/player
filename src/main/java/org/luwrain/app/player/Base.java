@@ -39,7 +39,7 @@ class Base
 	NullCheck.notNull(strings, "strings");
 	this.luwrain = luwrain;
 	this.strings = strings;
-	playlists = new RegistryPlaylists(luwrain.getRegistry());
+	playlists = new RegistryPlaylists(this, luwrain.getRegistry());
 	playlistsModel = new PlaylistsModel(strings);
 	player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
 	if (player == null)
@@ -94,7 +94,14 @@ class Base
     String getTrackTextAppearance(String trackUrl)
     {
 	NullCheck.notNull(trackUrl, "trackUrl");
-	final String tagText = getTrackTagText(trackUrl);
+	return getTrackTextAppearanceWithMap(trackUrl, trackInfoMap);
+    }
+
+    static String getTrackTextAppearanceWithMap(String trackUrl, Map<String, TrackInfo> map)
+    {
+	NullCheck.notNull(trackUrl, "trackUrl");
+	NullCheck.notNull(map, "map");
+	final String tagText = getTrackTagText(trackUrl, map);
 	if (tagText != null)
 	    return tagText;
 String name = "";
@@ -111,13 +118,14 @@ String name = "";
 	return name;
     }
 
-	private String getTrackTagText(String trackUrl)
+    static private String getTrackTagText(String trackUrl, Map<String, TrackInfo> map)
     {
 	NullCheck.notNull(trackUrl, "trackUrl");
-	if (!trackInfoMap.containsKey(trackUrl))
+	NullCheck.notNull(map, "map");
+	if (!map.containsKey(trackUrl))
 	    return null;
 	final StringBuilder b = new StringBuilder();
-	final TrackInfo info = trackInfoMap.get(trackUrl);
+	final TrackInfo info = map.get(trackUrl);
 	if (info == null)
 	    return null;
 	if (info.artist.trim().isEmpty() && info.title.trim().isEmpty())
