@@ -88,6 +88,7 @@ public class PlayerApp implements Application, MonoApp, Actions
 			}
 		    return super.onKeyboardEvent(event);
 		}
+
 		@Override public boolean onEnvironmentEvent(EnvironmentEvent event)
 		{
 		    NullCheck.notNull(event, "event");
@@ -104,6 +105,7 @@ public class PlayerApp implements Application, MonoApp, Actions
 			return super.onEnvironmentEvent(event);
 		    }
 		}
+
 		@Override public Action[] getAreaActions()
 		{
 		    return getTreeActions();

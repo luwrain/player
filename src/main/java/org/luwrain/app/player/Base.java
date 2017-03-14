@@ -4,6 +4,7 @@ package org.luwrain.app.player;
 import java.util.*;
 import java.io.*;
 import java.nio.*;
+import java.net.*;
 import java.nio.file.*;
 import java.nio.charset.*;
 import java.nio.channels.*;
@@ -113,6 +114,21 @@ class Base
 	    currentTrackNum = player.getCurrentTrackNum();
 	    if (currentTrackNum < 0 || currentTrackNum >= currentPlaylistItems.length)
 		currentTrackNum = -1;
+	}
+	fillTrackInfoMap();
+    }
+
+    private void fillTrackInfoMap()
+    {
+	for(String s: currentPlaylistItems)
+	{
+	    try {
+		new TrackInfo(new URL(s));
+	    }
+	    catch(IOException e)
+	    {
+		Log.error("player", "unable to read tags for " + s + ":" + e.getClass().getName() + ":" + e.getMessage());
+	    }
 	}
     }
 
