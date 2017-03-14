@@ -8,26 +8,27 @@ import org.luwrain.player.*;
 
 class ControlArea extends NavigationArea
 {
-    private Luwrain luwrain;
-    private Actions actions;
-    private Strings strings;
-    private Base base;
+    private final Luwrain luwrain;
+    private final PlayerApp app;
+    private final Base base;
+    private final Strings strings;
 
     private String opPauseResume, opStop, opPrevTrack, opNextTrack;
 
     private long timeSec = -1;
 
-ControlArea(Luwrain luwrain, Actions actions,
-	       Strings strings)
+    ControlArea(Luwrain luwrain, PlayerApp app,
+Base base, Strings strings)
     {
 	super(new DefaultControlEnvironment(luwrain));
 	NullCheck.notNull(luwrain, "luwrain");
-	NullCheck.notNull(actions, "actions");
+	NullCheck.notNull(app, "app");
+	NullCheck.notNull(base, "base");
 	NullCheck.notNull(strings, "strigns");
 	this.luwrain = luwrain;
-	this.actions = actions;
+	this.app = app;
+	this.base = base;
 	this.strings = strings;
-	base = actions.getBase();
 	opPauseResume = strings.opPauseResume();
 	opStop = strings.opStop();
 	opPrevTrack = strings.opPrevTrack();
@@ -38,7 +39,7 @@ ControlArea(Luwrain luwrain, Actions actions,
     {
 	NullCheck.notNull(playlist, "playlist");
 	base.onNewPlaylist(playlist);
-	actions.refreshPlaylist();
+app.refreshPlaylist();
 	luwrain.onAreaNewContent(this);
     }
 
@@ -112,16 +113,16 @@ ControlArea(Luwrain luwrain, Actions actions,
 		@Override public boolean onKeyboardEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
-		    if (actions.commonKeys(event))
+		    if (app.commonKeys(event))
 			return true;
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
 			{
 			case TAB:
-			    actions.goToPlaylists();
+			    app.goToPlaylists();
 			    return true;
 			case BACKSPACE:
-			    actions.goToPlaylists();
+			    app.goToPlaylists();
 			    return true;
 			case ENTER:
 			    return onEnter(event);
@@ -135,7 +136,7 @@ ControlArea(Luwrain luwrain, Actions actions,
 	switch(event.getCode())
 	{
 	case CLOSE:
-	    actions.closeApp();
+	    app.closeApp();
 	    return true;
 	default:
 	    return super.onEnvironmentEvent(event);
@@ -162,25 +163,25 @@ line == opPrevTrack || line == opNextTrack)
 	final String line = getLine(getHotPointY());
 	if (line == opPauseResume)
 	{
-	    actions.pauseResume();
+	    app.pauseResume();
 	    luwrain.playSound(Sounds.LIST_ITEM);
 	    return true;
 	}
 	if (line == opStop)
 	{
-	    actions.stop();
+	    app.stop();
 	    luwrain.playSound(Sounds.LIST_ITEM);
 	    return true;
 	}
 	if (line == opPrevTrack)
 	{
-	    actions.prevTrack();
+	    app.prevTrack();
 	    luwrain.playSound(Sounds.LIST_ITEM);
 	    return true;
 	}
 	if (line == opNextTrack)
 	{
-	    actions.nextTrack();
+	    app.nextTrack();
 	    luwrain.playSound(Sounds.LIST_ITEM);
 	    return true;
 	}

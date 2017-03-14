@@ -1,19 +1,27 @@
 
 package org.luwrain.app.player;
 
-import org.luwrain.core.events.KeyboardEvent;
+import org.luwrain.core.*;
 
-interface Actions
+class Actions
 {
-    void closeApp();
-    Base getBase();
-    void goToPlaylists();
-    void goToPlaylist();
-    void goToControl();
-    boolean commonKeys(KeyboardEvent event);
-    void pauseResume();
-    void stop();
-    void nextTrack();
-    void prevTrack();
-    void refreshPlaylist();
+
+    private final Luwrain luwrain;
+    private final Base base;
+
+    Actions(Luwrain luwrain, Base base)
+    {
+	NullCheck.notNull(luwrain, "luwrain");
+	NullCheck.notNull(base, "base");
+	this.luwrain = luwrain;
+	this.base = base;
+    }
+
+
+    void playPlaylist(Playlist playlist, int startingTrackNum, long startingPosMsec)
+    {
+	NullCheck.notNull(playlist, "playlist");
+	base.player.play(playlist, startingTrackNum, startingPosMsec);
+	base.onNewPlaylist(playlist);
+    }
 }

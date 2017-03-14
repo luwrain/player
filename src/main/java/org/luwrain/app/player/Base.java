@@ -16,21 +16,23 @@ import org.luwrain.popups.Popups;
 
 class Base
 {
-    private Luwrain luwrain;
-    private Strings strings;
-    private PlaylistsModel playlistsModel;
-    private Player player;
-    private final ListUtils.FixedModel playlistModel = new ListUtils.FixedModel();
+    private final Luwrain luwrain;
+    private final Strings strings;
+    final Player player;
     private Listener listener;
+
+    private org.luwrain.player.Playlist currentPlaylist = null;
+    private String[] currentPlaylistItems = new String[0];
+    private HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
+    private int currentTrackNum = -1;
+
+    private final RegistryPlaylists playlists;
+    final PlaylistsModel playlistsModel;
+    private final ListUtils.FixedModel playlistModel = new ListUtils.FixedModel();
 
     private Playlist playlistInEdit = null;
 
-    private RegistryPlaylists playlists = null;
-    private org.luwrain.player.Playlist currentPlaylist = null;
-    private String[] currentPlaylistItems = new String[0];
-    private int currentTrackNum = -1;
-
-    boolean init(Luwrain luwrain, Strings strings)
+    Base(Luwrain luwrain, Strings strings)
     {
 	NullCheck.notNull(luwrain, "luwrain");
 	NullCheck.notNull(strings, "strings");
@@ -40,65 +42,11 @@ class Base
 	playlistsModel = new PlaylistsModel(strings);
 	player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
 	if (player == null)
-	{
-	    Log.error("player", "unable to obtain a reference to the player needed for PlayerApp");
-	    return false;
-	}
+	    return;
 	playlistsModel.setPlaylists(playlists.loadRegistryPlaylists());
 	currentPlaylist = player.getCurrentPlaylist();
 	if (currentPlaylist != null)
 	    onNewPlaylist(currentPlaylist);
-	return true;
-    }
-
-    void playPlaylist(Playlist playlist,
-		      int startingTrackNum, long startingPosMsec)
-    {
-	NullCheck.notNull(playlist, "playlist");
-	player.play(playlist, startingTrackNum, startingPosMsec);
-	onNewPlaylist(playlist);
-    }
-
-    void pauseResume()
-    {
-	player.pauseResume();
-    }
-
-    boolean playPlaylistItem(int index)
-    {
-	if (currentPlaylist == null)
-	    return false;
-	if (index < 0 || index >= currentPlaylistItems.length)
-	    return false;
-	player.play(currentPlaylist, index, 0);
-	currentTrackNum = index;
-	return true;
-    }
-
-    boolean prevTrack()
-    {
-	player.prevTrack();
-	currentTrackNum = player.getCurrentTrackNum();
-	return true;
-    }
-
-    boolean nextTrack()
-    {
-	player.nextTrack();
-	currentTrackNum = player.getCurrentTrackNum();
-	return true;
-    }
-
-
-
-    void stop()
-    {
-	player.stop();
-    }
-
-    void jump(long offsetMsec)
-    {
-	player.jump(offsetMsec);
     }
 
     void onNewPlaylist(org.luwrain.player.Playlist playlist)
@@ -132,16 +80,69 @@ class Base
 	}
     }
 
-void onNewTrack(int trackNum)
-{
-    if (trackNum < 0 || trackNum >= currentPlaylistItems.length)
-	currentTrackNum = -1; else
-	currentTrackNum = trackNum;
-}
+    void setListener(ControlArea area)
+    {
+	NullCheck.notNull(area, "area");
+	listener = new Listener(luwrain, area);
+	player.addListener(listener);
+    }
+
+    void removeListener()
+    {
+	player.removeListener(listener);
+    }
+
+    void onNewTrack(int trackNum)
+    {
+	if (trackNum < 0 || trackNum >= currentPlaylistItems.length)
+	    currentTrackNum = -1; else
+	    currentTrackNum = trackNum;
+    }
 
     void onStop()
     {
 	currentTrackNum = -1;
+    }
+
+
+    void pauseResume()
+    {
+	player.pauseResume();
+    }
+
+    void stop()
+    {
+	player.stop();
+    }
+
+    void jump(long offsetMsec)
+    {
+	player.jump(offsetMsec);
+    }
+
+    boolean playPlaylistItem(int index)
+    {
+	if (currentPlaylist == null)
+	    return false;
+	if (index < 0 || index >= currentPlaylistItems.length)
+	    return false;
+	player.play(currentPlaylist, index, 0);
+	currentTrackNum = index;
+	return true;
+    }
+
+    boolean prevTrack()
+    {
+	player.prevTrack();
+	currentTrackNum = player.getCurrentTrackNum();
+	return true;
+    }
+
+    boolean nextTrack()
+    {
+	player.nextTrack();
+	currentTrackNum = player.getCurrentTrackNum();
+	return true;
     }
 
     /*
@@ -180,18 +181,6 @@ void onNewTrack(int trackNum)
 	*/
     }
 
-
-    void setListener(ControlArea area)
-    {
-	NullCheck.notNull(area, "area");
-	listener = new Listener(luwrain, area);
-	player.addListener(listener);
-    }
-
-    void removeListener()
-    {
-	player.removeListener(listener);
-    }
 
 boolean onAddPlaylistWithBookmark()
     {
@@ -254,11 +243,6 @@ boolean onAddStreamingPlaylist()
     ListArea.Model getPlaylistModel()
     {
 	return playlistModel;
-    }
-
-    ListArea.Model getPlaylistsModel()
-    {
-	return playlistsModel;
     }
 
     static String getTimeStr(long sec)
