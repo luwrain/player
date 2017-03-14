@@ -1,28 +1,68 @@
 
 package org.luwrain.app.player;
 
+import java.util.*;
+
 import org.luwrain.core.*;
+import org.luwrain.controls.*;
 
 class Actions
 {
 
     private final Luwrain luwrain;
     private final Base base;
+    private final Strings strings;
 
-    Actions(Luwrain luwrain, Base base)
+    Actions(Luwrain luwrain, Base base, Strings strings)
     {
 	NullCheck.notNull(luwrain, "luwrain");
 	NullCheck.notNull(base, "base");
+	NullCheck.notNull(strings, "strings");
 	this.luwrain = luwrain;
+	this.strings = strings;
 	this.base = base;
     }
 
-
-    void playPlaylist(Playlist playlist, int startingTrackNum, long startingPosMsec)
+Action[] getPlaylistsActions()
     {
-	NullCheck.notNull(playlist, "playlist");
-	base.player.play(playlist, startingTrackNum, startingPosMsec);
-	base.onNewPlaylist(playlist);
+	return new Action[]{
+	    new Action("add-playlist-without-bookmark", strings.actionAddPlaylistWithoutBookmark()),
+	    new Action("add-playlist-with-bookmark", strings.actionAddPlaylistWithBookmark()),
+	    new Action("add-streaming-playlist", strings.actionAddStreamingPlaylist()),
+	};
+    }
+
+    Action[] getPlaylistActions()
+    {
+	return new Action[]{
+	    new Action("sort", "Сортировать"),
+	};
+    }
+
+boolean onSortPlaylist(ListArea playlistArea)
+    {
+	NullCheck.notNull(playlistArea, "playlistArea");
+	final PlaylistComparator comparator = new PlaylistComparator(base);
+	final Object[] items = base.playlistModel.toArray(new Object[base.playlistModel.size()]);
+	Arrays.sort(items, comparator);
+	base.playlistModel.setItems(items);
+	playlistArea.refresh();
+	return true;
+    }
+
+
+
+    boolean onPlaylistsClick(Area playlistArea, Object obj)
+    {
+	NullCheck.notNull(playlistArea, "playlistArea");
+	if (obj == null || !(obj instanceof Playlist))
+	    return false;
+	final Playlist playlist = (Playlist)obj;
+	if (playlist.getFlags().contains(Playlist.Flags.HAS_BOOKMARK) && !playlist.getFlags().contains(Playlist.Flags.STREAMING))
+	    base.player.play(playlist, playlist.getStartingTrackNum(), playlist.getStartingPosMsec()); else
+	    base.player.play(playlist, 0, 0);
+	luwrain.setActiveArea(playlistArea);
+	return true;
     }
 
     void pauseResume()

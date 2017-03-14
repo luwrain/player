@@ -18,7 +18,7 @@ class ControlArea extends NavigationArea
     private long timeSec = -1;
 
     ControlArea(Luwrain luwrain, PlayerApp app,
-Base base, Strings strings)
+		Base base, Strings strings)
     {
 	super(new DefaultControlEnvironment(luwrain));
 	NullCheck.notNull(luwrain, "luwrain");
@@ -33,14 +33,6 @@ Base base, Strings strings)
 	opStop = strings.opStop();
 	opPrevTrack = strings.opPrevTrack();
 	opNextTrack = strings.opNextTrack();
-    }
-
-    void onNewPlaylist(org.luwrain.player.Playlist playlist)
-    {
-	NullCheck.notNull(playlist, "playlist");
-	base.onNewPlaylist(playlist);
-app.refreshPlaylist();
-	luwrain.onAreaNewContent(this);
     }
 
     void onNewTrack(int trackNum)

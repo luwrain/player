@@ -13,6 +13,7 @@ import org.luwrain.core.*;
 import org.luwrain.controls.*;
 import org.luwrain.player.*;
 import org.luwrain.popups.Popups;
+import org.luwrain.util.*;
 
 class Base
 {
@@ -45,12 +46,16 @@ class Base
 	    return;
 	playlistsModel.setPlaylists(playlists.loadRegistryPlaylists());
 	currentPlaylist = player.getCurrentPlaylist();
-	if (currentPlaylist != null)
-	    onNewPlaylist(currentPlaylist);
     }
 
-    void onNewPlaylist(org.luwrain.player.Playlist playlist)
+    org.luwrain.player.Playlist getCurrentPlaylist()
     {
+	return currentPlaylist;
+    }
+
+    void setNewCurrentPlaylist(Area area, org.luwrain.player.Playlist playlist)
+    {
+	NullCheck.notNull(area, "area");
 	NullCheck.notNull(playlist, "playlist");
 	currentPlaylist = playlist;
 	currentPlaylistItems = playlist.getPlaylistItems();
@@ -63,17 +68,19 @@ class Base
 	    if (currentTrackNum < 0 || currentTrackNum >= currentPlaylistItems.length)
 		currentTrackNum = -1;
 	}
-	fillTrackInfoMap();
+	fillTrackInfoMap(area);
     }
 
-    private void fillTrackInfoMap()
+    private void fillTrackInfoMap(Area area)
     {
+	NullCheck.notNull(area, "area");
 	final HashMap<String, TrackInfo> map = new HashMap<String, TrackInfo>();
 	new Thread(()->{
 		for(String s: currentPlaylistItems)
 		{
 		    try {
 			map.put(s, new TrackInfo(new URL(s)));
+			luwrain.runInMainThread(()->luwrain.onAreaNewContent(area));
 		    }
 		    catch(IOException e)
 		    {
@@ -87,22 +94,47 @@ class Base
     String getTrackTextAppearance(String trackUrl)
     {
 	NullCheck.notNull(trackUrl, "trackUrl");
+	final String tagText = getTrackTagText(trackUrl);
+	if (tagText != null)
+	    return tagText;
+String name = "";
+	try {
+	    final File f = Urls.toFile(new URL(trackUrl));
+	    if (f == null)
+		name = trackUrl; else
+		name = f.getName();
+	}
+	catch(MalformedURLException e)
+	{
+	    name = trackUrl;
+    }
+	return name;
+    }
+
+	private String getTrackTagText(String trackUrl)
+    {
+	NullCheck.notNull(trackUrl, "trackUrl");
 	if (!trackInfoMap.containsKey(trackUrl))
-	    return trackUrl;
+	    return null;
 	final StringBuilder b = new StringBuilder();
 	final TrackInfo info = trackInfoMap.get(trackUrl);
 	if (info == null)
-	    return trackUrl;
-	b.append(info.artist);
-	b.append(" - ");
+	    return null;
+	if (info.artist.trim().isEmpty() && info.title.trim().isEmpty())
+	    return null;
+	if (!info.artist.trim().isEmpty())
+	    b.append(info.artist.trim());
+	if (!info.artist.trim().isEmpty() && !info.title.trim().isEmpty())
+	    b.append(" - ");
+	    if (!info.title.trim().isEmpty())
 	b.append(info.title);
 	return new String(b);
     }
 
-    void setListener(ControlArea area)
+    void setListener(Listener listener)
     {
-	NullCheck.notNull(area, "area");
-	listener = new Listener(luwrain, area);
+	NullCheck.notNull(listener, "listener");
+	this.listener = listener;
 	player.addListener(listener);
     }
 
