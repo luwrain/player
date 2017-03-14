@@ -28,7 +28,7 @@ class Base
 
     private final RegistryPlaylists playlists;
     final PlaylistsModel playlistsModel;
-    private final ListUtils.FixedModel playlistModel = new ListUtils.FixedModel();
+    final ListUtils.FixedModel playlistModel = new ListUtils.FixedModel();
 
     private Playlist playlistInEdit = null;
 
@@ -80,6 +80,11 @@ class Base
 	}
     }
 
+    String getTrackTextAppearance(String trackUrl)
+    {
+	return "fixme";
+    }
+
     void setListener(ControlArea area)
     {
 	NullCheck.notNull(area, "area");
@@ -105,20 +110,7 @@ class Base
     }
 
 
-    void pauseResume()
-    {
-	player.pauseResume();
-    }
 
-    void stop()
-    {
-	player.stop();
-    }
-
-    void jump(long offsetMsec)
-    {
-	player.jump(offsetMsec);
-    }
 
     boolean playPlaylistItem(int index)
     {
@@ -143,18 +135,6 @@ class Base
 	player.nextTrack();
 	currentTrackNum = player.getCurrentTrackNum();
 	return true;
-    }
-
-    /*
-    Playlist getCurrentPlaylist()
-    {
-	return player.getCurrentPlaylist();
-    }
-    */
-
-    int getCurrentTrackNum()
-    {
-	return player.getCurrentTrackNum();
     }
 
     void fillPlaylistProperties(Playlist playlist, FormArea area)
@@ -238,11 +218,6 @@ boolean onAddStreamingPlaylist()
 	    return "";
 	final String res = currentPlaylistItems[currentTrackNum];
 	return res != null?res:"";
-    }
-
-    ListArea.Model getPlaylistModel()
-    {
-	return playlistModel;
     }
 
     static String getTimeStr(long sec)

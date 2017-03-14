@@ -117,8 +117,8 @@ public class PlayerApp implements Application, MonoApp
 
 	final ListArea.Params params = new ListArea.Params();
 	params.environment = new DefaultControlEnvironment(luwrain);
-	params.model = base.getPlaylistModel();
-	params.appearance = new ListUtils.DefaultAppearance(params.environment);
+	params.model = base.playlistModel;
+	params.appearance = new PlaylistAppearance(luwrain, base);
 	params.clickHandler = (area, index, obj)->onPlaylistClick(index, obj);
 	params.name = strings.playlistAreaName();
 
@@ -238,12 +238,12 @@ public class PlayerApp implements Application, MonoApp
 
     void pauseResume()
     {
-	base.pauseResume();
+	actions.pauseResume();
     }
 
     void stop()
     {
-	base.stop();
+	actions.stop();
     }
 
     void prevTrack()
@@ -277,10 +277,10 @@ public class PlayerApp implements Application, MonoApp
 		nextTrack();
 		return true;
 	    case F9:
-		base.jump(-5000);
+		actions.jump(-5000);
 		return true;
 	    case F10:
-		base.jump(5000);
+		actions.jump(5000);
 		return true;
 	    default:
 		return false;
@@ -288,10 +288,10 @@ public class PlayerApp implements Application, MonoApp
 	switch(event.getChar())
 	{
 	case '[':
-	    base.jump(-60000);
+	    actions.jump(-60000);
 	    return true;
 	case ']':
-	    base.jump(60000);
+	    actions.jump(60000);
 	    return true;
 	default:
 	    return false;

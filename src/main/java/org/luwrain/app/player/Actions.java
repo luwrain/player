@@ -24,4 +24,21 @@ class Actions
 	base.player.play(playlist, startingTrackNum, startingPosMsec);
 	base.onNewPlaylist(playlist);
     }
+
+    void pauseResume()
+    {
+	base.player.pauseResume();
+    }
+
+    void stop()
+    {
+	base.player.stop();
+    }
+
+    void jump(long offsetMsec)
+    {
+	base.player.jump(offsetMsec);
+    }
+
+
 }
