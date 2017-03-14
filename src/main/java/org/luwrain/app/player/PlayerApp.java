@@ -228,8 +228,6 @@ public class PlayerApp implements Application, MonoApp
     private boolean onPlaylistAction(EnvironmentEvent event)
     {
 	NullCheck.notNull(event, "event");
-	if (ActionEvent.isAction(event, "sort"))
-	    return actions.onSortPlaylist(playlistArea);
 	return false;
     }
 

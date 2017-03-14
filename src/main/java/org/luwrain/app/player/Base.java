@@ -57,6 +57,8 @@ class Base
     {
 	NullCheck.notNull(area, "area");
 	NullCheck.notNull(playlist, "playlist");
+	if (currentPlaylist == playlist)
+	    return;
 	currentPlaylist = playlist;
 	currentPlaylistItems = playlist.getPlaylistItems();
 	if (currentPlaylistItems == null)

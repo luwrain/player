@@ -29,7 +29,10 @@ class TrackInfo
     {
 	final Mp3File mp3file;
 	try {
-	    mp3file = new Mp3File(Urls.toFile(url));
+	    final File file = Urls.toFile(url);
+	    if (file == null)
+		throw new IOException(url + " not a local file");
+	    mp3file = new Mp3File(file);
 	}
 	catch(InvalidDataException | UnsupportedTagException e)
 	{

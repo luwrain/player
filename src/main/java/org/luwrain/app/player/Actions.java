@@ -35,22 +35,9 @@ Action[] getPlaylistsActions()
     Action[] getPlaylistActions()
     {
 	return new Action[]{
-	    new Action("sort", "Сортировать"),
+	    //	    new Action("sort", "Сортировать"),
 	};
     }
-
-boolean onSortPlaylist(ListArea playlistArea)
-    {
-	NullCheck.notNull(playlistArea, "playlistArea");
-	final PlaylistComparator comparator = new PlaylistComparator(base);
-	final Object[] items = base.playlistModel.toArray(new Object[base.playlistModel.size()]);
-	Arrays.sort(items, comparator);
-	base.playlistModel.setItems(items);
-	playlistArea.refresh();
-	return true;
-    }
-
-
 
     boolean onPlaylistsClick(Area playlistArea, Object obj)
     {
