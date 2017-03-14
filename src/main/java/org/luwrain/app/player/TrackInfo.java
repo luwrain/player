@@ -11,6 +11,9 @@ import org.luwrain.util.*;
 
 class TrackInfo
 {
+    static private final String charset = "windows-1251";
+
+
     final String track;
     final String artist;
     final String title;
@@ -74,10 +77,20 @@ class TrackInfo
 	    comment = "";
 	if (track == null)
 	    track = "";
-	this.track = track;
-	this.artist = artist;
-	this.title = title ;
-	this.album = album;
-	this.comment = comment;
+	this.track = transcode(track);
+	this.artist = transcode(artist);
+	this.title = transcode(title );
+	this.album = transcode(album);
+	this.comment = transcode(comment);
+
+    }
+
+    private String transcode(String value) throws IOException
+    {
+	if (charset == null || charset.isEmpty())
+	    return value;
+
+	byte[] bytes = value.getBytes("ISO-8859-1");
+return new String(bytes, "windows-1251");
     }
 }

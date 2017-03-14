@@ -68,21 +68,35 @@ class Base
 
     private void fillTrackInfoMap()
     {
-	for(String s: currentPlaylistItems)
-	{
-	    try {
-		new TrackInfo(new URL(s));
-	    }
-	    catch(IOException e)
-	    {
-		Log.error("player", "unable to read tags for " + s + ":" + e.getClass().getName() + ":" + e.getMessage());
-	    }
-	}
+	final HashMap<String, TrackInfo> map = new HashMap<String, TrackInfo>();
+	new Thread(()->{
+		for(String s: currentPlaylistItems)
+		{
+		    try {
+			map.put(s, new TrackInfo(new URL(s)));
+		    }
+		    catch(IOException e)
+		    {
+			Log.warning("player", "unable to read tags for " + s + ":" + e.getClass().getName() + ":" + e.getMessage());
+		    }
+		}
+	}).start();
+	trackInfoMap = map;
     }
 
     String getTrackTextAppearance(String trackUrl)
     {
-	return "fixme";
+	NullCheck.notNull(trackUrl, "trackUrl");
+	if (!trackInfoMap.containsKey(trackUrl))
+	    return trackUrl;
+	final StringBuilder b = new StringBuilder();
+	final TrackInfo info = trackInfoMap.get(trackUrl);
+	if (info == null)
+	    return trackUrl;
+	b.append(info.artist);
+	b.append(" - ");
+	b.append(info.title);
+	return new String(b);
     }
 
     void setListener(ControlArea area)
