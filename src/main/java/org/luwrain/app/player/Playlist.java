@@ -20,7 +20,7 @@ class Playlist extends org.luwrain.player.DefaultPlaylist
 
     Playlist(String title, TracksLoader tracksLoader)
     {
-	super(title, new String[0], 0, 0, null);
+	super(title, new String[0], null);
 	NullCheck.notNull(tracksLoader, "tracksLoader");
 	this.flags = EnumSet.noneOf(Flags.class);
 	this.tracksLoader = tracksLoader;
@@ -28,7 +28,7 @@ class Playlist extends org.luwrain.player.DefaultPlaylist
 
     Playlist(String title, TracksLoader tracksLoader, Set<Flags> flags)
     {
-	super(title, new String[0], 0, 0, null);
+	super(title, new String[0], null);
 	NullCheck.notNull(flags, "flags");
 	NullCheck.notNull(tracksLoader, "tracksLoader");
 	this.flags = flags;

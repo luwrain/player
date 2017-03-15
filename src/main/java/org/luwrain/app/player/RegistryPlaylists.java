@@ -62,8 +62,8 @@ class RegistryPlaylists
 	return new Playlist(title, ()->{
 		final LinkedList<String> filesList = new LinkedList<String>();
 		loadFilesList(new File(dirPath), new String[0], filesList);
-final String[] items = filesList.toArray(new String[filesList.size()]);
-final HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
+		final String[] items = filesList.toArray(new String[filesList.size()]);
+		final HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
 		for(String s: items)
 		    try {
 			trackInfoMap.put(s, new TrackInfo(new URL(s)));
@@ -74,7 +74,7 @@ final HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>()
 		    }
 		Log.debug("comparing", "" + trackInfoMap.size());
 		Arrays.sort(items, new PlaylistComparator(base, trackInfoMap));
-return items;
+		return items;
 	});
     }
 
@@ -90,7 +90,6 @@ return items;
 		return new String[]{url};
 	}, EnumSet.of(Playlist.Flags.STREAMING));
     }
-
 
     /*
     static public void add(Registry registry,
@@ -116,7 +115,6 @@ String title, String url,
 	NullCheck.notNull(dir, "dir");
 	NullCheck.notNullItems(endings, "endings");
 	NullCheck.notNull(res, "res");
-	Log.debug("player", "loading " + dir);
 	final File[] files = dir.listFiles();
 	if (files == null)
 	    return;
@@ -156,20 +154,8 @@ String title, String url,
 	    NullCheck.notNull(o2, "oo2");
 	    if (!(o1 instanceof String) || !(o2 instanceof String))
 		return o1.toString().compareTo(o2.toString());
-	    /*
-	    final String title1;
-	    if (trackInfoMap.containsKey((String)o1))
-		title1 = base.getTrackTextAppearanceWithMap((String)o1, trackInfoMap); else
-		title1 = (String)o1;
-	    final String title2;
-	    if (trackInfoMap.containsKey((String)o2))
-		title2 = base.getTrackTextAppearanceWithMap((String)o2, trackInfoMap); else
-		title2 = (String)o2;
-	    */
-
-		final String title1 = base.getTrackTextAppearanceWithMap((String)o1, trackInfoMap);
-		final String title2 = base.getTrackTextAppearanceWithMap((String)o2, trackInfoMap);
-		//		Log.debug("comparing", title1 + " " + title2);
+	    final String title1 = base.getTrackTextAppearanceWithMap((String)o1, trackInfoMap);
+	    final String title2 = base.getTrackTextAppearanceWithMap((String)o2, trackInfoMap);
 	    return title1.compareTo(title2);
 	}
     }

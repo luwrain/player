@@ -45,8 +45,10 @@ Action[] getPlaylistsActions()
 	if (obj == null || !(obj instanceof Playlist))
 	    return false;
 	final Playlist playlist = (Playlist)obj;
+	/*
 	if (playlist.getFlags().contains(Playlist.Flags.HAS_BOOKMARK) && !playlist.getFlags().contains(Playlist.Flags.STREAMING))
 	    base.player.play(playlist, playlist.getStartingTrackNum(), playlist.getStartingPosMsec()); else
+	*/
 	    base.player.play(playlist, 0, 0);
 	luwrain.setActiveArea(playlistArea);
 	return true;
