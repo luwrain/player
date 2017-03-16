@@ -3,9 +3,10 @@ package org.luwrain.player;
 
 import java.net.*;
 import java.util.*;
-import java.nio.file.*;
+import java.io.*;
 
 import org.luwrain.core.*;
+import org.luwrain.util.*;
 import org.luwrain.app.player.PlayerApp;
 import org.luwrain.app.player.Strings;
 
@@ -16,7 +17,6 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
     @Override public String init(Luwrain luwrain)
     {
 	player = new PlayerImpl(luwrain.getRegistry());
-	Log.debug("player", "player is initialized");
 	return null;
     }
 
@@ -48,6 +48,19 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		}
 	    },
 
+	    new Command(){
+		@Override public String getName()
+		{
+		    return "player-pause";
+		}
+		@Override public void onCommand(Luwrain luwrain)
+		{
+		    final Player player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
+		    if (player != null)
+			player.pauseResume();
+		}
+	    },
+
 	};
     }
 
@@ -63,28 +76,7 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		@Override public Application[] prepareApp(String[] args)
 		{
 		    NullCheck.notNullItems(args, "args");
-		    final Strings strings = (Strings)luwrain.i18n().getStrings(Strings.NAME);
-		    if (args.length == 1 && FileTypes.getExtension(args[0]).toLowerCase().equals("m3u"))
-		    {
-			final Path path = Paths.get(args[0]);
-			if (path == null)
-			{
-			    luwrain.message(strings.badPlaylistPath(args[0]), Luwrain.MESSAGE_ERROR);
-			    return null;
-			}
-			/*
-			final M3uPlaylist playlist = new M3uPlaylist();
-			if (!playlist.load(path))
-			{
-			    luwrain.message(strings.errorLoadingPlaylist(path.toString()), Luwrain.MESSAGE_ERROR);
-			    return null;
-			}
-			return new Application[]{new PlayerApp(playlist)};
-			*/
-			return null;
-		    }
-
-		    return new Application[]{new PlayerApp()};
+			return new Application[]{new PlayerApp(args)};
 		}
 	    },
 
@@ -95,13 +87,18 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		}
 		@Override public Application[] prepareApp(String[] args)
 		{
-		    if (args == null || args.length != 1)
+		    NullCheck.notNullItems(args, "args");
+		    if (args.length != 1 || args[0].isEmpty())
 			return null;
 		    final Player player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
-		    /*
 		    if (player != null)
-			player.play(new SingleLocalFilePlaylist("file://" + args[0].replaceAll(" ", "%20")), 0, 0);
-		    */
+		    {
+			final File f = new File(args[0]).getAbsoluteFile();
+			final URL url = Urls.toUrl(f);
+			if (url == null)
+			    return null;//FIXME:message
+			player.play(new DefaultPlaylist(url.toString()), 0, 0);
+		    }
 		    return null;
 		}
 	    },
@@ -109,20 +106,20 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 	};
     }
 
-    @Override public SharedObject[] getSharedObjects(Luwrain luwrain)
-    {
-	return new SharedObject[]{
+@Override public SharedObject[] getSharedObjects(Luwrain luwrain)
+{
+    return new SharedObject[]{
 
-	    new SharedObject(){
-		@Override public String getName()
-		{
-		    return Player.SHARED_OBJECT_NAME;
-		}
-		@Override public Object getSharedObject()
-		{
-		    return player;
-		}
-	    },
+	new SharedObject(){
+	    @Override public String getName()
+	    {
+		return Player.SHARED_OBJECT_NAME;
+	    }
+	    @Override public Object getSharedObject()
+	    {
+		return player;
+	    }
+	},
 
 	};
     }

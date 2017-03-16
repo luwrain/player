@@ -33,11 +33,11 @@ public class PlayerApp implements Application, MonoApp
 	startingPlaylist = null;
     }
 
-    public PlayerApp(Playlist startingPlaylist)
+    public PlayerApp(String[] args)
     {
-	NullCheck.notNull(startingPlaylist, "startingPlaylist");
-	this.startingPlaylist = startingPlaylist;
+	startingPlaylist = null;
     }
+
 
     @Override public boolean onLaunch(Luwrain luwrain)
     {
