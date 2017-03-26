@@ -4,14 +4,17 @@ package org.luwrain.app.player;
 import java.util.*;
 
 import org.luwrain.core.*;
+import org.luwrain.core.events.*;
 import org.luwrain.controls.*;
+import org.luwrain.popups.Popups;
 
 class Actions
 {
-
     private final Luwrain luwrain;
     private final Base base;
     private final Strings strings;
+
+    private final Conversations conversations;
 
     Actions(Luwrain luwrain, Base base, Strings strings)
     {
@@ -21,22 +24,26 @@ class Actions
 	this.luwrain = luwrain;
 	this.strings = strings;
 	this.base = base;
+	this.conversations = new Conversations(luwrain);
     }
 
-Action[] getPlaylistsActions()
+    Action[] getPlaylistsActions()
     {
 	return new Action[]{
-	    new Action("add-playlist-without-bookmark", strings.actionAddPlaylistWithoutBookmark()),
-	    new Action("add-playlist-with-bookmark", strings.actionAddPlaylistWithBookmark()),
-	    new Action("add-streaming-playlist", strings.actionAddStreamingPlaylist()),
+	    new Action("add-playlist", "Добавить плейлист", new KeyboardEvent(KeyboardEvent.Special.INSERT)),
 	};
     }
 
     Action[] getPlaylistActions()
     {
 	return new Action[]{
-	    //	    new Action("sort", "Сортировать"),
 	};
+    }
+
+    boolean onAddPlaylist()
+    {
+	conversations.addPlaylist();
+	return true;
     }
 
     boolean onPlaylistsClick(Area playlistArea, Object obj)

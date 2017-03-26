@@ -97,13 +97,17 @@ public class PlayerApp implements Application, MonoApp
 		@Override public boolean onEnvironmentEvent(EnvironmentEvent event)
 		{
 		    NullCheck.notNull(event, "event");
+		    if (event.getType() != EnvironmentEvent.Type.REGULAR)
+			return super.onEnvironmentEvent(event);
 		    switch(event.getCode())
 		    {
 		    case CLOSE:
 			closeApp();
 			return true;
 		    case ACTION:
-			return onPlaylistsAction(event);
+			if (ActionEvent.isAction(event, "add-playlist"))
+			    return actions.onAddPlaylist();
+			return false;
 		    case PROPERTIES:
 			return onTreeProperties();
 		    default:
@@ -198,31 +202,6 @@ public class PlayerApp implements Application, MonoApp
 		    }
 		}
 	    };
-    }
-
-
-    private boolean onPlaylistsAction(EnvironmentEvent event)
-    {
-	NullCheck.notNull(event, "event");
-	if (ActionEvent.isAction(event, "add-playlist-with-bookmark"))
-	{
-	    if (base.onAddPlaylistWithBookmark())
-		playlistsArea.refresh();
-	    return true;
-	}
-	if (ActionEvent.isAction(event, "add-playlist-without-bookmark"))
-	{
-	    if (base.onAddPlaylistWithoutBookmark())
-		playlistsArea.refresh();
-	    return true;
-	}
-	if (ActionEvent.isAction(event, "add-streaming-playlist"))
-	{
-	    if (base.onAddStreamingPlaylist())
-		playlistsArea.refresh();
-	    return true;
-	}
-	return false;
     }
 
     private boolean onPlaylistAction(EnvironmentEvent event)
