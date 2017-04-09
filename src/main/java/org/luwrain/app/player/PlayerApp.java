@@ -249,6 +249,7 @@ public class PlayerApp implements Application, MonoApp
 	    case F5:
 		pauseResume();
 		return true;
+	    case ESCAPE:
 	    case F6:
 		stop();
 		return true;
@@ -258,17 +259,17 @@ public class PlayerApp implements Application, MonoApp
 	    case F8:
 		nextTrack();
 		return true;
-	    case F9:
-		actions.jump(-5000);
-		return true;
-	    case F10:
-		actions.jump(5000);
-		return true;
 	    default:
 		return false;
 	    }
 	switch(event.getChar())
 	{
+	    case '-':
+		actions.jump(-5000);
+		return true;
+	    case '=':
+		actions.jump(5000);
+		return true;
 	case '[':
 	    actions.jump(-60000);
 	    return true;
