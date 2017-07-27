@@ -71,9 +71,4 @@ class PlaylistsModel implements ListArea.Model
     @Override public void refresh()
     {
     }
-
-    @Override public boolean toggleMark(int index)
-    {
-	return false;
-    }
 }

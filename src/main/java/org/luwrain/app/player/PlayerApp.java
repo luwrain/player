@@ -39,16 +39,17 @@ public class PlayerApp implements Application, MonoApp
     }
 
 
-    @Override public boolean onLaunch(Luwrain luwrain)
+    @Override public InitResult onLaunchApp(Luwrain luwrain)
     {
+	NullCheck.notNull(luwrain, "luwrain");
 	final Object o = luwrain.i18n().getStrings(Strings.NAME);
 	if (o == null || !(o instanceof Strings))
-	    return false;
+	    return new InitResult(InitResult.Type.NO_STRINGS_OBJ, Strings.NAME);
 	strings = (Strings)o;
 	this.luwrain = luwrain;
 	base = new Base(luwrain, strings);
 	if (base.player == null)
-	    return false;
+	    return new InitResult(InitResult.Type.FAILURE);
 	actions = new Actions(luwrain, base, strings);
 	createAreas();
 	layouts = new AreaLayoutSwitch(luwrain);
@@ -59,18 +60,18 @@ public class PlayerApp implements Application, MonoApp
 	    base.setNewCurrentPlaylist(playlistArea, base.getCurrentPlaylist());
 	if (startingPlaylist != null)
 	    base.player.play(startingPlaylist, 0, 0);
-	return true;
+	return new InitResult();
     }
 
     private void createAreas()
     {
 	final ListArea.Params playlistsParams = new ListArea.Params();
-	playlistsParams.environment = new DefaultControlEnvironment(luwrain);
+	playlistsParams.context = new DefaultControlEnvironment(luwrain);
 	playlistsParams.model = base.playlistsModel;
 	playlistsParams.name = strings.treeAreaName();
 	playlistsParams.clickHandler = (area, index, obj)->actions.onPlaylistsClick(playlistArea, obj);
 
-	playlistsParams.appearance = new ListUtils.DoubleLevelAppearance(playlistsParams.environment){
+	playlistsParams.appearance = new ListUtils.DoubleLevelAppearance(playlistsParams.context){
 		@Override public boolean isSectionItem(Object item)
 		{
 		    NullCheck.notNull(item, "item");
@@ -122,7 +123,7 @@ public class PlayerApp implements Application, MonoApp
 	    };
 
 	final ListArea.Params params = new ListArea.Params();
-	params.environment = new DefaultControlEnvironment(luwrain);
+	params.context = new DefaultControlEnvironment(luwrain);
 	params.model = base.playlistModel;
 	params.appearance = new PlaylistAppearance(luwrain, base);
 	params.clickHandler = (area, index, obj)->onPlaylistClick(index, obj);
@@ -329,12 +330,12 @@ public class PlayerApp implements Application, MonoApp
 	return strings.appName();
     }
 
-    @Override public AreaLayout getAreasToShow()
+    @Override public AreaLayout getAreaLayout()
     {
 	return layouts.getCurrentLayout();
     }
 
-    void closeApp()
+    @Override public void closeApp()
     {
 	base.removeListener();
 	luwrain.closeApp();
