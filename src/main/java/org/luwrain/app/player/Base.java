@@ -1,3 +1,18 @@
+/*
+   Copyright 2012-2017 Michael Pozhidaev <michael.pozhidaev@gmail.com>
+
+   This file is part of LUWRAIN.
+
+   LUWRAIN is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public
+   License as published by the Free Software Foundation; either
+   version 3 of the License, or (at your option) any later version.
+
+   LUWRAIN is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+*/
 
 package org.luwrain.app.player;
 
@@ -29,7 +44,6 @@ class Base
 
     private final RegistryPlaylists playlists;
     final PlaylistsModel playlistsModel;
-    final ListUtils.FixedModel playlistModel = new ListUtils.FixedModel();
 
     private Playlist playlistInEdit = null;
 
@@ -60,12 +74,11 @@ class Base
 	if (currentPlaylist == playlist)
 	    return;
 	currentPlaylist = playlist;
-	currentPlaylistItems = playlist.getPlaylistItems();
+	currentPlaylistItems = playlist.getPlaylistUrls();
 	if (currentPlaylistItems == null)
 	    currentPlaylistItems = new String[0];
 	if (currentPlaylistItems.length > 0)
 	{
-	    playlistModel.setItems(currentPlaylistItems);
 	    currentTrackNum = player.getCurrentTrackNum();
 	    if (currentTrackNum < 0 || currentTrackNum >= currentPlaylistItems.length)
 		currentTrackNum = -1;
@@ -289,5 +302,44 @@ boolean onAddStreamingPlaylist()
 	    b.append("0" + seconds); else
 	    b.append("" + seconds);
 	return new String(b);
+    }
+
+    PlaylistModel newPlaylistModel()
+    {
+	return new PlaylistModel();
+    }
+
+    class PlaylistModel implements EditableListArea.EditableModel
+    {
+	@Override public boolean clearList()
+	{
+	    return false;
+	}
+
+	@Override public boolean addToList(int pos,Clipboard clipboard)
+	{
+	    return false;
+	}
+
+	@Override public boolean removeFromList(int index)
+	{
+	    return false;
+	}
+
+	@Override public void refresh()
+	{
+	} 
+
+	@Override public Object getItem(int index)
+	{
+	    if (currentPlaylistItems == null || index >= currentPlaylistItems.length)
+		return "";
+	    return new PlaylistItem(currentPlaylistItems[index], getTrackTextAppearance(currentPlaylistItems[index]));
+	}
+
+	@Override public int getItemCount()
+	{
+	    return currentPlaylistItems != null?currentPlaylistItems.length:0;
+	}
     }
 }

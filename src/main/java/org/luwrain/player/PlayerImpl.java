@@ -28,9 +28,9 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 			   int startingTrackNum, long startingPosMsec)
     {
 	NullCheck.notNull(playlist, "playlist");
-	if (playlist.getPlaylistItems() == null)
+	if (playlist.getPlaylistUrls() == null)
 	    return Result.INVALID_PLAYLIST;
-	if (startingTrackNum < 0 || startingTrackNum >= playlist.getPlaylistItems().length)
+	if (startingTrackNum < 0 || startingTrackNum >= playlist.getPlaylistUrls().length)
 	    return Result.INVALID_PLAYLIST;
 	    stop();
 	currentPlaylist = playlist;
@@ -96,7 +96,7 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 			  {
 			      if (currentPlaylist == null/* || currentPlaylist.isStreaming()*/)
 	    return;
-	final String[] items = currentPlaylist.getPlaylistItems();
+	final String[] items = currentPlaylist.getPlaylistUrls();
 	if (items == null || currentTrackNum + 1 >= items.length)
 	    return;
 	if (currentPlayer != null)
@@ -112,7 +112,7 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
     {
 	if (currentPlaylist == null/* || currentPlaylist.isStreaming()*/)
 	    return;
-	final String[] items = currentPlaylist.getPlaylistItems();
+	final String[] items = currentPlaylist.getPlaylistUrls();
 	if (items == null || currentTrackNum + 1 >= items.length)
 	    return;
 	if (currentPlayer != null)
@@ -139,7 +139,7 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
     {
 	if (currentPlaylist == null || currentPlayer == null)
 	    return;
-	final String[] items = currentPlaylist.getPlaylistItems();
+	final String[] items = currentPlaylist.getPlaylistUrls();
 	if (items != null && currentTrackNum + 1 < items.length)
 	    nextTrack(); else
 	stop();
@@ -184,7 +184,7 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 
     private Task createTask()
     {
-	final String[] items = currentPlaylist.getPlaylistItems();
+	final String[] items = currentPlaylist.getPlaylistUrls();
 	if (items == null || currentTrackNum < 0 || currentTrackNum >= items.length)
 	    return null;
 	for(int i = 0;i < items.length;++i)
