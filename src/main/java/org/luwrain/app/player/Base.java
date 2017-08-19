@@ -62,49 +62,17 @@ class Base
 	return currentPlaylist;
     }
 
-    void setNewCurrentPlaylist(ListArea area, org.luwrain.player.Playlist playlist)
-    {
-	NullCheck.notNull(area, "area");
-	NullCheck.notNull(playlist, "playlist");
-	if (currentPlaylist == playlist)
-	    return;
-	currentPlaylist = playlist;
-	fillTrackInfoMap(area);
-    }
-
-    private void fillTrackInfoMap(ListArea area)
-    {
-	NullCheck.notNull(area, "area");
-	final org.luwrain.player.Playlist playlist = currentPlaylist;
-	if (playlist == null)
-	    return;
-	final HashMap<String, TrackInfo> map = new HashMap<String, TrackInfo>();
-	new Thread(()->{
-		for(String s: currentPlaylist.getPlaylistUrls())
-		{
-		    try {
-			map.put(s, new TrackInfo(new URL(s)));
-			luwrain.runInMainThread(()->area.redraw());
-		    }
-		    catch(IOException e)
-		    {
-			luwrain.crash(e);
-		    }
-		}
-	}).start();
-	trackInfoMap = map;
-    }
-
     String getTrackTextAppearance(String trackUrl)
     {
 	NullCheck.notNull(trackUrl, "trackUrl");
 	return Utils.getTrackTextAppearanceWithMap(trackUrl, trackInfoMap);
     }
 
-    void setListener(Listener listener)
+    void setListener(ListArea playlistArea, ControlArea controlArea)
     {
-	NullCheck.notNull(listener, "listener");
-	this.listener = listener;
+	NullCheck.notNull(playlistArea, "playlistArea");
+	NullCheck.notNull(controlArea, "controlArea");
+	this.listener = new Listener(playlistArea, controlArea);
 	player.addListener(listener);
     }
 
@@ -123,46 +91,19 @@ class Base
 	return true;
     }
 
-boolean onAddPlaylistWithBookmark()
+    boolean onAddPlaylistWithBookmark()
     {
 	return addPlaylist(true);
     }
 
-boolean onAddPlaylistWithoutBookmark()
+    boolean onAddPlaylistWithoutBookmark()
     {
 	return addPlaylist(false);
     }
 
-boolean onAddStreamingPlaylist()
+    boolean onAddStreamingPlaylist()
     {
 	return false;
-    }
-
-    private boolean addPlaylist(boolean hasBookmark)
-    {
-	/*
-	final String title = Popups.simple(luwrain, strings.addPlaylistPopupName(), strings.addPlaylistPopupPrefix(), ""); 
-	if (title == null)
-	    return false;
-	if (title.trim().isEmpty())
-	{
-	    luwrain.message(strings.playlistTitleMayNotBeEmpty(), Luwrain.MESSAGE_ERROR);
-	    return false;
-	}
-	final Path path = Popups.path(luwrain, strings.choosePlaylistFilePopupName(), strings.choosePlaylistFilePopupPrefix(),
-				      luwrain.getPathProperty("luwrain.dir.userhome"),
-				      (pathToCheck)->{
-					  if (Files.isDirectory(pathToCheck))
-					  {
-					      luwrain.message(strings.playlistFileMayNotBeDir(pathToCheck.toString()), Luwrain.MESSAGE_ERROR);
-					      return false;
-					  }
-					  return true;
-				      });
-	RegistryPlaylist.add(luwrain.getRegistry(), title.trim(), path.toString(), false, hasBookmark);
-	playlistsModel.setPlaylists(player.loadRegistryPlaylists());
-	*/
-		return true;
     }
 
     String getCurrentPlaylistTitle()
@@ -196,13 +137,73 @@ boolean onAddStreamingPlaylist()
     int getPlaylistLen()
     {
 	if (currentPlaylist == null)
-return 0;
-return currentPlaylist.getPlaylistUrls().length;
+	    return 0;
+	return currentPlaylist.getPlaylistUrls().length;
     }
 
     PlaylistModel newPlaylistModel()
     {
 	return new PlaylistModel();
+    }
+
+    private void setNewCurrentPlaylist(ListArea area, org.luwrain.player.Playlist playlist)
+    {
+	NullCheck.notNull(area, "area");
+	NullCheck.notNull(playlist, "playlist");
+	if (currentPlaylist == playlist)
+	    return;
+	currentPlaylist = playlist;
+	fillTrackInfoMap(area);
+    }
+
+    private void fillTrackInfoMap(ListArea area)
+    {
+	NullCheck.notNull(area, "area");
+	final org.luwrain.player.Playlist playlist = currentPlaylist;
+	if (playlist == null)
+	    return;
+	final HashMap<String, TrackInfo> map = new HashMap<String, TrackInfo>();
+	new Thread(()->{
+		for(String s: currentPlaylist.getPlaylistUrls())
+		{
+		    try {
+			map.put(s, new TrackInfo(new URL(s)));
+			luwrain.runInMainThread(()->area.redraw());
+		    }
+		    catch(IOException e)
+		    {
+			luwrain.crash(e);
+		    }
+		}
+	}).start();
+	trackInfoMap = map;
+    }
+
+    private boolean addPlaylist(boolean hasBookmark)
+    {
+	/*
+	  final String title = Popups.simple(luwrain, strings.addPlaylistPopupName(), strings.addPlaylistPopupPrefix(), ""); 
+	  if (title == null)
+	  return false;
+	  if (title.trim().isEmpty())
+	  {
+	  luwrain.message(strings.playlistTitleMayNotBeEmpty(), Luwrain.MESSAGE_ERROR);
+	  return false;
+	  }
+	  final Path path = Popups.path(luwrain, strings.choosePlaylistFilePopupName(), strings.choosePlaylistFilePopupPrefix(),
+	  luwrain.getPathProperty("luwrain.dir.userhome"),
+	  (pathToCheck)->{
+	  if (Files.isDirectory(pathToCheck))
+	  {
+	  luwrain.message(strings.playlistFileMayNotBeDir(pathToCheck.toString()), Luwrain.MESSAGE_ERROR);
+	  return false;
+	  }
+	  return true;
+	  });
+	RegistryPlaylist.add(luwrain.getRegistry(), title.trim(), path.toString(), false, hasBookmark);
+	playlistsModel.setPlaylists(player.loadRegistryPlaylists());
+	*/
+		return true;
     }
 
     class PlaylistModel implements EditableListArea.EditableModel
@@ -236,6 +237,41 @@ return currentPlaylist.getPlaylistUrls().length;
 	@Override public int getItemCount()
 	{
 	    return getPlaylistLen();
+	}
+    }
+
+    class Listener  implements org.luwrain.player.Listener
+    {
+	private final ListArea playlistArea;
+	private final ControlArea controlArea;
+
+	Listener(ListArea playlistArea, ControlArea controlArea)
+	{
+	    NullCheck.notNull(playlistArea, "playlistArea");
+	    NullCheck.notNull(controlArea, "controlArea");
+	    this.playlistArea = playlistArea;
+	    this.controlArea = controlArea;;
+	}
+
+	@Override public void onNewPlaylist(org.luwrain.player.Playlist playlist)
+	{
+	    NullCheck.notNull(playlist, "playlist");
+	    luwrain.runInMainThread(()->setNewCurrentPlaylist(playlistArea, playlist));
+	}
+
+	@Override public void onNewTrack(org.luwrain.player.Playlist playlist, int trackNum)
+	{
+	    luwrain.runInMainThread(()->controlArea.onNewTrack(trackNum));
+	}
+
+	@Override public void onTrackTime(org.luwrain.player.Playlist playlist, int trackNum, long msec)
+	{
+	    luwrain.runInMainThread(()->controlArea.onTrackTime(msec));
+	}
+
+	@Override public void onPlayerStop()
+	{
+	    luwrain.runInMainThread(()->controlArea.onStop());
 	}
     }
 }

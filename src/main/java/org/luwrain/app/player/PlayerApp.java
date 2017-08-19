@@ -67,9 +67,11 @@ public class PlayerApp implements Application, MonoApp
 		luwrain.onNewAreaLayout();
 		luwrain.announceActiveArea();
 	    }, new AreaLayout(AreaLayout.LEFT_TOP_BOTTOM, playlistsArea, playlistArea, controlArea));
-	base.setListener(new Listener(luwrain, this, controlArea));
+	base.setListener(playlistArea, controlArea);
+	/*FIXME:
 	if (base.getCurrentPlaylist() != null)
 	    base.setNewCurrentPlaylist(playlistArea, base.getCurrentPlaylist());
+	*/
 	if (startingPlaylist != null)
 	    base.player.play(startingPlaylist.toGeneralPlaylist(), 0, 0);
 	return new InitResult();
@@ -252,12 +254,6 @@ public class PlayerApp implements Application, MonoApp
 	default:
 	    return false;
 	}
-    }
-
-    void onNewPlaylist(org.luwrain.player.Playlist playlist)
-    {
-	NullCheck.notNull(playlist, "playlist");
-	base.setNewCurrentPlaylist(playlistArea, playlist);
     }
 
     private boolean onPlaylistProps()

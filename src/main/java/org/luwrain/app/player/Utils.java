@@ -32,7 +32,7 @@ class Utils
 	final String tagText = getTrackTagText(trackUrl, map);
 	if (tagText != null)
 	    return tagText;
-String name = "";
+	String name = "";
 	try {
 	    final File f = Urls.toFile(new URL(trackUrl));
 	    if (f == null)
@@ -42,7 +42,7 @@ String name = "";
 	catch(MalformedURLException e)
 	{
 	    name = trackUrl;
-    }
+	}
 	return name;
     }
 
@@ -62,8 +62,8 @@ String name = "";
 	    b.append(info.artist.trim());
 	if (!info.artist.trim().isEmpty() && !info.title.trim().isEmpty())
 	    b.append(" - ");
-	    if (!info.title.trim().isEmpty())
-	b.append(info.title);
+	if (!info.title.trim().isEmpty())
+	    b.append(info.title);
 	return new String(b);
     }
 
