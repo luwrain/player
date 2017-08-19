@@ -125,12 +125,6 @@ class ControlArea extends NavigationArea
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
 			{
-			case TAB:
-			    app.goToPlaylists();
-			    return true;
-			case BACKSPACE:
-			    app.goToPlaylists();
-			    return true;
 			case ENTER:
 			    return onEnter(event);
 			}

@@ -132,7 +132,6 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 	    return;
 	currentPos = msec;
 	notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, currentPos));
-	currentPlaylist.updateStartingPos(currentTrackNum, currentPos);
     }
 
     @Override public synchronized void onPlayerBackEndFinish()

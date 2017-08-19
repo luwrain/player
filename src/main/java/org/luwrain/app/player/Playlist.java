@@ -20,7 +20,7 @@ import java.util.*;
 
 import org.luwrain.core.*;
 
-class Playlist extends org.luwrain.player.DefaultPlaylist
+class Playlist
 {
     enum Flags {HAS_BOOKMARK, STREAMING };
 
@@ -29,24 +29,27 @@ class Playlist extends org.luwrain.player.DefaultPlaylist
 	String[] loadTracks();
     }
 
+    final String title; 
     final Set<Flags> flags;
     final TracksLoader tracksLoader;
     private String[] loadedTracks = null;
 
     Playlist(String title, TracksLoader tracksLoader)
     {
-	super(title, new String[0], null);
+	NullCheck.notNull(title, "title");
 	NullCheck.notNull(tracksLoader, "tracksLoader");
 	this.flags = EnumSet.noneOf(Flags.class);
+	this.title = title;
 	this.tracksLoader = tracksLoader;
     }
 
     Playlist(String title, TracksLoader tracksLoader, Set<Flags> flags)
     {
-	super(title, new String[0], null);
+	NullCheck.notNull(title, "title");
 	NullCheck.notNull(flags, "flags");
 	NullCheck.notNull(tracksLoader, "tracksLoader");
 	this.flags = flags;
+	this.title = title;
 	this.tracksLoader = tracksLoader;
     }
 
@@ -55,10 +58,10 @@ class Playlist extends org.luwrain.player.DefaultPlaylist
 	return flags;
     }
 
-    @Override public String[] getPlaylistUrls()
+    org.luwrain.player.Playlist toGeneralPlaylist()
     {
 	if (loadedTracks == null)
 	    loadedTracks = tracksLoader.loadTracks();
-	    return loadedTracks;
+	return new org.luwrain.player.Playlist(loadedTracks);
     }
 }

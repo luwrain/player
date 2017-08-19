@@ -37,15 +37,14 @@ class Base
     final Player player;
     private Listener listener;
 
-    private org.luwrain.player.Playlist currentPlaylist = null;
-    private String[] currentPlaylistItems = new String[0];
-    private HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
     private int currentTrackNum = -1;
+    private org.luwrain.player.Playlist currentPlaylist = null;
+    private HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
 
     private final RegistryPlaylists playlists;
     final PlaylistsModel playlistsModel;
 
-    private Playlist playlistInEdit = null;
+    //    private Playlist playlistInEdit = null;
 
     Base(Luwrain luwrain, Strings strings)
     {
@@ -67,39 +66,36 @@ class Base
 	return currentPlaylist;
     }
 
-    void setNewCurrentPlaylist(Area area, org.luwrain.player.Playlist playlist)
+    void setNewCurrentPlaylist(ListArea area, org.luwrain.player.Playlist playlist)
     {
 	NullCheck.notNull(area, "area");
 	NullCheck.notNull(playlist, "playlist");
 	if (currentPlaylist == playlist)
 	    return;
 	currentPlaylist = playlist;
-	currentPlaylistItems = playlist.getPlaylistUrls();
-	if (currentPlaylistItems == null)
-	    currentPlaylistItems = new String[0];
-	if (currentPlaylistItems.length > 0)
-	{
-	    currentTrackNum = player.getCurrentTrackNum();
-	    if (currentTrackNum < 0 || currentTrackNum >= currentPlaylistItems.length)
+	if (playlist.getPlaylistUrls().length > 0)
+	    currentTrackNum = Math.min(player.getCurrentTrackNum(), playlist.getPlaylistUrls().length - 1); else
 		currentTrackNum = -1;
-	}
 	fillTrackInfoMap(area);
     }
 
-    private void fillTrackInfoMap(Area area)
+    private void fillTrackInfoMap(ListArea area)
     {
 	NullCheck.notNull(area, "area");
+	final org.luwrain.player.Playlist playlist = currentPlaylist;
+	if (playlist == null)
+	    return;
 	final HashMap<String, TrackInfo> map = new HashMap<String, TrackInfo>();
 	new Thread(()->{
-		for(String s: currentPlaylistItems)
+		for(String s: currentPlaylist.getPlaylistUrls())
 		{
 		    try {
 			map.put(s, new TrackInfo(new URL(s)));
-			luwrain.runInMainThread(()->luwrain.onAreaNewContent(area));
+			luwrain.runInMainThread(()->area.redraw());
 		    }
 		    catch(IOException e)
 		    {
-			Log.warning("player", "unable to read tags for " + s + ":" + e.getClass().getName() + ":" + e.getMessage());
+			luwrain.crash(e);
 		    }
 		}
 	}).start();
@@ -168,7 +164,7 @@ String name = "";
 
     void onNewTrack(int trackNum)
     {
-	if (trackNum < 0 || trackNum >= currentPlaylistItems.length)
+	if (trackNum < 0)
 	    currentTrackNum = -1; else
 	    currentTrackNum = trackNum;
     }
@@ -185,7 +181,7 @@ String name = "";
     {
 	if (currentPlaylist == null)
 	    return false;
-	if (index < 0 || index >= currentPlaylistItems.length)
+	if (index < 0 || index >= currentPlaylist.getPlaylistUrls().length)
 	    return false;
 	player.play(currentPlaylist, index, 0);
 	currentTrackNum = index;
@@ -221,7 +217,7 @@ String name = "";
     void savePlaylistProperties(FormArea area)
     {
 	NullCheck.notNull(area, "area");
-	NullCheck.notNull(playlistInEdit, "playlistInEdit");
+	//	NullCheck.notNull(playlistInEdit, "playlistInEdit");
 	/*
 	playlistInEdit.setPlaylistTitle(area.getEnteredText("title"));
 	playlistInEdit.setPlaylistUrl(area.getEnteredText("url"));
@@ -283,9 +279,9 @@ boolean onAddStreamingPlaylist()
 
     String getCurrentTrackTitle()
     {
-	if (currentPlaylistItems.length < 1 || currentTrackNum < 0)
+	if (isEmptyPlaylist() || currentTrackNum < 0 || currentTrackNum >= getPlaylistLen())
 	    return "";
-	final String res = currentPlaylistItems[currentTrackNum];
+	final String res = getPlaylistUrls()[currentTrackNum];
 	return res != null?res:"";
     }
 
@@ -302,6 +298,25 @@ boolean onAddStreamingPlaylist()
 	    b.append("0" + seconds); else
 	    b.append("" + seconds);
 	return new String(b);
+    }
+
+    boolean isEmptyPlaylist()
+    {
+	return currentPlaylist == null || currentPlaylist.getPlaylistUrls().length < 1;
+    }
+
+    String[] getPlaylistUrls()
+    {
+	if (currentPlaylist == null)
+	    return new String[0];
+	return currentPlaylist.getPlaylistUrls();
+    }
+
+    int getPlaylistLen()
+    {
+	if (currentPlaylist == null)
+return 0;
+return currentPlaylist.getPlaylistUrls().length;
     }
 
     PlaylistModel newPlaylistModel()
@@ -332,14 +347,14 @@ boolean onAddStreamingPlaylist()
 
 	@Override public Object getItem(int index)
 	{
-	    if (currentPlaylistItems == null || index >= currentPlaylistItems.length)
+	    if (index < 0 || index >= getPlaylistLen())
 		return "";
-	    return new PlaylistItem(currentPlaylistItems[index], getTrackTextAppearance(currentPlaylistItems[index]));
+	    return new PlaylistItem(getPlaylistUrls()[index], getTrackTextAppearance(getPlaylistUrls()[index]));
 	}
 
 	@Override public int getItemCount()
 	{
-	    return currentPlaylistItems != null?currentPlaylistItems.length:0;
+	    return getPlaylistLen();
 	}
     }
 }

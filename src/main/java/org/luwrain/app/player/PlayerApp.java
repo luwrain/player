@@ -28,20 +28,17 @@ import org.luwrain.popups.*;
 
 public class PlayerApp implements Application, MonoApp
 {
-    static private final int MAIN_LAYOUT_INDEX = 0;
-    static private final int PLAYLIST_PROPERTIES_LAYOUT_INDEX = 1;
+    private Luwrain luwrain = null;
+    private Strings strings = null;
+    private Base base = null;
+    private Actions actions = null;
 
-    private Luwrain luwrain;
-    private Base base;
-    private Actions actions;
-    private Strings strings;
-    private ListArea playlistsArea;
-    private ListArea playlistArea;
-    private ControlArea controlArea;
-    private FormArea propertiesFormArea;
-    private AreaLayoutSwitch layouts;
+    private ListArea playlistsArea = null;
+    private ListArea playlistArea = null;
+    private ControlArea controlArea = null;
+    private AreaLayoutHelper layout = null;
 
-    private Playlist startingPlaylist = null;
+    private final Playlist startingPlaylist;
 
     public PlayerApp()
     {
@@ -53,7 +50,6 @@ public class PlayerApp implements Application, MonoApp
 	startingPlaylist = null;
     }
 
-
     @Override public InitResult onLaunchApp(Luwrain luwrain)
     {
 	NullCheck.notNull(luwrain, "luwrain");
@@ -62,19 +58,19 @@ public class PlayerApp implements Application, MonoApp
 	    return new InitResult(InitResult.Type.NO_STRINGS_OBJ, Strings.NAME);
 	strings = (Strings)o;
 	this.luwrain = luwrain;
-	base = new Base(luwrain, strings);
+	this.base = new Base(luwrain, strings);
 	if (base.player == null)
 	    return new InitResult(InitResult.Type.FAILURE);
-	actions = new Actions(luwrain, base, strings);
+	this.actions = new Actions(luwrain, base, strings);
 	createAreas();
-	layouts = new AreaLayoutSwitch(luwrain);
-	layouts.add(new AreaLayout(AreaLayout.LEFT_TOP_BOTTOM, playlistsArea, playlistArea, controlArea));
-	layouts.add(new AreaLayout(propertiesFormArea));
+	this.layout = new AreaLayoutHelper(()->{
+		luwrain.onNewAreaLayout();
+	    }, new AreaLayout(AreaLayout.LEFT_TOP_BOTTOM, playlistsArea, playlistArea, controlArea));
 	base.setListener(new Listener(luwrain, this, controlArea));
 	if (base.getCurrentPlaylist() != null)
 	    base.setNewCurrentPlaylist(playlistArea, base.getCurrentPlaylist());
 	if (startingPlaylist != null)
-	    base.player.play(startingPlaylist, 0, 0);
+	    base.player.play(startingPlaylist.toGeneralPlaylist(), 0, 0);
 	return new InitResult();
     }
 
@@ -104,7 +100,7 @@ public class PlayerApp implements Application, MonoApp
 			switch(event.getSpecial())
 			{
 			case TAB:
-			    goToPlaylist();
+			    luwrain.setActiveArea(playlistArea);
 			    return true;
 			}
 		    return super.onKeyboardEvent(event);
@@ -125,7 +121,7 @@ public class PlayerApp implements Application, MonoApp
 			    return actions.onAddPlaylist();
 			return false;
 		    case PROPERTIES:
-			return onTreeProperties();
+			return onPlaylistProperties();
 		    default:
 			return super.onEnvironmentEvent(event);
 		    }
@@ -155,10 +151,10 @@ public class PlayerApp implements Application, MonoApp
 			switch(event.getSpecial())
 			{
 			case TAB:
-			    goToControl();
+			    luwrain.setActiveArea(controlArea);
 			    return true;
 			case BACKSPACE:
-			    goToPlaylists();
+			    luwrain.setActiveArea(playlistsArea);
 			    return true;
 			}
 		    return super.onKeyboardEvent(event);
@@ -170,8 +166,7 @@ public class PlayerApp implements Application, MonoApp
 		    switch(event.getCode())
 		    {
 		    case ACTION:
-			return onPlaylistAction(event);
-
+			return false;
 		    case CLOSE:
 			closeApp();
 			return true;
@@ -187,46 +182,7 @@ public class PlayerApp implements Application, MonoApp
 	    };
 
 	controlArea = new ControlArea(luwrain, this, base, strings);
-
-	propertiesFormArea = new FormArea(new DefaultControlEnvironment(luwrain), strings.playlistPropertiesAreaName()) {
-
-		@Override public boolean onKeyboardEvent(KeyboardEvent event)
-		{
-		    NullCheck.notNull(event, "event");
-		    if (commonKeys(event))
-			return true;
-		    if (event.isSpecial() && !event.isModified())
-			switch(event.getSpecial())
-			{
-			case ESCAPE:
-			    return closeTreeProperties(false);
-			}
-		    return super.onKeyboardEvent(event);
-		}
-
-		@Override public boolean onEnvironmentEvent(EnvironmentEvent event)
-		{
-		    NullCheck.notNull(event, "event");
-		    switch(event.getCode())
-		    {
-		    case CLOSE:
-			closeApp();
-		    case OK:
-			return closeTreeProperties(true );
-		    default:
-			return super.onEnvironmentEvent(event);
-		    }
-		}
-	    };
     }
-
-    private boolean onPlaylistAction(EnvironmentEvent event)
-    {
-	NullCheck.notNull(event, "event");
-	return false;
-    }
-
-
 
     private boolean onPlaylistClick(int index, Object item)
     {
@@ -303,8 +259,9 @@ public class PlayerApp implements Application, MonoApp
 	base.setNewCurrentPlaylist(playlistArea, playlist);
     }
 
-    private boolean onTreeProperties()
+    private boolean onPlaylistProperties()
     {
+	/*
 	final Object obj = playlistsArea.selected();
 	if (obj == null || !(obj instanceof Playlist))
 	    return false;
@@ -312,9 +269,41 @@ public class PlayerApp implements Application, MonoApp
 	playlistsArea.refresh();
 	layouts.show(PLAYLIST_PROPERTIES_LAYOUT_INDEX);
 	luwrain.announceActiveArea();
-	return true;
-    }
 
+	propertiesFormArea = new FormArea(new DefaultControlEnvironment(luwrain), strings.playlistPropertiesAreaName()) {
+
+		@Override public boolean onKeyboardEvent(KeyboardEvent event)
+		{
+		    NullCheck.notNull(event, "event");
+		    if (commonKeys(event))
+			return true;
+		    if (event.isSpecial() && !event.isModified())
+			switch(event.getSpecial())
+			{
+			case ESCAPE:
+			    return closeTreeProperties(false);
+			}
+		    return super.onKeyboardEvent(event);
+		}
+
+		@Override public boolean onEnvironmentEvent(EnvironmentEvent event)
+		{
+		    NullCheck.notNull(event, "event");
+		    switch(event.getCode())
+		    {
+		    case CLOSE:
+			closeApp();
+		    case OK:
+			return closeTreeProperties(true );
+		    default:
+			return super.onEnvironmentEvent(event);
+		    }
+		}
+	    };
+
+	*/
+
+	/*
     private boolean closeTreeProperties(boolean save)
     {
 	if (save)
@@ -325,20 +314,11 @@ public class PlayerApp implements Application, MonoApp
 	return true;
     }
 
-    void goToPlaylists()
-    {
-	luwrain.setActiveArea(playlistsArea);
+	*/
+
+	return true;
     }
 
-    private void goToPlaylist()
-    {
-	luwrain.setActiveArea(playlistArea);
-    }
-
-    private void goToControl()
-    {
-	luwrain.setActiveArea(controlArea);
-    }
 
     @Override public String getAppName()
     {
@@ -347,7 +327,7 @@ public class PlayerApp implements Application, MonoApp
 
     @Override public AreaLayout getAreaLayout()
     {
-	return layouts.getCurrentLayout();
+	return layout.getLayout();
     }
 
     @Override public void closeApp()

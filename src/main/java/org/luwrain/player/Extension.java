@@ -97,7 +97,7 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 			final URL url = Urls.toUrl(f);
 			if (url == null)
 			    return null;//FIXME:message
-			player.play(new DefaultPlaylist(url.toString()), 0, 0);
+			player.play(new org.luwrain.player.Playlist(url.toString()), 0, 0);
 		    }
 		    return null;
 		}
