@@ -169,8 +169,8 @@ String title, String url,
 	    NullCheck.notNull(o2, "oo2");
 	    if (!(o1 instanceof String) || !(o2 instanceof String))
 		return o1.toString().compareTo(o2.toString());
-	    final String title1 = base.getTrackTextAppearanceWithMap((String)o1, trackInfoMap);
-	    final String title2 = base.getTrackTextAppearanceWithMap((String)o2, trackInfoMap);
+	    final String title1 = Utils.getTrackTextAppearanceWithMap((String)o1, trackInfoMap);
+	    final String title2 = Utils.getTrackTextAppearanceWithMap((String)o2, trackInfoMap);
 	    return title1.compareTo(title2);
 	}
     }

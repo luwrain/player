@@ -203,12 +203,12 @@ public class PlayerApp implements Application, MonoApp
 
     void prevTrack()
     {
-	base.prevTrack();
+	base.player.prevTrack();
     }
 
     void nextTrack()
     {
-	base.nextTrack();
+	base.player.nextTrack();
     }
 
     boolean commonKeys(KeyboardEvent event)

@@ -34,16 +34,13 @@ class Base
 {
     private final Luwrain luwrain;
     private final Strings strings;
-    final Player player;
     private Listener listener;
+    final Player player;
 
     private org.luwrain.player.Playlist currentPlaylist = null;
     private HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
-
     private final RegistryPlaylists playlists;
     final PlaylistsModel playlistsModel;
-
-    //    private Playlist playlistInEdit = null;
 
     Base(Luwrain luwrain, Strings strings)
     {
@@ -101,49 +98,7 @@ class Base
     String getTrackTextAppearance(String trackUrl)
     {
 	NullCheck.notNull(trackUrl, "trackUrl");
-	return getTrackTextAppearanceWithMap(trackUrl, trackInfoMap);
-    }
-
-    static String getTrackTextAppearanceWithMap(String trackUrl, Map<String, TrackInfo> map)
-    {
-	NullCheck.notNull(trackUrl, "trackUrl");
-	NullCheck.notNull(map, "map");
-	final String tagText = getTrackTagText(trackUrl, map);
-	if (tagText != null)
-	    return tagText;
-String name = "";
-	try {
-	    final File f = Urls.toFile(new URL(trackUrl));
-	    if (f == null)
-		name = trackUrl; else
-		name = f.getName();
-	}
-	catch(MalformedURLException e)
-	{
-	    name = trackUrl;
-    }
-	return name;
-    }
-
-    static private String getTrackTagText(String trackUrl, Map<String, TrackInfo> map)
-    {
-	NullCheck.notNull(trackUrl, "trackUrl");
-	NullCheck.notNull(map, "map");
-	if (!map.containsKey(trackUrl))
-	    return null;
-	final StringBuilder b = new StringBuilder();
-	final TrackInfo info = map.get(trackUrl);
-	if (info == null)
-	    return null;
-	if (info.artist.trim().isEmpty() && info.title.trim().isEmpty())
-	    return null;
-	if (!info.artist.trim().isEmpty())
-	    b.append(info.artist.trim());
-	if (!info.artist.trim().isEmpty() && !info.title.trim().isEmpty())
-	    b.append(" - ");
-	    if (!info.title.trim().isEmpty())
-	b.append(info.title);
-	return new String(b);
+	return Utils.getTrackTextAppearanceWithMap(trackUrl, trackInfoMap);
     }
 
     void setListener(Listener listener)
@@ -158,36 +113,13 @@ String name = "";
 	player.removeListener(listener);
     }
 
-    void onNewTrack(int trackNum)
-    {
-    }
-
-    void onStop()
-    {
-    }
-
-
-
-
     boolean playPlaylistItem(int index)
     {
 	if (currentPlaylist == null)
 	    return false;
-	if (index < 0 || index >= currentPlaylist.getPlaylistUrls().length)
+	if (index < 0 || index >= getPlaylistLen())
 	    return false;
 	player.play(currentPlaylist, index, 0);
-	return true;
-    }
-
-    boolean prevTrack()
-    {
-	player.prevTrack();
-	return true;
-    }
-
-    boolean nextTrack()
-    {
-	player.nextTrack();
 	return true;
     }
 
@@ -247,21 +179,6 @@ boolean onAddStreamingPlaylist()
 	    return "";
 	final String res = getPlaylistUrls()[player.getCurrentTrackNum()];
 	return res != null?res:"";
-    }
-
-    static String getTimeStr(long sec)
-    {
-	final StringBuilder b = new StringBuilder();
-	final long min = sec / 60;
-	final long seconds = sec % 60;
-	if (min < 10)
-	    b.append("0" + min); else
-	    b.append("" + min);
-	b.append(":");
-	if (seconds < 10)
-	    b.append("0" + seconds); else
-	    b.append("" + seconds);
-	return new String(b);
     }
 
     boolean isEmptyPlaylist()

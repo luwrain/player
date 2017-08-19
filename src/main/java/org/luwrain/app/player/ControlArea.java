@@ -52,7 +52,6 @@ class ControlArea extends NavigationArea
 
     void onNewTrack(int trackNum)
     {
-	base.onNewTrack(trackNum);
 	luwrain.onAreaNewContent(this);
     }
 
@@ -68,7 +67,6 @@ class ControlArea extends NavigationArea
 
     void onStop()
     {
-	base.onStop();
 	timeSec = -1;
 	luwrain.onAreaNewContent(this);
     }
@@ -101,7 +99,7 @@ class ControlArea extends NavigationArea
 	case 1:
 	    return base.getCurrentTrackTitle();
 	case 2:
-	    return Base.getTimeStr(timeSec);
+	    return Utils.getTimeStr(timeSec);
 	case 3:
 	    return "";
 	case 4:
