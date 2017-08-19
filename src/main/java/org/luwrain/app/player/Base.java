@@ -37,7 +37,6 @@ class Base
     final Player player;
     private Listener listener;
 
-    private int currentTrackNum = -1;
     private org.luwrain.player.Playlist currentPlaylist = null;
     private HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
 
@@ -73,9 +72,6 @@ class Base
 	if (currentPlaylist == playlist)
 	    return;
 	currentPlaylist = playlist;
-	if (playlist.getPlaylistUrls().length > 0)
-	    currentTrackNum = Math.min(player.getCurrentTrackNum(), playlist.getPlaylistUrls().length - 1); else
-		currentTrackNum = -1;
 	fillTrackInfoMap(area);
     }
 
@@ -164,14 +160,10 @@ String name = "";
 
     void onNewTrack(int trackNum)
     {
-	if (trackNum < 0)
-	    currentTrackNum = -1; else
-	    currentTrackNum = trackNum;
     }
 
     void onStop()
     {
-	currentTrackNum = -1;
     }
 
 
@@ -184,21 +176,18 @@ String name = "";
 	if (index < 0 || index >= currentPlaylist.getPlaylistUrls().length)
 	    return false;
 	player.play(currentPlaylist, index, 0);
-	currentTrackNum = index;
 	return true;
     }
 
     boolean prevTrack()
     {
 	player.prevTrack();
-	currentTrackNum = player.getCurrentTrackNum();
 	return true;
     }
 
     boolean nextTrack()
     {
 	player.nextTrack();
-	currentTrackNum = player.getCurrentTrackNum();
 	return true;
     }
 
@@ -254,9 +243,9 @@ boolean onAddStreamingPlaylist()
 
     String getCurrentTrackTitle()
     {
-	if (isEmptyPlaylist() || currentTrackNum < 0 || currentTrackNum >= getPlaylistLen())
+	if (isEmptyPlaylist())
 	    return "";
-	final String res = getPlaylistUrls()[currentTrackNum];
+	final String res = getPlaylistUrls()[player.getCurrentTrackNum()];
 	return res != null?res:"";
     }
 
