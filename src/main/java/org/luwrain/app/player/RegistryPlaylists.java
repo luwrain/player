@@ -74,23 +74,7 @@ class RegistryPlaylists
 	final String dirPath = sett.getPath("");
 	if (title.isEmpty() || dirPath.isEmpty())
 	    return null;
-	return new Playlist(title, ()->{
-		final LinkedList<String> filesList = new LinkedList<String>();
-		TracksLoaders.loadFilesList(new File(dirPath), new String[0], filesList);
-		final String[] items = filesList.toArray(new String[filesList.size()]);
-		final HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
-		for(String s: items)
-		    try {
-			trackInfoMap.put(s, new TrackInfo(new URL(s)));
-		    }
-		    catch(IOException e)
-		    {
-			Log.warning("player", "unable to read tags for " + s + ":" + e.getClass().getName() + ":" + e.getMessage());
-		    }
-		Log.debug("comparing", "" + trackInfoMap.size());
-		Arrays.sort(items, new PlaylistComparator(base, trackInfoMap));
-		return items;
-	});
+	return new Playlist(sett, TracksLoaders.newDirectoryLoader(base, dirPath));
     }
 
     private Playlist loadStreamingPlaylist(String path)
@@ -101,7 +85,7 @@ class RegistryPlaylists
 	final String url = sett.getUrl("");
 	if (title.isEmpty() || url.isEmpty())
 	    return null;
-	return new Playlist(title, ()->{
+	return new Playlist(sett, ()->{
 		return new String[]{url};
 	}, EnumSet.of(Playlist.Flags.STREAMING));
     }
@@ -124,30 +108,4 @@ String title, String url,
 	settings.setHasBookmark(hasBookmark);
     }
     */
-
-
-    static private class PlaylistComparator implements Comparator
-    {
-	private final Base base;
-	private final HashMap<String, TrackInfo> trackInfoMap;
-
-	PlaylistComparator(Base base, HashMap<String, TrackInfo> trackInfoMap)
-	{
-	    NullCheck.notNull(base, "base");
-	    NullCheck.notNull(trackInfoMap, "trackInfoMap");
-	    this.base = base;
-	    this.trackInfoMap = trackInfoMap;
-	}
-
-	@Override public int compare(Object o1, Object o2)
-	{
-	    NullCheck.notNull(o1, "oo1");
-	    NullCheck.notNull(o2, "oo2");
-	    if (!(o1 instanceof String) || !(o2 instanceof String))
-		return o1.toString().compareTo(o2.toString());
-	    final String title1 = Utils.getTrackTextAppearanceWithMap((String)o1, trackInfoMap);
-	    final String title2 = Utils.getTrackTextAppearanceWithMap((String)o2, trackInfoMap);
-	    return title1.compareTo(title2);
-	}
-    }
 }

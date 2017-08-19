@@ -284,21 +284,38 @@ case ESCAPE:
 		    {
 		    case CLOSE:
 			closeApp();
-			//		    case OK:
-	/*
-	playlistInEdit.setPlaylistTitle(area.getEnteredText("title"));
-	playlistInEdit.setPlaylistUrl(area.getEnteredText("url"));
-	playlistInEdit = null;
-	playlistsModel.setPlaylists(player.loadRegistryPlaylists());
-	*/
-			//			return closeTreeProperties(true );
+case OK:
+    {
+	final String title = getEnteredText("title").trim();
+	if (title.isEmpty())
+	{
+	    luwrain.message("Название не может быть пустым", Luwrain.MessageType.ERROR);
+	    return true;
+	}
+	playlist.sett.setTitle(title);
+	playlistsArea.refresh();
+	layout.closeTempLayout();
+	return true;
+    }
 		    default:
 			return super.onEnvironmentEvent(event);
 		    }
 		}
 	    };
 	area.addEdit("title", strings.playlistPropertiesAreaTitle(), playlist.getPlaylistTitle());
-	//	area.addEdit("url", strings.playlistPropertiesAreaUrl(), playlist.getPlaylistUrl());
+	if (playlist.sett instanceof Settings.DirectoryPlaylist)
+	{
+	    final Settings.DirectoryPlaylist sett = (Settings.DirectoryPlaylist)playlist.sett;
+	    area.addEdit("path", "Каталог с файлами:", sett.getPath(""));
+	}
+
+	if (playlist.sett instanceof Settings.StreamingPlaylist)
+	{
+	    final Settings.StreamingPlaylist sett = (Settings.StreamingPlaylist)playlist.sett;
+	    area.addEdit("url", "URL потока вещания:", sett.getUrl(""));//FIXME:
+	}
+
+
 	layout.openTempArea(area);
 	return true;
     }

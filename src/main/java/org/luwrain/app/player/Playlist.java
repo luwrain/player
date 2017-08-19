@@ -29,27 +29,27 @@ class Playlist implements Comparable
 	String[] loadTracks();
     }
 
-    final String title; 
+    final Settings.Base sett;
     final Set<Flags> flags;
     final TracksLoader tracksLoader;
     private String[] loadedTracks = null;
 
-    Playlist(String title, TracksLoader tracksLoader)
+    Playlist(Settings.Base sett, TracksLoader tracksLoader)
     {
-	NullCheck.notNull(title, "title");
+	NullCheck.notNull(sett, "sett");
 	NullCheck.notNull(tracksLoader, "tracksLoader");
 	this.flags = EnumSet.noneOf(Flags.class);
-	this.title = title;
+	this.sett = sett;
 	this.tracksLoader = tracksLoader;
     }
 
-    Playlist(String title, TracksLoader tracksLoader, Set<Flags> flags)
+    Playlist(Settings.Base sett, TracksLoader tracksLoader, Set<Flags> flags)
     {
-	NullCheck.notNull(title, "title");
+	NullCheck.notNull(sett, "sett");
 	NullCheck.notNull(flags, "flags");
 	NullCheck.notNull(tracksLoader, "tracksLoader");
 	this.flags = flags;
-	this.title = title;
+	this.sett = sett;
 	this.tracksLoader = tracksLoader;
     }
 
@@ -60,7 +60,7 @@ class Playlist implements Comparable
 
     String getPlaylistTitle()
     {
-	return title;
+	return sett.getTitle("-");
     }
 
     org.luwrain.player.Playlist toGeneralPlaylist()
@@ -74,11 +74,11 @@ class Playlist implements Comparable
     {
 	if (o == null || !(o instanceof Playlist))
 	    return 0;
-	return title.compareTo(((Playlist)o).title);
+	return getPlaylistTitle().compareTo(((Playlist)o).getPlaylistTitle());
     }
 
     @Override public String toString()
     {
-	return title;
+	return getPlaylistTitle();
     }
 }
