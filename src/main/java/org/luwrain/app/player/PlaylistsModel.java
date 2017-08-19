@@ -28,7 +28,7 @@ class PlaylistsModel implements ListArea.Model
     private final String streamingPlaylists;
 
     private Object[] items = new Object[0];
-    
+
     PlaylistsModel(Strings strings)
     {
 	NullCheck.notNull(strings, "strings");
@@ -40,9 +40,9 @@ class PlaylistsModel implements ListArea.Model
     void setPlaylists(Playlist[] playlists)
     {
 	NullCheck.notNullItems(playlists, "playlists");
-	final LinkedList<Playlist> withBookmarks = new LinkedList<Playlist>();
-	final LinkedList<Playlist> withoutBookmarks = new LinkedList<Playlist>();
-	final LinkedList<Playlist> streaming = new LinkedList<Playlist>();
+	final List<Playlist> withBookmarks = new LinkedList<Playlist>();
+	final List<Playlist> withoutBookmarks = new LinkedList<Playlist>();
+	final List<Playlist> streaming = new LinkedList<Playlist>();
 	for(Playlist p: playlists)
 	{
 	    if (p.getFlags().contains(Playlist.Flags.STREAMING))
@@ -58,7 +58,7 @@ class PlaylistsModel implements ListArea.Model
 	Arrays.sort(sortingWithBookmarks);
 	Arrays.sort(sortingWithoutBookmarks);
 	Arrays.sort(sortingStreaming);
-	final LinkedList res = new LinkedList();
+	final List res = new LinkedList();
 	res.add(playlistsWithoutBookmarks);
 	for(Playlist p: sortingWithoutBookmarks)
 	    res.add(p);

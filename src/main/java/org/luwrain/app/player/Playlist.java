@@ -20,7 +20,7 @@ import java.util.*;
 
 import org.luwrain.core.*;
 
-class Playlist
+class Playlist implements Comparable
 {
     enum Flags {HAS_BOOKMARK, STREAMING };
 
@@ -58,10 +58,27 @@ class Playlist
 	return flags;
     }
 
+    String getPlaylistTitle()
+    {
+	return title;
+    }
+
     org.luwrain.player.Playlist toGeneralPlaylist()
     {
 	if (loadedTracks == null)
 	    loadedTracks = tracksLoader.loadTracks();
 	return new org.luwrain.player.Playlist(loadedTracks);
+    }
+
+    @Override public int compareTo(Object o)
+    {
+	if (o == null || !(o instanceof Playlist))
+	    return 0;
+	return title.compareTo(((Playlist)o).title);
+    }
+
+    @Override public String toString()
+    {
+	return title;
     }
 }

@@ -202,31 +202,6 @@ String name = "";
 	return true;
     }
 
-    void fillPlaylistProperties(Playlist playlist, FormArea area)
-    {
-	NullCheck.notNull(playlist, "playlist");
-	NullCheck.notNull(area, "area");
-	/*
-	area.clear();
-	area.addEdit("title", strings.playlistPropertiesAreaTitle(), playlist.getPlaylistTitle());
-	area.addEdit("url", strings.playlistPropertiesAreaUrl(), playlist.getPlaylistUrl());
-	playlistInEdit = playlist;
-	*/
-    }
-
-    void savePlaylistProperties(FormArea area)
-    {
-	NullCheck.notNull(area, "area");
-	//	NullCheck.notNull(playlistInEdit, "playlistInEdit");
-	/*
-	playlistInEdit.setPlaylistTitle(area.getEnteredText("title"));
-	playlistInEdit.setPlaylistUrl(area.getEnteredText("url"));
-	playlistInEdit = null;
-	playlistsModel.setPlaylists(player.loadRegistryPlaylists());
-	*/
-    }
-
-
 boolean onAddPlaylistWithBookmark()
     {
 	return addPlaylist(true);

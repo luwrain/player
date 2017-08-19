@@ -65,6 +65,7 @@ public class PlayerApp implements Application, MonoApp
 	createAreas();
 	this.layout = new AreaLayoutHelper(()->{
 		luwrain.onNewAreaLayout();
+		luwrain.announceActiveArea();
 	    }, new AreaLayout(AreaLayout.LEFT_TOP_BOTTOM, playlistsArea, playlistArea, controlArea));
 	base.setListener(new Listener(luwrain, this, controlArea));
 	if (base.getCurrentPlaylist() != null)
@@ -121,7 +122,7 @@ public class PlayerApp implements Application, MonoApp
 			    return actions.onAddPlaylist();
 			return false;
 		    case PROPERTIES:
-			return onPlaylistProperties();
+			return onPlaylistProps();
 		    default:
 			return super.onEnvironmentEvent(event);
 		    }
@@ -259,66 +260,52 @@ public class PlayerApp implements Application, MonoApp
 	base.setNewCurrentPlaylist(playlistArea, playlist);
     }
 
-    private boolean onPlaylistProperties()
+    private boolean onPlaylistProps()
     {
-	/*
 	final Object obj = playlistsArea.selected();
 	if (obj == null || !(obj instanceof Playlist))
 	    return false;
-	base.fillPlaylistProperties((Playlist)obj, propertiesFormArea);
-	playlistsArea.refresh();
-	layouts.show(PLAYLIST_PROPERTIES_LAYOUT_INDEX);
-	luwrain.announceActiveArea();
-
-	propertiesFormArea = new FormArea(new DefaultControlEnvironment(luwrain), strings.playlistPropertiesAreaName()) {
-
+	final Playlist playlist = (Playlist)obj;
+	final FormArea area = new FormArea(new DefaultControlEnvironment(luwrain), strings.playlistPropertiesAreaName()) {
 		@Override public boolean onKeyboardEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
-		    if (commonKeys(event))
-			return true;
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
 			{
-			case ESCAPE:
-			    return closeTreeProperties(false);
+case ESCAPE:
+    layout.closeTempLayout();
+    return true;
 			}
 		    return super.onKeyboardEvent(event);
 		}
-
 		@Override public boolean onEnvironmentEvent(EnvironmentEvent event)
 		{
 		    NullCheck.notNull(event, "event");
+		    if (event.getType() != EnvironmentEvent.Type.REGULAR)
+			return super.onEnvironmentEvent(event);
 		    switch(event.getCode())
 		    {
 		    case CLOSE:
 			closeApp();
-		    case OK:
-			return closeTreeProperties(true );
+			//		    case OK:
+	/*
+	playlistInEdit.setPlaylistTitle(area.getEnteredText("title"));
+	playlistInEdit.setPlaylistUrl(area.getEnteredText("url"));
+	playlistInEdit = null;
+	playlistsModel.setPlaylists(player.loadRegistryPlaylists());
+	*/
+			//			return closeTreeProperties(true );
 		    default:
 			return super.onEnvironmentEvent(event);
 		    }
 		}
 	    };
-
-	*/
-
-	/*
-    private boolean closeTreeProperties(boolean save)
-    {
-	if (save)
-	    base.savePlaylistProperties(propertiesFormArea);
-	playlistsArea.refresh();
-	layouts.show(MAIN_LAYOUT_INDEX);
-	luwrain.announceActiveArea();
+	area.addEdit("title", strings.playlistPropertiesAreaTitle(), playlist.getPlaylistTitle());
+	//	area.addEdit("url", strings.playlistPropertiesAreaUrl(), playlist.getPlaylistUrl());
+	layout.openTempArea(area);
 	return true;
     }
-
-	*/
-
-	return true;
-    }
-
 
     @Override public String getAppName()
     {
