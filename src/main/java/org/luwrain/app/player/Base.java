@@ -32,6 +32,8 @@ import org.luwrain.util.*;
 
 class Base
 {
+    static final String LOG_COMPONENT = "player";
+
     private final Luwrain luwrain;
     private final Strings strings;
     private Listener listener;

@@ -37,7 +37,8 @@ class RegistryPlaylists
 
     Playlist[] loadRegistryPlaylists()
     {
-	final LinkedList<Playlist> res = new LinkedList<Playlist>();
+	final List<Playlist> res = new LinkedList<Playlist>();
+	registry.addDirectory(Settings.PLAYLISTS_PATH);
 	for(String s: registry.getDirectories(Settings.PLAYLISTS_PATH))
 	{
 	    final String path = Registry.join(Settings.PLAYLISTS_PATH, s);
@@ -48,7 +49,7 @@ class RegistryPlaylists
 	return res.toArray(new Playlist[res.size()]);
     }
 
-    Playlist loadPlaylist(String path)
+    private Playlist loadPlaylist(String path)
     {
 	NullCheck.notEmpty(path, "path");
 	if (registry.getTypeOf(Registry.join(path, Settings.TYPE_VALUE)) != Registry.STRING)
@@ -61,7 +62,6 @@ class RegistryPlaylists
 	case "streaming":
 	    return loadStreamingPlaylist(path);
 	default:
-	    Log.warning("player", "unknown playlist type in " + path + ":" + type);
 	    return null;
 	}
     }
@@ -76,7 +76,7 @@ class RegistryPlaylists
 	    return null;
 	return new Playlist(title, ()->{
 		final LinkedList<String> filesList = new LinkedList<String>();
-		loadFilesList(new File(dirPath), new String[0], filesList);
+		TracksLoaders.loadFilesList(new File(dirPath), new String[0], filesList);
 		final String[] items = filesList.toArray(new String[filesList.size()]);
 		final HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
 		for(String s: items)
@@ -125,30 +125,6 @@ String title, String url,
     }
     */
 
-    static private void loadFilesList(File dir, String[] endings, List<String> res)
-    {
-	NullCheck.notNull(dir, "dir");
-	NullCheck.notNullItems(endings, "endings");
-	NullCheck.notNull(res, "res");
-	final File[] files = dir.listFiles();
-	if (files == null)
-	    return;
-	for(File f: files)
-	{
-	    if (f.isDirectory())
-	    {
-		loadFilesList(f, endings, res);
-		continue;
-	    }
-	    try {
-		res.add(f.getAbsoluteFile().toURI().toURL().toString());
-	    }
-	    catch(java.net.MalformedURLException e)
-	    {
-		Log.warning("player", "unable to get URL of " + f.getAbsolutePath() + ":" + e.getMessage());
-	    }
-	}
-    }
 
     static private class PlaylistComparator implements Comparator
     {
