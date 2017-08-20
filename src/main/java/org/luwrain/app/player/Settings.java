@@ -23,10 +23,16 @@ interface Settings
     static final String PLAYLISTS_PATH = "/org/luwrain/player/playlists";
     static final String TYPE_VALUE = "type";
 
+    static final String TYPE_DIRECTORY = "directory";
+    static final String TYPE_M3U = "m3u";
+    static final String TYPE_STREAMING = "streaming";
+
     interface Base
     {
 	String getTitle(String defValue);
 	void setTitle(String value);
+	String getType(String type);
+	void setType(String type);
     }
 
     interface Bookmark extends Base

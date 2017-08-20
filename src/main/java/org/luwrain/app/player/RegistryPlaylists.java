@@ -57,7 +57,7 @@ class RegistryPlaylists
 	final String type = registry.getString(Registry.join(path, Settings.TYPE_VALUE));
 	switch(type)
 	{
-	case "directory":
+	case Settings.TYPE_DIRECTORY:
 	    return loadDirectoryPlaylist(path);
 	case "streaming":
 	    return loadStreamingPlaylist(path);
@@ -90,22 +90,61 @@ class RegistryPlaylists
 	}, EnumSet.of(Playlist.Flags.STREAMING));
     }
 
-    /*
-    static public void add(Registry registry,
-String title, String url,
-			   boolean streaming, boolean hasBookmark)
+    static boolean addPlaylist(Registry registry, Conversations.NewPlaylistParams params)
     {
 	NullCheck.notNull(registry, "registry");
-	NullCheck.notNull(title, "title");
-	NullCheck.notNull(url, "url");
-	final int num = Registry.nextFreeNum(registry, PLAYLISTS_PATH);
-	final String path = Registry.join(PLAYLISTS_PATH, "" + num);
+	NullCheck.notNull(params, "params");
+	final int num = Registry.nextFreeNum(registry, Settings.PLAYLISTS_PATH);
+	final String path = Registry.join(Settings.PLAYLISTS_PATH, "" + num);
 	registry.addDirectory(path);
-	final Settings settings = createSettings(registry, path);
-	settings.setTitle(title);
-	settings.setUrl(url);
-	settings.setStreaming(streaming);
-	settings.setHasBookmark(hasBookmark);
+	switch(params.type)
+	{
+	case DIRECTORY:
+	    {
+		final Settings.DirectoryPlaylist sett = Settings.createDirectoryPlaylist(registry, path);
+		sett.setType(Settings.TYPE_DIRECTORY);
+		sett.setTitle(params.name);
+		sett.setPath(params.arg);
+		sett.setWithBookmark(false);
+		return true;
+	    }
+	case M3U:
+	    {
+		final Settings.M3uPlaylist sett = Settings.createM3uPlaylist(registry, path);
+		sett.setType(Settings.TYPE_M3U);
+		sett.setTitle(params.name);
+		sett.setM3uUrl(params.arg);
+		sett.setWithBookmark(false);
+		return true;
+	    }
+	case WITH_BOOKMARK_DIR:
+	    {
+		final Settings.DirectoryPlaylist sett = Settings.createDirectoryPlaylist(registry, path);
+		sett.setType(Settings.TYPE_DIRECTORY);
+		sett.setTitle(params.name);
+		sett.setPath(params.arg);
+		sett.setWithBookmark(true);
+		return true;
+	    }
+	case WITH_BOOKMARK_M3U:
+	    {
+		final Settings.M3uPlaylist sett = Settings.createM3uPlaylist(registry, path);
+		sett.setType(Settings.TYPE_M3U);
+		sett.setTitle(params.name);
+		sett.setM3uUrl(params.arg);
+		sett.setWithBookmark(true);
+		return true;
+	    }
+	case STREAMING:
+	    {
+		final Settings.StreamingPlaylist sett = Settings.createStreamingPlaylist(registry, path);
+		sett.setType(Settings.TYPE_M3U);
+		sett.setTitle(params.name);
+		sett.setUrl(params.arg);
+		return true;
+	    }
+	default:
+	    return false;
+	}
     }
-    */
 }

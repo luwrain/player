@@ -28,7 +28,7 @@ class Actions
     private final Luwrain luwrain;
     private final Base base;
     private final Strings strings;
-final Conversations conversations;
+    final Conversations conversations;
 
     Actions(Luwrain luwrain, Base base, Strings strings)
     {
@@ -41,9 +41,14 @@ final Conversations conversations;
 	this.conversations = new Conversations(luwrain);
     }
 
-    boolean onAddPlaylist()
+    boolean onAddPlaylist(ListArea listArea)
     {
-	conversations.addPlaylist();
+	NullCheck.notNull(listArea, "listArea");
+	final Conversations.NewPlaylistParams params = conversations.addPlaylist();
+	if (params == null)
+	    return true;
+	RegistryPlaylists.addPlaylist(luwrain.getRegistry(), params);
+	listArea.refresh();
 	return true;
     }
 
@@ -53,13 +58,9 @@ final Conversations conversations;
 	if (obj == null || !(obj instanceof Playlist))
 	    return false;
 	final Playlist playlist = (Playlist)obj;
-	/*
-	if (playlist.getFlags().contains(Playlist.Flags.HAS_BOOKMARK) && !playlist.getFlags().contains(Playlist.Flags.STREAMING))
-	    base.player.play(playlist, playlist.getStartingTrackNum(), playlist.getStartingPosMsec()); else
-	*/
 	base.player.play(playlist.toGeneralPlaylist(), 0, 0);
-	    if (!playlist.getFlags().contains(Playlist.Flags.STREAMING))
-	luwrain.setActiveArea(playlistArea);
+	if (!playlist.getFlags().contains(Playlist.Flags.STREAMING))
+	    luwrain.setActiveArea(playlistArea);
 	return true;
     }
 
@@ -89,30 +90,27 @@ final Conversations conversations;
 	    }
 	switch(event.getChar())
 	{
-	    case '-':
-jump(-5000);
-		return true;
-	    case '=':
-jump(5000);
-		return true;
+	case '-':
+	    jump(-5000);
+	    return true;
+	case '=':
+	    jump(5000);
+	    return true;
 	case '[':
-jump(-60000);
+	    jump(-60000);
 	    return true;
 	case ']':
-jump(60000);
+	    jump(60000);
 	    return true;
 	default:
 	    return false;
 	}
     }
 
-
-   
     void pauseResume()
     {
 	base.player.pauseResume();
     }
-    
 
     void stop()
     {
@@ -129,11 +127,8 @@ jump(60000);
 	base.player.nextTrack();
     }
 
-
     void jump(long offsetMsec)
     {
 	base.player.jump(offsetMsec);
     }
-
-
 }
