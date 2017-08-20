@@ -42,19 +42,6 @@ class Actions
 	this.conversations = new Conversations(luwrain);
     }
 
-    Action[] getPlaylistsActions()
-    {
-	return new Action[]{
-	    new Action("add-playlist", "Добавить плейлист", new KeyboardEvent(KeyboardEvent.Special.INSERT)),
-	};
-    }
-
-    Action[] getPlaylistActions()
-    {
-	return new Action[]{
-	};
-    }
-
     boolean onAddPlaylist()
     {
 	conversations.addPlaylist();

@@ -32,6 +32,7 @@ public class PlayerApp implements Application, MonoApp
     private Strings strings = null;
     private Base base = null;
     private Actions actions = null;
+    private ActionLists actionLists = null;
 
     private ListArea playlistsArea = null;
     private ListArea playlistArea = null;
@@ -62,6 +63,7 @@ public class PlayerApp implements Application, MonoApp
 	if (base.player == null)
 	    return new InitResult(InitResult.Type.FAILURE);
 	this.actions = new Actions(luwrain, base, strings);
+	this.actionLists = new ActionLists(strings);
 	createAreas();
 	this.layout = new AreaLayoutHelper(()->{
 		luwrain.onNewAreaLayout();
@@ -132,7 +134,7 @@ public class PlayerApp implements Application, MonoApp
 
 		@Override public Action[] getAreaActions()
 		{
-		    return actions.getPlaylistsActions();
+		    return actionLists.getPlaylistsActions();
 		}
 	    };
 
@@ -180,7 +182,7 @@ public class PlayerApp implements Application, MonoApp
 
 		@Override public Action[] getAreaActions()
 		{
-		    return actions.getPlaylistActions();
+		    return actionLists.getPlaylistActions();
 		}
 	    };
 
