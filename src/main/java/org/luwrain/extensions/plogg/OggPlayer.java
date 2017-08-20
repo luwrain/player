@@ -96,7 +96,7 @@ class OggPlayer implements org.luwrain.base.MediaResourcePlayer
 		} catch(Exception e)
 		{
 			e.printStackTrace();
-			listener.onPlayerFinish();
+			listener.onPlayerFinish(OggPlayer.this);
 			return new Result();//FIXME:
 		}
 		//

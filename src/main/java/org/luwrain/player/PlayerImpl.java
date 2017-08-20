@@ -69,6 +69,7 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 
     @Override public synchronized void stop()
     {
+	Log.debug(LOG_COMPONENT, "stopping the playback");
 	if (state == State.STOPPED)
 	    return;
 	//Current player may be null, this means we are paused
@@ -160,8 +161,10 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 	notifyListeners((listener)->listener.onTrackTime(playlist, currentTrackNum, 0));
     }
 
-    @Override public synchronized void onPlayerTime(long msec)
+    @Override public synchronized void onPlayerTime(MediaResourcePlayer sourcePlayer, long msec)
     {
+	if (currentPlayer == null || sourcePlayer == null || currentPlayer != sourcePlayer)
+	    return;
 	if (state != State.PLAYING || flags.contains(Flags.STREAMING))
 	    return;
 	if (currentPos <= msec && msec < currentPos + 50)
@@ -170,9 +173,11 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 	notifyListeners((listener)->listener.onTrackTime(playlist, currentTrackNum, currentPos));
     }
 
-    @Override public synchronized void onPlayerFinish()
+    @Override public synchronized void onPlayerFinish(MediaResourcePlayer sourcePlayer)
     {
-	if (state != State.PLAYING || currentPlayer == null)
+	if (currentPlayer == null || sourcePlayer == null || currentPlayer != sourcePlayer)
+	    return;
+	if (state != State.PLAYING)
 	    return;
 	final String[] items = playlist.getPlaylistUrls();
 	if (flags.contains(Flags.STREAMING) || items == null || items.length == 0)
@@ -272,7 +277,7 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 	final Task task = createTask();
 	if (task == null)
 	    return Result.INVALID_PLAYLIST;
-	final String fileName = task.url.getFile();
+	Log.debug(LOG_COMPONENT, "starting playing of " + task.url);
 	final MediaResourcePlayer p = manager.play(this, task);
 	if (p == null)
 	    return Result.UNSUPPORTED_FORMAT_STARTING_TRACK;

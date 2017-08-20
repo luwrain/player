@@ -33,10 +33,12 @@ import org.luwrain.core.*;
 
 class JLayer implements org.luwrain.base.MediaResourcePlayer
 {
+    static private final String LOG_COMPONENT = "jlayer";
+
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Listener listener;
-    private FutureTask<Boolean> futureTask = null; 
-    private boolean mustStop = false;
+    private FutureTask task = null; 
+    private boolean interrupting = false;
 
     JLayer(Listener listener)
     {
@@ -48,83 +50,91 @@ class JLayer implements org.luwrain.base.MediaResourcePlayer
     {
 	NullCheck.notNull(url, "url");
 	NullCheck.notNull(flags, "flags");
-	mustStop = false;
-	futureTask = new FutureTask<>(()->{
-		AudioDevice device = null;
-		AudioInputStream stream = null;
-		Bitstream bitstream = null;
-		AudioFormat bitFormat = null;
-		long currentFrame = 0;
-		float currentPosition = 0;
-		long lastNotifiedMsec = 0;
-		try
-		{
-		    long offsetStart = playFromMsec;
-		    Log.debug("jlayer", "offsetStart=" + offsetStart);
-		    long offsetEnd=Long.MAX_VALUE;
-		    final BufferedInputStream bufferedIn = new BufferedInputStream(url.openStream());
-		    stream = AudioSystem.getAudioInputStream(bufferedIn);
-		    bitFormat = stream.getFormat();
-		    device = FactoryRegistry.systemRegistry().createAudioDevice();
-		    if(device==null)
-			return false;
-		    Decoder decoder=new Decoder();
-		    device.open(decoder);
-		    bitstream = new Bitstream(stream);
-		    while(currentPosition<offsetStart)
-		    {
-			final Header h=bitstream.readFrame();
-			++currentFrame;
-			currentPosition = currentFrame * h.ms_per_frame();
-			bitstream.closeFrame();
-		    }
-		    // Starting real playing here
-		    listener.onPlayerTime(0);//FIXME:
-		    while(currentPosition<offsetEnd)
-		    {
-			if(mustStop || Thread.currentThread().interrupted())
-			    return false;
-			final Header h=bitstream.readFrame();
-			if(h == null)
-			    return false;
-			final SampleBuffer output = (SampleBuffer) decoder.decodeFrame(h, bitstream);
-			synchronized (this)
+	interrupting = false;
+	task = new FutureTask(()->{
+		try {
+		    AudioDevice device = null;
+		    AudioInputStream stream = null;
+		    try {
+			long currentFrame = 0;
+			float currentPosition = 0;
+			long lastNotifiedMsec = 0;
+			long offsetEnd=Long.MAX_VALUE;
+			final BufferedInputStream bufferedIn = new BufferedInputStream(url.openStream());
+			stream = AudioSystem.getAudioInputStream(bufferedIn);
+			final AudioFormat bitFormat = stream.getFormat();
+			device = FactoryRegistry.systemRegistry().createAudioDevice();
+			if(device==null)
 			{
-			    device.write(output.getBuffer(), 0, output.getBufferLength());
+			    Log.error(LOG_COMPONENT, "unable to create an audio device for playing");
+			    return;
 			}
-			++currentFrame;
-			currentPosition = currentFrame * h.ms_per_frame();
-			if (currentPosition > lastNotifiedMsec + 50)
+			final Decoder decoder=new Decoder();
+			device.open(decoder);
+			final Bitstream bitstream = new Bitstream(stream);
+			while(currentPosition < playFromMsec)
 			{
-			    lastNotifiedMsec = new Float(currentPosition).longValue();
-			    listener.onPlayerTime(lastNotifiedMsec);
+			    final Header frame = bitstream.readFrame();
+			    if (frame == null)
+			    {
+				Log.warning(LOG_COMPONENT, "unable to read new frame before starting position is reached");
+				return;
+			    }
+			    ++currentFrame;
+			    currentPosition = currentFrame * frame.ms_per_frame();
+			    bitstream.closeFrame();
 			}
-			bitstream.closeFrame();
+			//starting real playing
+			Log.debug(LOG_COMPONENT, "starting real playing of " + url.toString());
+			listener.onPlayerTime(JLayer.this, 0);//FIXME:
+			while(currentPosition < offsetEnd)
+			{
+			    if(interrupting || Thread.currentThread().isInterrupted())
+				return;
+			    final Header frame = bitstream.readFrame();
+			    if(frame == null)
+			    {
+				Log.debug(LOG_COMPONENT, "unable to read new frame, exiting");
+				return;
+			    }
+			    final SampleBuffer output = (SampleBuffer) decoder.decodeFrame(frame, bitstream);
+			    synchronized (this) {
+				device.write(output.getBuffer(), 0, output.getBufferLength());
+			    }
+			    ++currentFrame;
+			    currentPosition = currentFrame * frame.ms_per_frame();
+			    if (currentPosition > lastNotifiedMsec + 50)
+			    {
+				lastNotifiedMsec = new Float(currentPosition).longValue();
+				listener.onPlayerTime(JLayer.this, lastNotifiedMsec);
+			    }
+			    bitstream.closeFrame();
+			} //playing
+			Log.debug(LOG_COMPONENT, "playing finished normally");
 		    }
-		    listener.onPlayerFinish();
+		    finally
+		    {
+			Log.debug(LOG_COMPONENT, "closing jlayer playing procedure (finally block)");
+			if(device != null)
+			    device.close();
+			if(stream != null)
+			    stream.close();
+			listener.onPlayerFinish(JLayer.this);
+		    }
 		}
-		catch (Exception ex)
+		catch (Exception e)
 		{
-		    ex.printStackTrace();
+		    Log.error(LOG_COMPONENT, e.getClass().getName() + ":" + e.getMessage());
 		}
-		finally
-		{
-		    if(device != null)
-			device.close();
-		    device=null;
-		    if(stream != null)
-			stream.close();
-		    stream = null;
-		}
-		return true;
-	    });
-	executor.execute(futureTask);
+	    }, null);
+	executor.execute(task);
 	return new Result();
     }
 
     @Override public void stop()
     {
-	mustStop = true;
-    	futureTask.cancel(true);
+	Log.debug(LOG_COMPONENT, "processing the command to cancel playing");
+	interrupting = true;
+	task.cancel(true);
     }
 }

@@ -67,7 +67,7 @@ class WavePlayer implements org.luwrain.base.MediaResourcePlayer
 catch(Exception e)
 		{
 			e.printStackTrace();
-			listener.onPlayerFinish();
+			listener.onPlayerFinish(WavePlayer.this);
 			return new Result();
 		}
 		format=audioInputStream.getFormat();
@@ -107,7 +107,7 @@ catch(Exception e)
 				if (totalBytes > lastNotifiedMsec + notifyBytesCount)
 				{
 				    lastNotifiedMsec = totalBytes;
-				    listener.onPlayerTime((long)bytesSamplesTomSec(totalBytes));
+				    listener.onPlayerTime(WavePlayer.this, (long)bytesSamplesTomSec(totalBytes));
 				    //Log.debug("player","SoundPlayer: step"+(long)bytesSamplesTomSec(totalBytes));
 				}
 			}
@@ -115,14 +115,14 @@ catch(Exception e)
 		} catch(Exception e)
 		{
 			e.printStackTrace();
-			listener.onPlayerFinish();
+			listener.onPlayerFinish(WavePlayer.this);
 			return false;
 		} finally
 		{
 			if(audioLine!=null) audioLine.close();
 		}
 		//Log.debug("player","SoundPlayer: finish");
-		listener.onPlayerFinish();
+		listener.onPlayerFinish(WavePlayer.this);
 		return true;
 		});
 		executor.execute(futureTask);
