@@ -27,11 +27,14 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 {
     static final String LOG_COMPONENT = "player";
 
+    private final Random rand = new Random();
+
     private final Manager manager = new Manager();
     private final Vector<Listener> listeners = new Vector<Listener>();
     private State state = State.STOPPED;
     private MediaResourcePlayer currentPlayer = null;
     private Playlist playlist = null;
+    private Set<Flags> flags = null;
     private int currentTrackNum = 0;
     private long currentPos = 0;
 
@@ -45,11 +48,20 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 	    return Result.INVALID_PLAYLIST;
 	stop();
 	this.playlist = playlist;
-	currentTrackNum = startingTrackNum;
-	currentPos = startingPosMsec;
+	this.flags = flags;
+	this.currentTrackNum = startingTrackNum;
+	this.currentPos = startingPosMsec;
 	final Result res = runPlayer();
 	if (res != Result.OK)
+	{
+	    this.playlist = null;
+	    this.currentTrackNum = 0;
+	    this.currentPos = 0;
+	    this.flags = null;
+	    this.state = State.STOPPED;
 	    return res;
+	}
+	state = State.PLAYING;
 	notifyListeners((l)->l.onNewPlaylist(playlist));
 	notifyListeners((l)->l.onNewTrack(playlist, currentTrackNum));
 	return Result.OK;
@@ -61,11 +73,12 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 	    return;
 	//Current player may be null, this means we are paused
 	if (currentPlayer != null)
-	currentPlayer.stop();
-	state = State.STOPPED;
+	    currentPlayer.stop();
 	currentPlayer = null;
-	playlist = null;
+	//Playlist must be saved
 	currentTrackNum = 0;
+	currentPos = 0;
+	state = State.STOPPED;
 	notifyListeners((listener)->listener.onPlayerStop());	currentPos = 0;
     }
 
@@ -73,71 +86,83 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
     {
 	if (state == State.STOPPED)
 	    return;
-	if (currentPlayer != null)
+	//FIXME:streaming
+	if (state == State.PLAYING)
 	{
 	    //pausing
 	    currentPlayer.stop();
 	    currentPlayer = null;
+	    state = State.PAUSED;
 	} else
 	{
-	//resuming
-	if (runPlayer() != Result.OK)
-	    return;
-	notifyListeners((listener)->listener.onTrackTime(playlist, currentTrackNum, currentPos));
+	    //resuming
+	    if (runPlayer() != Result.OK)
+		return;
+	    state = State.PLAYING;
+	    notifyListeners((listener)->listener.onTrackTime(playlist, currentTrackNum, currentPos));
 	}
-	}
+    }
 
     @Override public synchronized void jump(long offsetMsec)
     {
-	if (state == State.STOPPED)
+	if (state == State.STOPPED || flags.contains(Flags.STREAMING))
 	    return;
 	if (currentPlayer != null)
-	    {
-			currentPlayer.stop();
-	currentPlayer = null;
-	    }
+	{
+	    currentPlayer.stop();
+	    currentPlayer = null;
+	}
 	currentPos += offsetMsec;
 	if (currentPos < 0)
 	    currentPos = 0;
 	runPlayer();
+	state = State.PLAYING;
 	notifyListeners((listener)->listener.onTrackTime(playlist, currentTrackNum, currentPos));
     }
 
-	@Override public synchronized void nextTrack()
-			  {
-			      if (state == State.STOPPED)
+    @Override public synchronized void nextTrack()
+    {
+	if (state == State.STOPPED || flags.contains(Flags.STREAMING))
 	    return;
 	final String[] items = playlist.getPlaylistUrls();
 	if (items == null || currentTrackNum + 1 >= items.length)
 	    return;
 	if (currentPlayer != null)
-	currentPlayer.stop();
+	{
+	    currentPlayer.stop();
+	    currentPlayer = null;
+	}
 	++currentTrackNum;
 	currentPos = 0;
 	runPlayer();
+	state = State.PLAYING;
 	notifyListeners((listener)->listener.onNewTrack(playlist, currentTrackNum));
 	notifyListeners((listener)->listener.onTrackTime(playlist, currentTrackNum, 0));
-			  }
+    }
 
     @Override public synchronized void prevTrack()
     {
-	if (state == State.STOPPED)
+	if (state == State.STOPPED || flags.contains(Flags.STREAMING))
 	    return;
 	final String[] items = playlist.getPlaylistUrls();
-	if (items == null || currentTrackNum + 1 >= items.length)
+	if (items == null || currentTrackNum == 0)
 	    return;
 	if (currentPlayer != null)
-	currentPlayer.stop();
-	++currentTrackNum;
+	{
+	    currentPlayer.stop();
+	    currentPlayer = null;
+	}
+	--currentTrackNum;
 	currentPos = 0;
 	runPlayer();
+	state = State.PLAYING;
 	notifyListeners((listener)->listener.onNewTrack(playlist, currentTrackNum));
 	notifyListeners((listener)->listener.onTrackTime(playlist, currentTrackNum, 0));
     }
 
     @Override public synchronized void onPlayerTime(long msec)
     {
-	if (state == State.STOPPED || currentPlayer == null)
+	if (state != State.PLAYING || flags.contains(Flags.STREAMING))
 	    return;
 	if (currentPos <= msec && msec < currentPos + 50)
 	    return;
@@ -147,12 +172,38 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 
     @Override public synchronized void onPlayerFinish()
     {
-	if (state == State.STOPPED || currentPlayer == null)
+	if (state != State.PLAYING || currentPlayer == null)
 	    return;
 	final String[] items = playlist.getPlaylistUrls();
-	if (items != null && currentTrackNum + 1 < items.length)
-	    nextTrack(); else
-	stop();
+	if (flags.contains(Flags.STREAMING) || items == null || items.length == 0)
+	{
+	    stop();
+	    return;
+	}
+	if (!flags.contains(Flags.CYCLED) && !flags.contains(Flags.RANDOM))
+	{
+	    if (currentTrackNum + 1 < items.length)
+		nextTrack(); else
+		stop();
+	    return;
+	}
+	if (currentPlayer != null)
+	{
+	    currentPlayer.stop();
+	    currentPlayer = null;
+	}
+	if (!flags.contains(Flags.RANDOM))
+	{
+	    if (currentTrackNum + 1 < items.length)
+		++currentTrackNum; else
+		currentTrackNum = 0;
+	} else
+	    currentTrackNum = rand.nextInt(items.length);
+	currentPos = 0;
+	runPlayer();
+	state = State.PLAYING;
+	notifyListeners((listener)->listener.onNewTrack(playlist, currentTrackNum));
+	notifyListeners((listener)->listener.onTrackTime(playlist, currentTrackNum, 0));
     }
 
     @Override public synchronized boolean hasPlaylist()
@@ -205,13 +256,13 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 	for(int i = 0;i < items.length;++i)
 	    if (items[i] == null)
 		return null;
-	    final String url = items[currentTrackNum];
+	final String url = items[currentTrackNum];
 	try {
 	    return new Task(new URL(url), currentPos);
 	}
 	catch (Exception e)
 	{
-	    Log.error("player", "unable to create the URL object for " + url + ":" + e.getClass().getName() + ":" + e.getMessage());
+	    Log.error(LOG_COMPONENT, "unable to create the URL object for " + url + ":" + e.getClass().getName() + ":" + e.getMessage());
 	    return null;
 	}
     }
@@ -221,14 +272,10 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 	final Task task = createTask();
 	if (task == null)
 	    return Result.INVALID_PLAYLIST;
-	Log.debug("player", "starting playing " + task.url.toString() + " from " + task.startPosMsec);
 	final String fileName = task.url.getFile();
 	final MediaResourcePlayer p = manager.play(this, task);
 	if (p == null)
-	{
-	    Log.error("player", "unable to play due to unsupported format:" + task.url.toString());
 	    return Result.UNSUPPORTED_FORMAT_STARTING_TRACK;
-	}
 	currentPlayer = p;
 	return Result.OK;
     }
