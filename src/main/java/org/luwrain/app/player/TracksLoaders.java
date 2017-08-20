@@ -35,6 +35,7 @@ class TracksLoaders
 		final List<String> filesList = new LinkedList<String>();
 		loadFilesList(new File(dirPath), new String[0], filesList);
 		final String[] items = filesList.toArray(new String[filesList.size()]);
+		/*
 		final Map<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
 		for(String s: items)
 		    try {
@@ -45,6 +46,7 @@ class TracksLoaders
 			Log.warning(LOG_COMPONENT, "unable to read tags for " + s + ":" + e.getClass().getName() + ":" + e.getMessage());
 		    }
 		Arrays.sort(items, new PlaylistComparator(base, trackInfoMap));
+		*/
 		return items;
 	};
     }

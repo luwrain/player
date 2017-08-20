@@ -74,7 +74,7 @@ class RegistryPlaylists
 	final String dirPath = sett.getPath("");
 	if (title.isEmpty() || dirPath.isEmpty())
 	    return null;
-	return new Playlist(sett, TracksLoaders.newDirectoryLoader(base, dirPath));
+	return new Playlist(path, sett, TracksLoaders.newDirectoryLoader(base, dirPath));
     }
 
     private Playlist loadStreamingPlaylist(String path)
@@ -85,7 +85,7 @@ class RegistryPlaylists
 	final String url = sett.getUrl("");
 	if (title.isEmpty() || url.isEmpty())
 	    return null;
-	return new Playlist(sett, ()->{
+	return new Playlist(path, sett, ()->{
 		return new String[]{url};
 	}, EnumSet.of(Playlist.Flags.STREAMING));
     }
@@ -146,5 +146,12 @@ class RegistryPlaylists
 	default:
 	    return false;
 	}
+    }
+
+    static void deletePlaylist(Registry registry, String path)
+    {
+	NullCheck.notNull(registry, "registry");
+	NullCheck.notEmpty(path, "path");
+	registry.deleteDirectory(path);
     }
 }

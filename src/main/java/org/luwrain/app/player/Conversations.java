@@ -123,4 +123,10 @@ class Conversations
 	    return null;
 	return new NewPlaylistParams(type, title, arg);
     }
+
+    boolean confirmPlaylistDeleting(String title)
+    {
+	NullCheck.notNull(title, "title");
+	return Popups.confirmDefaultNo(luwrain, "Удаление плейлиста", "Вы действительно хотите удалить плейлист \"" + title + "\"?");
+    }
 }

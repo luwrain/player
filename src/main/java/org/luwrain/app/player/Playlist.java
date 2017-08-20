@@ -29,33 +29,35 @@ class Playlist implements Comparable
 	String[] loadTracks();
     }
 
+    final String registryPath;
     final Settings.Base sett;
-    final Set<Flags> flags;
     final TracksLoader tracksLoader;
+    final Set<Flags> flags;
+
     private String[] loadedTracks = null;
 
-    Playlist(Settings.Base sett, TracksLoader tracksLoader)
+    Playlist(String registryPath, Settings.Base sett, TracksLoader tracksLoader)
     {
+	NullCheck.notEmpty(registryPath, "registryPath");
 	NullCheck.notNull(sett, "sett");
 	NullCheck.notNull(tracksLoader, "tracksLoader");
+	this.registryPath = registryPath;
 	this.flags = EnumSet.noneOf(Flags.class);
 	this.sett = sett;
 	this.tracksLoader = tracksLoader;
     }
 
-    Playlist(Settings.Base sett, TracksLoader tracksLoader, Set<Flags> flags)
+    Playlist(String registryPath, Settings.Base sett,
+	     TracksLoader tracksLoader, Set<Flags> flags)
     {
+	NullCheck.notNull(registryPath, "registryPath");
 	NullCheck.notNull(sett, "sett");
 	NullCheck.notNull(flags, "flags");
 	NullCheck.notNull(tracksLoader, "tracksLoader");
-	this.flags = flags;
+	this.registryPath = registryPath;
 	this.sett = sett;
 	this.tracksLoader = tracksLoader;
-    }
-
-    Set<Flags> getFlags()
-    {
-	return flags;
+	this.flags = flags;
     }
 
     String getPlaylistTitle()

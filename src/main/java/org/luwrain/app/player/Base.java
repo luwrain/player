@@ -86,16 +86,6 @@ class Base
 	return true;
     }
 
-    boolean onAddPlaylistWithBookmark()
-    {
-	return addPlaylist(true);
-    }
-
-    boolean onAddPlaylistWithoutBookmark()
-    {
-	return addPlaylist(false);
-    }
-
     boolean onAddStreamingPlaylist()
     {
 	return false;
@@ -170,33 +160,6 @@ class Base
 		}
 	}).start();
 	trackInfoMap = map;
-    }
-
-    private boolean addPlaylist(boolean hasBookmark)
-    {
-	/*
-	  final String title = Popups.simple(luwrain, strings.addPlaylistPopupName(), strings.addPlaylistPopupPrefix(), ""); 
-	  if (title == null)
-	  return false;
-	  if (title.trim().isEmpty())
-	  {
-	  luwrain.message(strings.playlistTitleMayNotBeEmpty(), Luwrain.MESSAGE_ERROR);
-	  return false;
-	  }
-	  final Path path = Popups.path(luwrain, strings.choosePlaylistFilePopupName(), strings.choosePlaylistFilePopupPrefix(),
-	  luwrain.getPathProperty("luwrain.dir.userhome"),
-	  (pathToCheck)->{
-	  if (Files.isDirectory(pathToCheck))
-	  {
-	  luwrain.message(strings.playlistFileMayNotBeDir(pathToCheck.toString()), Luwrain.MESSAGE_ERROR);
-	  return false;
-	  }
-	  return true;
-	  });
-	RegistryPlaylist.add(luwrain.getRegistry(), title.trim(), path.toString(), false, hasBookmark);
-	playlistsModel.setPlaylists(player.loadRegistryPlaylists());
-	*/
-		return true;
     }
 
     class PlaylistModel implements EditableListArea.EditableModel

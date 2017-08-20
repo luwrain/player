@@ -32,7 +32,8 @@ class ActionLists
     Action[] getPlaylistsActions()
     {
 	return new Action[]{
-	    new Action("add-playlist", "Добавить плейлист", new KeyboardEvent(KeyboardEvent.Special.INSERT)),
+	    new Action("add-playlist", "Добавить плейлист", new KeyboardEvent(KeyboardEvent.Special.INSERT)),//FIXME:
+	    new Action("delete-playlist", "Удалить плейлист", new KeyboardEvent(KeyboardEvent.Special.DELETE)),//FIXME:
 	};
     }
 

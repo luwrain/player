@@ -127,6 +127,8 @@ public class PlayerApp implements Application, MonoApp
 		    case ACTION:
 			if (ActionEvent.isAction(event, "add-playlist"))
 			    return actions.onAddPlaylist(this);
+			if (ActionEvent.isAction(event, "delete-playlist"))
+			    return actions.onDeletePlaylist(this);
 			return false;
 		    case PROPERTIES:
 			return onPlaylistProps();

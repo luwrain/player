@@ -45,11 +45,11 @@ class PlaylistsModel implements ListArea.Model
 	final List<Playlist> streaming = new LinkedList<Playlist>();
 	for(Playlist p: playlists)
 	{
-	    if (p.getFlags().contains(Playlist.Flags.STREAMING))
+	    if (p.flags.contains(Playlist.Flags.STREAMING))
 		streaming.add(p);
-	    if (p.getFlags().contains(Playlist.Flags.HAS_BOOKMARK) && !p.getFlags().contains(Playlist.Flags.STREAMING))
+	    if (p.flags.contains(Playlist.Flags.HAS_BOOKMARK) && !p.flags.contains(Playlist.Flags.STREAMING))
 		withBookmarks.add(p);
-	    if (!p.getFlags().contains(Playlist.Flags.HAS_BOOKMARK) && !p.getFlags().contains(Playlist.Flags.STREAMING))
+	    if (!p.flags.contains(Playlist.Flags.HAS_BOOKMARK) && !p.flags.contains(Playlist.Flags.STREAMING))
 		withoutBookmarks.add(p);
 	}
 	final Playlist[] sortingWithBookmarks = withBookmarks.toArray(new Playlist[withBookmarks.size()]);
