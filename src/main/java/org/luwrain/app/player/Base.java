@@ -82,7 +82,7 @@ class Base
 	    return false;
 	if (index < 0 || index >= getPlaylistLen())
 	    return false;
-	player.play(player.getCurrentPlaylist(), index, 0);
+	player.play(player.getCurrentPlaylist(), index, 0, org.luwrain.player.Player.DEFAULT_FLAGS);
 	return true;
     }
 

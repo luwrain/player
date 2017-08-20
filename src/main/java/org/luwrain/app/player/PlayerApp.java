@@ -75,7 +75,7 @@ public class PlayerApp implements Application, MonoApp
 	    base.setNewCurrentPlaylist(playlistArea, base.getCurrentPlaylist());
 	*/
 	if (startingPlaylist != null)
-	    base.player.play(startingPlaylist.toGeneralPlaylist(), 0, 0);
+	    base.player.play(startingPlaylist.toGeneralPlaylist(), 0, 0, org.luwrain.player.Player.DEFAULT_FLAGS);
 	return new InitResult();
     }
 
