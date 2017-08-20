@@ -96,15 +96,18 @@ public class PlayerApp implements Application, MonoApp
 	    };
 
 	playlistsArea = new ListArea(playlistsParams){
+
 		@Override public boolean onKeyboardEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
-		    if (commonKeys(event))
+		    if (actions.commonKeys(event))
 			return true;
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
 			{
 			case TAB:
+			    if (!base.player.hasPlaylist())
+				return false;
 			    luwrain.setActiveArea(playlistArea);
 			    return true;
 			}
@@ -142,7 +145,7 @@ public class PlayerApp implements Application, MonoApp
 	params.context = new DefaultControlEnvironment(luwrain);
 	params.model = base.newPlaylistModel();
 	params.appearance = new ListUtils.DefaultAppearance(params.context);//new PlaylistAppearance(luwrain, base);
-	params.clickHandler = (area, index, obj)->onPlaylistClick(index, obj);
+	params.clickHandler = (area, index, obj)->base.playPlaylistItem(index);
 	params.name = strings.playlistAreaName();
 
 	playlistArea = new ListArea(params){
@@ -150,7 +153,7 @@ public class PlayerApp implements Application, MonoApp
 		@Override public boolean onKeyboardEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
-		    if (commonKeys(event))
+		    if (actions.commonKeys(event))
 			return true;
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
@@ -186,76 +189,42 @@ public class PlayerApp implements Application, MonoApp
 		}
 	    };
 
-	controlArea = new ControlArea(luwrain, this, base, strings);
-    }
+	controlArea = new ControlArea(luwrain, actions, base, strings){
 
-    private boolean onPlaylistClick(int index, Object item)
-    {
-	NullCheck.notNull(item, "item");
-	return base.playPlaylistItem(index);
-    }
+		@Override public boolean onKeyboardEvent(KeyboardEvent event)
+		{
+		    NullCheck.notNull(event, "event");
+		    if (actions.commonKeys(event))
+			return true;
+		    if (event.isSpecial() && !event.isModified())
+			switch(event.getSpecial())
+			{
+			case TAB:
+			    luwrain.setActiveArea(playlistsArea);
+			    return true;
+			case BACKSPACE:
+			    luwrain.setActiveArea(playlistArea);
+			    return true;
+			}
+		    return super.onKeyboardEvent(event);
+		}
 
-    void pauseResume()
-    {
-	actions.pauseResume();
-    }
+		@Override public boolean onEnvironmentEvent(EnvironmentEvent event)
+		{
+		    NullCheck.notNull(event, "event");
+		    if (event.getType() != EnvironmentEvent.Type.REGULAR)
+			return super.onEnvironmentEvent(event);
+		    switch(event.getCode())
+		    {
+		    case CLOSE:
+			closeApp();
+			return true;
+		    default:
+			return super.onEnvironmentEvent(event);
+		    }
+		}
 
-    void stop()
-    {
-	actions.stop();
-    }
-
-    void prevTrack()
-    {
-	base.player.prevTrack();
-    }
-
-    void nextTrack()
-    {
-	base.player.nextTrack();
-    }
-
-    boolean commonKeys(KeyboardEvent event)
-    {
-	NullCheck.notNull(event, "event");
-	if (event.isModified())
-	    return false;
-	if (event.isSpecial())
-	    switch(event.getSpecial())
-	    {
-	    case F5:
-		pauseResume();
-		return true;
-	    case ESCAPE:
-	    case F6:
-		stop();
-		return true;
-	    case F7:
-		prevTrack();
-		return true;
-	    case F8:
-		nextTrack();
-		return true;
-	    default:
-		return false;
-	    }
-	switch(event.getChar())
-	{
-	    case '-':
-		actions.jump(-5000);
-		return true;
-	    case '=':
-		actions.jump(5000);
-		return true;
-	case '[':
-	    actions.jump(-60000);
-	    return true;
-	case ']':
-	    actions.jump(60000);
-	    return true;
-	default:
-	    return false;
-	}
+	    };
     }
 
     private boolean onPlaylistProps()
@@ -310,14 +279,11 @@ case OK:
 	    final Settings.DirectoryPlaylist sett = (Settings.DirectoryPlaylist)playlist.sett;
 	    area.addEdit("path", "Каталог с файлами:", sett.getPath(""));
 	}
-
 	if (playlist.sett instanceof Settings.StreamingPlaylist)
 	{
 	    final Settings.StreamingPlaylist sett = (Settings.StreamingPlaylist)playlist.sett;
 	    area.addEdit("url", "URL потока вещания:", sett.getUrl(""));//FIXME:
 	}
-
-
 	layout.openTempArea(area);
 	return true;
     }

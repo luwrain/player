@@ -24,7 +24,7 @@ import org.luwrain.player.*;
 class ControlArea extends NavigationArea
 {
     private final Luwrain luwrain;
-    private final PlayerApp app;
+    private final Actions actions;
     private final Base base;
     private final Strings strings;
 
@@ -32,16 +32,16 @@ class ControlArea extends NavigationArea
 
     private long timeSec = -1;
 
-    ControlArea(Luwrain luwrain, PlayerApp app,
+    ControlArea(Luwrain luwrain, Actions actions,
 		Base base, Strings strings)
     {
 	super(new DefaultControlEnvironment(luwrain));
 	NullCheck.notNull(luwrain, "luwrain");
-	NullCheck.notNull(app, "app");
+	NullCheck.notNull(actions, "actions");
 	NullCheck.notNull(base, "base");
 	NullCheck.notNull(strings, "strigns");
 	this.luwrain = luwrain;
-	this.app = app;
+	this.actions = actions;
 	this.base = base;
 	this.strings = strings;
 	opPauseResume = strings.opPauseResume();
@@ -118,8 +118,6 @@ class ControlArea extends NavigationArea
 		@Override public boolean onKeyboardEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
-		    if (app.commonKeys(event))
-			return true;
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
 			{
@@ -128,19 +126,6 @@ class ControlArea extends NavigationArea
 			}
 		    return super.onKeyboardEvent(event);
 		}
-
-    @Override public boolean onEnvironmentEvent(EnvironmentEvent event)
-    {
-	NullCheck.notNull(event, "event");
-	switch(event.getCode())
-	{
-	case CLOSE:
-	    app.closeApp();
-	    return true;
-	default:
-	    return super.onEnvironmentEvent(event);
-	}
-    }
 
     @Override public String getAreaName()
     {
@@ -162,25 +147,25 @@ line == opPrevTrack || line == opNextTrack)
 	final String line = getLine(getHotPointY());
 	if (line == opPauseResume)
 	{
-	    app.pauseResume();
+actions.pauseResume();
 	    luwrain.playSound(Sounds.LIST_ITEM);
 	    return true;
 	}
 	if (line == opStop)
 	{
-	    app.stop();
+actions.stop();
 	    luwrain.playSound(Sounds.LIST_ITEM);
 	    return true;
 	}
 	if (line == opPrevTrack)
 	{
-	    app.prevTrack();
+actions.prevTrack();
 	    luwrain.playSound(Sounds.LIST_ITEM);
 	    return true;
 	}
 	if (line == opNextTrack)
 	{
-	    app.nextTrack();
+actions.nextTrack();
 	    luwrain.playSound(Sounds.LIST_ITEM);
 	    return true;
 	}

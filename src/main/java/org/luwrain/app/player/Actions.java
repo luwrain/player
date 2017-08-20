@@ -28,8 +28,7 @@ class Actions
     private final Luwrain luwrain;
     private final Base base;
     private final Strings strings;
-
-    private final Conversations conversations;
+final Conversations conversations;
 
     Actions(Luwrain luwrain, Base base, Strings strings)
     {
@@ -60,20 +59,76 @@ class Actions
 	*/
 	base.player.play(playlist.toGeneralPlaylist(), 0, 0);
 	    if (!playlist.getFlags().contains(Playlist.Flags.STREAMING))
-
 	luwrain.setActiveArea(playlistArea);
 	return true;
     }
 
+    boolean commonKeys(KeyboardEvent event)
+    {
+	NullCheck.notNull(event, "event");
+	if (event.isModified())
+	    return false;
+	if (event.isSpecial())
+	    switch(event.getSpecial())
+	    {
+	    case F5:
+		pauseResume();
+		return true;
+	    case ESCAPE:
+	    case F6:
+		stop();
+		return true;
+	    case F7:
+		prevTrack();
+		return true;
+	    case F8:
+		nextTrack();
+		return true;
+	    default:
+		return false;
+	    }
+	switch(event.getChar())
+	{
+	    case '-':
+jump(-5000);
+		return true;
+	    case '=':
+jump(5000);
+		return true;
+	case '[':
+jump(-60000);
+	    return true;
+	case ']':
+jump(60000);
+	    return true;
+	default:
+	    return false;
+	}
+    }
+
+
+   
     void pauseResume()
     {
 	base.player.pauseResume();
     }
+    
 
     void stop()
     {
 	base.player.stop();
     }
+
+    void prevTrack()
+    {
+	base.player.prevTrack();
+    }
+
+    void nextTrack()
+    {
+	base.player.nextTrack();
+    }
+
 
     void jump(long offsetMsec)
     {

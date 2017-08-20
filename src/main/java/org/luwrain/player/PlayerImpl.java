@@ -144,6 +144,11 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 	stop();
     }
 
+    @Override public synchronized boolean hasPlaylist()
+    {
+	return currentPlaylist != null;
+    }
+
     @Override public synchronized Playlist getCurrentPlaylist()
     {
 	return currentPlaylist;

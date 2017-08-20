@@ -39,7 +39,6 @@ class Base
     private Listener listener;
     final Player player;
 
-    private org.luwrain.player.Playlist currentPlaylist = null;
     private HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
     private final RegistryPlaylists playlists;
     final PlaylistsModel playlistsModel;
@@ -56,12 +55,6 @@ class Base
 	if (player == null)
 	    return;
 	playlistsModel.setPlaylists(playlists.loadRegistryPlaylists());
-	currentPlaylist = player.getCurrentPlaylist();
-    }
-
-    org.luwrain.player.Playlist getCurrentPlaylist()
-    {
-	return currentPlaylist;
     }
 
     String getTrackTextAppearance(String trackUrl)
@@ -85,11 +78,11 @@ class Base
 
     boolean playPlaylistItem(int index)
     {
-	if (currentPlaylist == null)
+	if (!player.hasPlaylist())
 	    return false;
 	if (index < 0 || index >= getPlaylistLen())
 	    return false;
-	player.play(currentPlaylist, index, 0);
+	player.play(player.getCurrentPlaylist(), index, 0);
 	return true;
     }
 
@@ -110,10 +103,9 @@ class Base
 
     String getCurrentPlaylistTitle()
     {
-	if (currentPlaylist == null)
+	if (!player.hasPlaylist())
 	    return "";
-	final String res = currentPlaylist.getPlaylistTitle();
-	return res != null?res:"";
+	return player.getCurrentPlaylist().getPlaylistTitle();
     }
 
     String getCurrentTrackTitle()
@@ -126,21 +118,21 @@ class Base
 
     boolean isEmptyPlaylist()
     {
-	return currentPlaylist == null || currentPlaylist.getPlaylistUrls().length < 1;
+	return !player.hasPlaylist() || player.getCurrentPlaylist().getPlaylistUrls().length < 1;
     }
 
     String[] getPlaylistUrls()
     {
-	if (currentPlaylist == null)
+	if (!player.hasPlaylist())
 	    return new String[0];
-	return currentPlaylist.getPlaylistUrls();
+	return player.getCurrentPlaylist().getPlaylistUrls();
     }
 
     int getPlaylistLen()
     {
-	if (currentPlaylist == null)
+	if (!player.hasPlaylist())
 	    return 0;
-	return currentPlaylist.getPlaylistUrls().length;
+	return player.getCurrentPlaylist().getPlaylistUrls().length;
     }
 
     PlaylistModel newPlaylistModel()
@@ -152,21 +144,20 @@ class Base
     {
 	NullCheck.notNull(area, "area");
 	NullCheck.notNull(playlist, "playlist");
-	if (currentPlaylist == playlist)
+	if (player.getCurrentPlaylist() == playlist)
 	    return;
-	currentPlaylist = playlist;
 	fillTrackInfoMap(area);
     }
 
     private void fillTrackInfoMap(ListArea area)
     {
 	NullCheck.notNull(area, "area");
-	final org.luwrain.player.Playlist playlist = currentPlaylist;
+	final org.luwrain.player.Playlist playlist = player.getCurrentPlaylist();
 	if (playlist == null)
 	    return;
 	final HashMap<String, TrackInfo> map = new HashMap<String, TrackInfo>();
 	new Thread(()->{
-		for(String s: currentPlaylist.getPlaylistUrls())
+		for(String s: playlist.getPlaylistUrls())
 		{
 		    try {
 			map.put(s, new TrackInfo(new URL(s)));
@@ -174,7 +165,7 @@ class Base
 		    }
 		    catch(IOException e)
 		    {
-			luwrain.crash(e);
+			//Silently doing nothing here
 		    }
 		}
 	}).start();
