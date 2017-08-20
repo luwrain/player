@@ -1,10 +1,27 @@
-package org.luwrain.player.backends;
+/*
+   Copyright 2012-2017 Michael Pozhidaev <michael.pozhidaev@gmail.com>
+   Copyright 2015-2016 Roman Volovodov <gr.rPman@gmail.com>
 
-import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
+   This file is part of LUWRAIN.
+
+   LUWRAIN is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public
+   License as published by the Free Software Foundation; either
+   version 3 of the License, or (at your option) any later version.
+
+   LUWRAIN is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+*/
+
+package org.luwrain.extensions.plwave;
+
+import java.util.*;
+import java.util.concurrent.*;
+
+import java.net.*;
+import java.io.*;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -14,45 +31,44 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import org.luwrain.core.Log;
-import org.luwrain.core.NullCheck;
+import org.luwrain.core.*;
 
-public class SoundPlayer implements BackEnd
+class WavePlayer implements org.luwrain.base.MediaResourcePlayer
 {
 	private static final int NOTIFY_MSEC_COUNT=500;
     private static final int BUF_SIZE = 512;
 
 	private boolean interruptPlayback = false;
 	private SourceDataLine audioLine = null;
-	
+
 	AudioFormat format=null;
 
-    Task task;
-	private Listener listener;
+	private final Listener listener;
 	private FutureTask<Boolean> futureTask = null;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    SoundPlayer(Listener listener)
+    WavePlayer(Listener listener)
     {
 	NullCheck.notNull(listener, "listener");
 	this.listener = listener;
     }
 
-	@Override public boolean play(Task task)
+    @Override public Result play(URL url, long playFromMsec, Set<Flags> flags)
 	{
+	    NullCheck.notNull(url, "url");
+	    NullCheck.notNull(flags, "flags");
 		interruptPlayback = false;
-		NullCheck.notEmpty(task, "task");
-		this.task=task;
-		//
+		NullCheck.notNull(url, "url");
+		NullCheck.notNull(flags, "flags");
 		AudioInputStream audioInputStream;
 		try {
-				audioInputStream=AudioSystem.getAudioInputStream(task.openStream());
+				audioInputStream=AudioSystem.getAudioInputStream(url.openStream());
 		} 
 catch(Exception e)
 		{
 			e.printStackTrace();
-			listener.onPlayerBackEndFinish();
-			return false;
+			listener.onPlayerFinish();
+			return new Result();
 		}
 		format=audioInputStream.getFormat();
 		futureTask = new FutureTask<>(()->{
@@ -68,10 +84,10 @@ catch(Exception e)
 			}
 			long totalBytes=0;
 			// skip if task need it
-			if(task.startPosMsec()>0)
+			if(playFromMsec > 0)
 			{
 				// bytes count from msec pos, 8000 is a 8 bits in byte and 1000 ms in second
-				long skipBytes=mSecToBytesSamples(task.startPosMsec());
+				long skipBytes=mSecToBytesSamples(playFromMsec);
 				audioInputStream.skip(skipBytes);
 				totalBytes+=skipBytes;
 			}
@@ -91,7 +107,7 @@ catch(Exception e)
 				if (totalBytes > lastNotifiedMsec + notifyBytesCount)
 				{
 				    lastNotifiedMsec = totalBytes;
-				    listener.onPlayerBackEndTime((long)bytesSamplesTomSec(totalBytes));
+				    listener.onPlayerTime((long)bytesSamplesTomSec(totalBytes));
 				    //Log.debug("player","SoundPlayer: step"+(long)bytesSamplesTomSec(totalBytes));
 				}
 			}
@@ -99,18 +115,18 @@ catch(Exception e)
 		} catch(Exception e)
 		{
 			e.printStackTrace();
-			listener.onPlayerBackEndFinish();
+			listener.onPlayerFinish();
 			return false;
 		} finally
 		{
 			if(audioLine!=null) audioLine.close();
 		}
 		//Log.debug("player","SoundPlayer: finish");
-		listener.onPlayerBackEndFinish();
+		listener.onPlayerFinish();
 		return true;
 		});
 		executor.execute(futureTask);
-		return true;
+		return new Result();
 	}
 
 	private long mSecToBytesSamples(float msec)

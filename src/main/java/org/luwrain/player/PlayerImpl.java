@@ -1,3 +1,18 @@
+/*
+   Copyright 2012-2017 Michael Pozhidaev <michael.pozhidaev@gmail.com>
+
+   This file is part of LUWRAIN.
+
+   LUWRAIN is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public
+   License as published by the Free Software Foundation; either
+   version 3 of the License, or (at your option) any later version.
+
+   LUWRAIN is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+*/
 
 package org.luwrain.player;
 
@@ -5,16 +20,19 @@ import java.util.*;
 import java.net.*;
 import java.nio.file.*;
 
+import org.luwrain.base.*;
 import org.luwrain.core.*;
-import org.luwrain.player.backends.*;
 
-class PlayerImpl implements Player, org.luwrain.player.backends.Listener
+class PlayerImpl implements Player, MediaResourcePlayer.Listener
 {
+    static final String LOG_COMPONENT = "player";
+
     private final Registry registry;
     private final Vector<Listener> listeners = new Vector<Listener>();
 
     private Playlist currentPlaylist = null;
-    private BackEnd currentPlayer = null;
+    private final Manager manager = new Manager();
+    private MediaResourcePlayer currentPlayer = null;
     private int currentTrackNum = 0;
     private long currentPos = 0;
 
@@ -124,7 +142,7 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 	notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, 0));
     }
 
-    @Override public synchronized void onPlayerBackEndTime(long msec)
+    @Override public synchronized void onPlayerTime(long msec)
     {
 	if (currentPlaylist == null || currentPlayer == null)
 	    return;
@@ -134,7 +152,7 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 	notifyListeners((listener)->listener.onTrackTime(currentPlaylist, currentTrackNum, currentPos));
     }
 
-    @Override public synchronized void onPlayerBackEndFinish()
+    @Override public synchronized void onPlayerFinish()
     {
 	if (currentPlaylist == null || currentPlayer == null)
 	    return;
@@ -212,18 +230,13 @@ class PlayerImpl implements Player, org.luwrain.player.backends.Listener
 	    return Result.INVALID_PLAYLIST;
 	Log.debug("player", "starting playing " + task.url.toString() + " from " + task.startPosMsec);
 	final String fileName = task.url.getFile();
-	if (true ||  fileName.toLowerCase().endsWith(".mp3"))
-	    currentPlayer = BackEnd.createBackEnd(this, "jlayer"); else
-
-	if (fileName.toLowerCase().endsWith(".ogg"))
-	    currentPlayer = BackEnd.createBackEnd(this, "jorbis"); else
-	if (fileName.toLowerCase().endsWith(".wav"))
-	    currentPlayer = BackEnd.createBackEnd(this, "internal"); else
+	final MediaResourcePlayer p = manager.play(this, task);
+	if (p == null)
 	{
 	    Log.error("player", "unable to play due to unsupported format:" + task.url.toString());
 	    return Result.UNSUPPORTED_FORMAT_STARTING_TRACK;
 	}
-	currentPlayer.play(task);
+	currentPlayer = p;
 	return Result.OK;
     }
 

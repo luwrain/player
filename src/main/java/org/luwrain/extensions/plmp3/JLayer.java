@@ -1,5 +1,21 @@
+/*
+   Copyright 2012-2017 Michael Pozhidaev <michael.pozhidaev@gmail.com>
+   Copyright 2015-2016 Roman Volovodov <gr.rPman@gmail.com>
 
-package org.luwrain.player.backends;
+   This file is part of LUWRAIN.
+
+   LUWRAIN is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public
+   License as published by the Free Software Foundation; either
+   version 3 of the License, or (at your option) any later version.
+
+   LUWRAIN is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+*/
+
+package org.luwrain.extensions.plmp3;
 
 import java.nio.file.*;
 import java.io.BufferedInputStream;
@@ -9,16 +25,16 @@ import java.util.*;
 import java.util.concurrent.*;
 import javax.sound.sampled.*;
 
-import org.luwrain.core.*;
-
 import javazoom.jl.player.advanced.*;
 import javazoom.jl.decoder.*;
 import javazoom.jl.player.*;
 
-class JLayer implements BackEnd
+import org.luwrain.core.*;
+
+class JLayer implements org.luwrain.base.MediaResourcePlayer
 {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private Listener listener;
+    private final Listener listener;
     private FutureTask<Boolean> futureTask = null; 
     private boolean mustStop = false;
 
@@ -28,9 +44,10 @@ class JLayer implements BackEnd
 	this.listener = listener;
     }
 
-    @Override public boolean play(Task task)
+    @Override public Result play(URL url, long playFromMsec, Set<Flags> flags)
     {
-	NullCheck.notNull(task, "task");
+	NullCheck.notNull(url, "url");
+	NullCheck.notNull(flags, "flags");
 	mustStop = false;
 	futureTask = new FutureTask<>(()->{
 		AudioDevice device = null;
@@ -42,10 +59,10 @@ class JLayer implements BackEnd
 		long lastNotifiedMsec = 0;
 		try
 		{
-		    long offsetStart=task.startPosMsec();
+		    long offsetStart = playFromMsec;
 		    Log.debug("jlayer", "offsetStart=" + offsetStart);
 		    long offsetEnd=Long.MAX_VALUE;
-		    final BufferedInputStream bufferedIn = new BufferedInputStream(task.openStream());
+		    final BufferedInputStream bufferedIn = new BufferedInputStream(url.openStream());
 		    stream = AudioSystem.getAudioInputStream(bufferedIn);
 		    bitFormat = stream.getFormat();
 		    device = FactoryRegistry.systemRegistry().createAudioDevice();
@@ -62,7 +79,7 @@ class JLayer implements BackEnd
 			bitstream.closeFrame();
 		    }
 		    // Starting real playing here
-		    listener.onPlayerBackEndTime(0);//FIXME:
+		    listener.onPlayerTime(0);//FIXME:
 		    while(currentPosition<offsetEnd)
 		    {
 			if(mustStop || Thread.currentThread().interrupted())
@@ -80,11 +97,11 @@ class JLayer implements BackEnd
 			if (currentPosition > lastNotifiedMsec + 50)
 			{
 			    lastNotifiedMsec = new Float(currentPosition).longValue();
-			    listener.onPlayerBackEndTime(lastNotifiedMsec);
+			    listener.onPlayerTime(lastNotifiedMsec);
 			}
 			bitstream.closeFrame();
 		    }
-		    listener.onPlayerBackEndFinish();
+		    listener.onPlayerFinish();
 		}
 		catch (Exception ex)
 		{
@@ -102,7 +119,7 @@ class JLayer implements BackEnd
 		return true;
 	    });
 	executor.execute(futureTask);
-	return true;
+	return new Result();
     }
 
     @Override public void stop()

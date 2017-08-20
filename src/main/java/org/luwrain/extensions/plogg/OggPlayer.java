@@ -1,4 +1,23 @@
-package org.luwrain.player.backends;
+/*
+   Copyright 2012-2017 Michael Pozhidaev <michael.pozhidaev@gmail.com>
+   Copyright 2015-2016 Roman Volovodov <gr.rPman@gmail.com>
+
+   This file is part of LUWRAIN.
+
+   LUWRAIN is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public
+   License as published by the Free Software Foundation; either
+   version 3 of the License, or (at your option) any later version.
+
+   LUWRAIN is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+*/
+
+package org.luwrain.extensions.plogg;
+
+import java.util.*;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -28,17 +47,16 @@ import com.jcraft.jorbis.Comment;
 import com.jcraft.jorbis.DspState;
 import com.jcraft.jorbis.Info;
 
-public class OggPlayer implements BackEnd
+class OggPlayer implements org.luwrain.base.MediaResourcePlayer
 {
-	private static final int NOTIFY_MSEC_COUNT=500;
+    private static final int NOTIFY_MSEC_COUNT=500;
 
-    Task task;
-	private Listener listener;
+	private final Listener listener;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 	private SourceDataLine outputLine = null;
 	AudioFormat audioFormat;
-	
+
     private final int bufferSize = 2048;
     private byte[] buffer = null;                                                       
     private int count = 0;                                                              
@@ -67,17 +85,19 @@ public class OggPlayer implements BackEnd
 	NullCheck.notNull(listener, "listener");
 	this.listener = listener;
     }
-	@Override public boolean play(Task task)
+
+    @Override public Result play(URL url, long playFromMsec, Set<Flags> flags)
 	{
-		NullCheck.notEmpty(task, "task");
-		this.task=task;
+	    NullCheck.notNull(url, "url");
+	    NullCheck.notNull(flags, "flags");
+	    //		this.task=task;
 		try {
-				inputStream=task.openStream();
+				inputStream = url.openStream();
 		} catch(Exception e)
 		{
 			e.printStackTrace();
-			listener.onPlayerBackEndFinish();
-			return false;
+			listener.onPlayerFinish();
+			return new Result();//FIXME:
 		}
 		//
     	FutureTask<Boolean> futureTask = new FutureTask<>(()->
@@ -107,7 +127,7 @@ public class OggPlayer implements BackEnd
 			return true;
     	});
     	executor.execute(futureTask);
-		return true;
+	return new Result();
 	}
 
 	private void init()
