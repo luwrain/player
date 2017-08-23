@@ -28,7 +28,6 @@ class TrackInfo
 {
     static private final String charset = "windows-1251";
 
-
     final String track;
     final String artist;
     final String title;

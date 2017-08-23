@@ -59,7 +59,6 @@ class JLayer implements org.luwrain.base.MediaResourcePlayer
 			long currentFrame = 0;
 			float currentPosition = 0;
 			long lastNotifiedMsec = 0;
-			long offsetEnd=Long.MAX_VALUE;
 			final BufferedInputStream bufferedIn = new BufferedInputStream(url.openStream());
 			stream = AudioSystem.getAudioInputStream(bufferedIn);
 			final AudioFormat bitFormat = stream.getFormat();
@@ -87,7 +86,7 @@ class JLayer implements org.luwrain.base.MediaResourcePlayer
 			//starting real playing
 			Log.debug(LOG_COMPONENT, "starting real playing of " + url.toString());
 			listener.onPlayerTime(JLayer.this, 0);//FIXME:
-			while(currentPosition < offsetEnd)
+			while(true)
 			{
 			    if(interrupting || Thread.currentThread().isInterrupted())
 				return;
@@ -110,7 +109,6 @@ class JLayer implements org.luwrain.base.MediaResourcePlayer
 			    }
 			    bitstream.closeFrame();
 			} //playing
-			Log.debug(LOG_COMPONENT, "playing finished normally");
 		    }
 		    finally
 		    {

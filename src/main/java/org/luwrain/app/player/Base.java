@@ -134,8 +134,10 @@ class Base
     {
 	NullCheck.notNull(area, "area");
 	NullCheck.notNull(playlist, "playlist");
+	/*
 	if (player.getCurrentPlaylist() == playlist)
 	    return;
+	*/
 	fillTrackInfoMap(area);
     }
 
