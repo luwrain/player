@@ -137,7 +137,7 @@ class ControlArea extends NavigationArea
 	    line == opPrevTrack || line == opNextTrack)
 	    luwrain.playSound(Sounds.LIST_ITEM);
 	if (line.isEmpty())
-	    luwrain.hint(Hints.EMPTY_LINE); else
+	    luwrain.setEventResponse(DefaultEventResponse.hint(Hint.EMPTY_LINE)); else
 	    luwrain.say(line);
     }
 
