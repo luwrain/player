@@ -60,6 +60,9 @@ class Manager
 	    return factories.get("mp3");
 	if (url.trim().toLowerCase().endsWith(".ogg") && factories.containsKey("ogg"))
 	    return factories.get("ogg");
+	//mp3 as a default
+	if (factories.containsKey("mp3"))
+	    return factories.get("mp3");
 	return null;
     }
 
