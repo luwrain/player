@@ -211,6 +211,10 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 	notifyListeners((listener)->listener.onTrackTime(playlist, currentTrackNum, 0));
     }
 
+    @Override public synchronized void onPlayerError(Exception e)
+    {
+    }
+
     @Override public synchronized boolean hasPlaylist()
     {
 	return playlist != null;

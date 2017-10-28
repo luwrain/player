@@ -123,6 +123,7 @@ class JLayer implements org.luwrain.base.MediaResourcePlayer
 		catch (Exception e)
 		{
 		    Log.error(LOG_COMPONENT, e.getClass().getName() + ":" + e.getMessage());
+		    listener.onPlayerError(e);
 		}
 	    }, null);
 	executor.execute(task);

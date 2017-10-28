@@ -20,11 +20,22 @@ import org.luwrain.base.*;
 
 class Listener implements MediaResourcePlayer.Listener
 {
+    long msec = 0;
+    boolean finished = false;
+    Exception exception = null;
+
     @Override public void onPlayerTime(MediaResourcePlayer player, long msec)
     {
+	this.msec = msec;
     }
 
     @Override public void onPlayerFinish(MediaResourcePlayer player)
     {
+	this.finished = true;
+    }
+
+    @Override public void onPlayerError(Exception e)
+    {
+	this.exception = e;
     }
 }

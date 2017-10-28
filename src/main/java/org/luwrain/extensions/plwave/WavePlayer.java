@@ -137,10 +137,8 @@ catch(Exception e)
 	{
 		return (8000f*samples/format.getSampleRate()*format.getSampleSizeInBits());
 	}
-	
-	@Override public void stop()
+		@Override public void stop()
 	{
 		interruptPlayback=true;
 	}
-
 }

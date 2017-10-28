@@ -17,6 +17,7 @@
 package org.luwrain.extensions.plmp3;
 
 import java.net.*;
+import java.util.*;
 
 import org.junit.*;
 
@@ -24,16 +25,18 @@ import org.luwrain.base.*;
 
 public class StreamingTest extends Assert
 {
-    @Test public void proba()
+    @Test public void classics() throws MalformedURLException
     {
-	run(null);
+	run(new URL("http://music.myradio.com.ua:8000/Classica128.mp3"));
     }
 
     private void run(URL url)
     {
 	final Factory factory = new Factory();
 	final Listener listener = new Listener();
-	//	final MediaResourcePlayer player = factory.newMediaResourcePlayer(listener);
-	assertTrue(trueg);
+	final MediaResourcePlayer player = factory.newMediaResourcePlayer(listener);
+	player.play(url, 0, EnumSet.noneOf(MediaResourcePlayer.Flags.class));
+	while(listener.msec < 1000){}
+	player.stop();
     }
 }
