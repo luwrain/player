@@ -66,6 +66,7 @@ class JLayer implements org.luwrain.base.MediaResourcePlayer
 			if(device==null)
 			{
 			    Log.error(LOG_COMPONENT, "unable to create an audio device for playing");
+			    listener.onPlayerError(new Exception("Unable to create an audio device for playing"));
 			    return;
 			}
 			final Decoder decoder=new Decoder();
@@ -77,15 +78,14 @@ class JLayer implements org.luwrain.base.MediaResourcePlayer
 			    if (frame == null)
 			    {
 				Log.warning(LOG_COMPONENT, "unable to read new frame before starting position is reached");
-				return;
+												return;
 			    }
 			    ++currentFrame;
 			    currentPosition = currentFrame * frame.ms_per_frame();
 			    bitstream.closeFrame();
 			}
 			//starting real playing
-			Log.debug(LOG_COMPONENT, "starting real playing of " + url.toString());
-			listener.onPlayerTime(JLayer.this, 0);//FIXME:
+			listener.onPlayerTime(JLayer.this, new Float(currentPosition).longValue());
 			while(true)
 			{
 			    if(interrupting || Thread.currentThread().isInterrupted())

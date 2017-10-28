@@ -27,7 +27,7 @@ public class StreamingTest extends Assert
 {
     @Test public void classics() throws MalformedURLException
     {
-	run(new URL("http://music.myradio.com.ua:8000/Classica128.mp3"));
+run(new URL("http://music.myradio.com.ua:8000/Classica128.mp3"));
     }
 
     private void run(URL url)
@@ -36,7 +36,11 @@ public class StreamingTest extends Assert
 	final Listener listener = new Listener();
 	final MediaResourcePlayer player = factory.newMediaResourcePlayer(listener);
 	player.play(url, 0, EnumSet.noneOf(MediaResourcePlayer.Flags.class));
-	while(listener.msec < 1000){}
+	while(listener.msec < 0)
+	{
+	    assertFalse(listener.finished);
+	    assertTrue(listener.exception == null);
+	}
 	player.stop();
     }
 }
