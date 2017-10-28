@@ -25,10 +25,95 @@ import org.luwrain.base.*;
 
 public class StreamingTest extends Assert
 {
-    @Test public void classics() throws MalformedURLException
+    @Test public void radioClassics() throws MalformedURLException
     {
 run(new URL("http://music.myradio.com.ua:8000/Classica128.mp3"));
     }
+
+        @Test public void radioEchoOfMoscow() throws MalformedURLException
+    {
+	run(new URL("http://radio.2kom.ru:8000/moscowecho128.mp3"));
+	}
+    
+					         @Test public void radioNasheRadio() throws MalformedURLException
+    {
+	run(new URL("http://178.161.130.30:8000/radio"));
+}
+    
+					         @Test public void radioMayak() throws MalformedURLException
+    {
+run(new URL("http://icecast.vgtrk.cdnvideo.ru/mayakfm_mp3_64kbps"));
+}
+    
+					         @Test public void radioRockFm() throws MalformedURLException
+    {
+run(new URL("http://radio.2kom.ru:8000/RockFM"));
+}
+    
+					         @Test public void radioRussian() throws MalformedURLException
+    {
+run(new URL("http://stream.fmprod.ru/rusradio"));
+}
+    
+					         @Test public void radioHumourFm() throws MalformedURLException
+    {
+run(new URL("http://ic2.101.ru:8000/s12"));
+}
+    
+					         @Test public void radioRoadRadio() throws MalformedURLException
+    {
+run(new URL("http://radio.2kom.ru:8000/Dorognoe"));
+}
+    
+					         @Test public void radioVos() throws MalformedURLException
+    {
+run(new URL("http://radio.radiovos.ru:8000/radio"));
+}
+    
+					         @Test public void radioHit80s() throws MalformedURLException
+    {
+run(new URL("http://radio.2kom.ru:8000/1hits80s"));
+}
+    
+					         @Test public void radioDfm() throws MalformedURLException
+    {
+run(new URL("http://stream.fmprod.ru/dfm"));
+}
+    
+					         @Test public void radioJazz() throws MalformedURLException
+    {
+run(new URL("http://music.myradio.com.ua:8000/JazzRockFusion128.mp3"));
+}
+    
+					         @Test public void radioRansis() throws MalformedURLException
+    {
+run(new URL("http://radio.ransis.org:8000/ransis"));
+}
+    
+					         @Test public void radioPremium() throws MalformedURLException
+    {
+run(new URL("http://listen.rpfm.ru:9000/premium128"));
+}
+    
+					         @Test public void radioMir() throws MalformedURLException
+    {
+run(new URL("http://icecast.mirtv.cdnvideo.ru:8000/radio_mir128"));
+}
+    
+					         @Test public void radioShanson() throws MalformedURLException
+    {
+run(new URL("http://www.nts-tv.ru:8000/Shanson"));
+}
+    
+					         @Test public void radioRetroFm() throws MalformedURLException
+    {
+run(new URL("http://retroserver.streamr.ru:8043/retro128"));
+}
+    
+					         @Test public void radioEuropePlus() throws MalformedURLException
+    {
+run(new URL("http://radio.2kom.ru:8000/europaplus"));
+}
 
     private void run(URL url)
     {
