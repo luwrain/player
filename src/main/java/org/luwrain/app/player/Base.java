@@ -86,6 +86,11 @@ class Base
 	return true;
     }
 
+    boolean isStreamingPlaylist()
+    {
+	return false;
+    }
+
     boolean onAddStreamingPlaylist()
     {
 	return false;
