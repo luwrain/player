@@ -63,7 +63,7 @@ class Base
 	return Utils.getTrackTextAppearanceWithMap(trackUrl, trackInfoMap);
     }
 
-    void setListener(ListArea playlistArea, ControlArea2 controlArea)
+    void setListener(ListArea playlistArea, ControlArea controlArea)
     {
 	NullCheck.notNull(playlistArea, "playlistArea");
 	NullCheck.notNull(controlArea, "controlArea");
@@ -206,9 +206,9 @@ class Base
     class Listener  implements org.luwrain.player.Listener
     {
 	private final ListArea playlistArea;
-	private final ControlArea2 controlArea;
+	private final ControlArea controlArea;
 
-	Listener(ListArea playlistArea, ControlArea2 controlArea)
+	Listener(ListArea playlistArea, ControlArea controlArea)
 	{
 	    NullCheck.notNull(playlistArea, "playlistArea");
 	    NullCheck.notNull(controlArea, "controlArea");
@@ -221,6 +221,7 @@ class Base
 	    NullCheck.notNull(playlist, "playlist");
 	    luwrain.runInMainThread(()->{
 		    setNewCurrentPlaylist(playlistArea, playlist);
+		    controlArea.setMode(ControlArea.Mode.PLAYING);
 		    controlArea.setPlaylistTitle(playlist.getPlaylistTitle());
 		    controlArea.setTrackTitle("");
 		    controlArea.setTrackTime(0);
@@ -246,7 +247,7 @@ class Base
 	@Override public void onPlayerStop()
 	{
 	    luwrain.runInMainThread(()->{
-		    controlArea.setMode(ControlArea2.Mode.STOPPED);
+		    controlArea.setMode(ControlArea.Mode.STOPPED);
 		});
 	}
     }

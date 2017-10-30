@@ -36,7 +36,7 @@ public class PlayerApp implements Application, MonoApp
 
     private ListArea playlistsArea = null;
     private ListArea playlistArea = null;
-    private ControlArea2 controlArea = null;
+    private ControlArea controlArea = null;
     private AreaLayoutHelper layout = null;
 
     private final Playlist startingPlaylist;
@@ -68,7 +68,7 @@ public class PlayerApp implements Application, MonoApp
 	this.layout = new AreaLayoutHelper(()->{
 		luwrain.onNewAreaLayout();
 		luwrain.announceActiveArea();
-	    }, new AreaLayout(AreaLayout.LEFT_TOP_BOTTOM, playlistsArea, playlistArea, controlArea));
+	    }, new AreaLayout(AreaLayout.LEFT_RIGHT_BOTTOM, playlistsArea, playlistArea, controlArea));
 	base.setListener(playlistArea, controlArea);
 	/*FIXME:
 	if (base.getCurrentPlaylist() != null)
@@ -191,10 +191,10 @@ public class PlayerApp implements Application, MonoApp
 		}
 	    };
 
-	final ControlArea2.Callback controlCallback = new ControlArea2.Callback(){
+	final ControlArea.Callback controlCallback = new ControlArea.Callback(){
 	    };
 
-	controlArea = new ControlArea2(luwrain, controlCallback, strings, "ПАУЗА", "СТОП"){
+	controlArea = new ControlArea(luwrain, controlCallback, strings, "ПАУЗА", "СТОП"){
 
 		@Override public boolean onKeyboardEvent(KeyboardEvent event)
 		{
