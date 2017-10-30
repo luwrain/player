@@ -62,6 +62,7 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 	    return res;
 	}
 	state = State.PLAYING;
+	notifyListeners((l)->l.onNewState(playlist, State.PLAYING));
 	notifyListeners((l)->l.onNewPlaylist(playlist));
 	notifyListeners((l)->l.onNewTrack(playlist, currentTrackNum));
 	return Result.OK;
@@ -69,7 +70,6 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 
     @Override public synchronized void stop()
     {
-	Log.debug(LOG_COMPONENT, "stopping the playback");
 	if (state == State.STOPPED)
 	    return;
 	//Current player may be null, this means we are paused
@@ -80,7 +80,7 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 	currentTrackNum = 0;
 	currentPos = 0;
 	state = State.STOPPED;
-	notifyListeners((listener)->listener.onPlayerStop());	currentPos = 0;
+	notifyListeners((listener)->listener.onNewState(playlist, State.PLAYING));	currentPos = 0;
     }
 
     @Override public synchronized void pauseResume()
@@ -94,12 +94,14 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 	    currentPlayer.stop();
 	    currentPlayer = null;
 	    state = State.PAUSED;
+	    notifyListeners((listener)->listener.onNewState(playlist, State.PAUSED));
 	} else
 	{
 	    //resuming
 	    if (runPlayer() != Result.OK)
 		return;
 	    state = State.PLAYING;
+	    notifyListeners((listener)->listener.onNewState(playlist, State.PLAYING));
 	    notifyListeners((listener)->listener.onTrackTime(playlist, currentTrackNum, currentPos));
 	}
     }
@@ -220,15 +222,20 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 	return playlist != null;
     }
 
-    @Override public synchronized Playlist getCurrentPlaylist()
+    @Override public synchronized Playlist getPlaylist()
     {
 	return playlist;
     }
 
-    @Override public synchronized int getCurrentTrackNum()
+    @Override public synchronized int getTrackNum()
     {
 	return currentTrackNum;
-    } 
+    }
+
+    @Override public State getState()
+    {
+	return state != null?state:State.STOPPED;
+    }
 
     @Override public synchronized void addListener(Listener listener)
     {

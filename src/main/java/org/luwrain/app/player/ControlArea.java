@@ -154,6 +154,8 @@ interface Callback
 
     private String getControlStr()
     {
-	return "";
+	if (mode == Mode.PAUSED)
+	    return "<< [" + pauseResume + "] " + stop + "  >>";
+	return "<<  " + pauseResume + "  " + stop + "  >>";
     }
 }

@@ -82,7 +82,7 @@ class Base
 	    return false;
 	if (index < 0 || index >= getPlaylistLen())
 	    return false;
-	player.play(player.getCurrentPlaylist(), index, 0, org.luwrain.player.Player.DEFAULT_FLAGS);
+	player.play(player.getPlaylist(), index, 0, org.luwrain.player.Player.DEFAULT_FLAGS);
 	return true;
     }
 
@@ -100,34 +100,34 @@ class Base
     {
 	if (!player.hasPlaylist())
 	    return "";
-	return player.getCurrentPlaylist().getPlaylistTitle();
+	return player.getPlaylist().getPlaylistTitle();
     }
 
     String getCurrentTrackTitle()
     {
 	if (isEmptyPlaylist())
 	    return "";
-	final String res = getPlaylistUrls()[player.getCurrentTrackNum()];
+	final String res = getPlaylistUrls()[player.getTrackNum()];
 	return res != null?res:"";
     }
 
     boolean isEmptyPlaylist()
     {
-	return !player.hasPlaylist() || player.getCurrentPlaylist().getPlaylistUrls().length < 1;
+	return !player.hasPlaylist() || player.getPlaylist().getPlaylistUrls().length < 1;
     }
 
     String[] getPlaylistUrls()
     {
 	if (!player.hasPlaylist())
 	    return new String[0];
-	return player.getCurrentPlaylist().getPlaylistUrls();
+	return player.getPlaylist().getPlaylistUrls();
     }
 
     int getPlaylistLen()
     {
 	if (!player.hasPlaylist())
 	    return 0;
-	return player.getCurrentPlaylist().getPlaylistUrls().length;
+	return player.getPlaylist().getPlaylistUrls().length;
     }
 
     PlaylistModel newPlaylistModel()
@@ -149,7 +149,7 @@ class Base
     private void fillTrackInfoMap(ListArea area)
     {
 	NullCheck.notNull(area, "area");
-	final org.luwrain.player.Playlist playlist = player.getCurrentPlaylist();
+	final org.luwrain.player.Playlist playlist = player.getPlaylist();
 	if (playlist == null)
 	    return;
 	final HashMap<String, TrackInfo> map = new HashMap<String, TrackInfo>();
@@ -244,11 +244,27 @@ class Base
 	    luwrain.runInMainThread(()->controlArea.setTrackTime(msec));
 	}
 
-	@Override public void onPlayerStop()
+	@Override public void onNewState(org.luwrain.player.Playlist playlist, Player.State state)
 	{
+	    NullCheck.notNull(playlist, "playlist");
+	    NullCheck.notNull(state, "state");
 	    luwrain.runInMainThread(()->{
-		    controlArea.setMode(ControlArea.Mode.STOPPED);
+		    switch(state)
+		    {
+		    case STOPPED:
+			controlArea.setMode(ControlArea.Mode.STOPPED);
+			break;
+		    case PAUSED:
+			controlArea.setMode(ControlArea.Mode.PAUSED);
+		    case PLAYING:
+			//FIXME:streaming
+			controlArea.setMode(ControlArea.Mode.PLAYING);
+		    }
 		});
+	}
+
+	@Override public void onPlayingError(org.luwrain.player.Playlist playlist, Exception e)
+	{
 	}
     }
 }
