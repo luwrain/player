@@ -81,4 +81,11 @@ class Utils
 	    b.append("" + seconds);
 	return new String(b);
     }
+
+    static boolean isStreamingPlaylist(org.luwrain.player.Playlist playlist)
+    {
+	NullCheck.notNull(playlist, "playlist");
+	final org.luwrain.player.Playlist.ExtInfo extInfo = playlist.getExtInfo();
+	return extInfo != null && extInfo.getProp("streaming").equals("yes");
+    }
 }

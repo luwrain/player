@@ -220,11 +220,10 @@ class Base
 	{
 	    NullCheck.notNull(playlist, "playlist");
 	    luwrain.runInMainThread(()->{
-		    final org.luwrain.player.Playlist.ExtInfo extInfo = playlist.getExtInfo();
-		    		    		    setNewCurrentPlaylist(playlistArea, playlist);
-						    if (extInfo != null && extInfo.getProp("streaming").equals("yes"))
-													    		    controlArea.setMode(ControlArea.Mode.PLAYING_STREAMING); else
-						    						    		    controlArea.setMode(ControlArea.Mode.PLAYING);
+		    setNewCurrentPlaylist(playlistArea, playlist);
+		    if (Utils.isStreamingPlaylist(playlist))
+			controlArea.setMode(ControlArea.Mode.PLAYING_STREAMING); else
+			controlArea.setMode(ControlArea.Mode.PLAYING);
 		    controlArea.setPlaylistTitle(playlist.getPlaylistTitle());
 		    controlArea.setTrackTitle("");
 		    controlArea.setTrackTime(0);
@@ -236,7 +235,7 @@ class Base
 	    luwrain.runInMainThread(()->{
 		    controlArea.setTrackTitle("fixme1");
 		    controlArea.setTrackTime(0);
-				    });
+		});
 	}
 
 	@Override public void onTrackTime(org.luwrain.player.Playlist playlist, int trackNum, long msec)
@@ -255,10 +254,15 @@ class Base
 			controlArea.setMode(ControlArea.Mode.STOPPED);
 			break;
 		    case PAUSED:
-			controlArea.setMode(ControlArea.Mode.PAUSED);
+			if (Utils.isStreamingPlaylist(playlist))
+			    controlArea.setMode(ControlArea.Mode.PLAYING_STREAMING); else
+			    controlArea.setMode(ControlArea.Mode.PAUSED);
+			break;
 		    case PLAYING:
-			//FIXME:streaming
-			controlArea.setMode(ControlArea.Mode.PLAYING);
+			if (Utils.isStreamingPlaylist(playlist))
+			    controlArea.setMode(ControlArea.Mode.PLAYING_STREAMING); else
+			    controlArea.setMode(ControlArea.Mode.PLAYING);
+			break;
 		    }
 		});
 	}
