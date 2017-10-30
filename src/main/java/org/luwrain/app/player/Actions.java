@@ -71,9 +71,12 @@ class Actions
 	if (obj == null || !(obj instanceof Playlist))
 	    return false;
 	final Playlist playlist = (Playlist)obj;
-	base.player.play(playlist.toGeneralPlaylist(), 0, 0, org.luwrain.player.Player.DEFAULT_FLAGS);
 	if (!playlist.flags.contains(Playlist.Flags.STREAMING))
+	{
+	    base.player.play(playlist.toGeneralPlaylist(), 0, 0, org.luwrain.player.Player.DEFAULT_FLAGS);	    
 	    luwrain.setActiveArea(playlistArea);
+	} else
+	    base.player.play(playlist.toGeneralPlaylist(), 0, 0, EnumSet.of(org.luwrain.player.Player.Flags.STREAMING));
 	return true;
     }
 

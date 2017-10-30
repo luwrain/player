@@ -289,7 +289,7 @@ posMsec = 0;
 		return null;
 	final String url = items[trackNum];
 	try {
-	    return new Task(new URL(url), posMsec);
+	    return new Task(new URL(url), flags.contains(Flags.STREAMING)?posMsec:0);
 	}
 	catch (Exception e)
 	{
@@ -303,7 +303,6 @@ posMsec = 0;
 	final Task task = createTask();
 	if (task == null)
 	    return Result.INVALID_PLAYLIST;
-	Log.debug(LOG_COMPONENT, "starting playing of " + task.url);
 	final MediaResourcePlayer p = manager.play(this, task);
 	if (p == null)
 	    return Result.UNSUPPORTED_FORMAT_STARTING_TRACK;
