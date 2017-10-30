@@ -63,7 +63,7 @@ class Base
 	return Utils.getTrackTextAppearanceWithMap(trackUrl, trackInfoMap);
     }
 
-    void setListener(ListArea playlistArea, ControlArea controlArea)
+    void setListener(ListArea playlistArea, ControlArea2 controlArea)
     {
 	NullCheck.notNull(playlistArea, "playlistArea");
 	NullCheck.notNull(controlArea, "controlArea");
@@ -206,9 +206,9 @@ class Base
     class Listener  implements org.luwrain.player.Listener
     {
 	private final ListArea playlistArea;
-	private final ControlArea controlArea;
+	private final ControlArea2 controlArea;
 
-	Listener(ListArea playlistArea, ControlArea controlArea)
+	Listener(ListArea playlistArea, ControlArea2 controlArea)
 	{
 	    NullCheck.notNull(playlistArea, "playlistArea");
 	    NullCheck.notNull(controlArea, "controlArea");
@@ -219,22 +219,35 @@ class Base
 	@Override public void onNewPlaylist(org.luwrain.player.Playlist playlist)
 	{
 	    NullCheck.notNull(playlist, "playlist");
-	    luwrain.runInMainThread(()->setNewCurrentPlaylist(playlistArea, playlist));
+	    luwrain.runInMainThread(()->{
+		    setNewCurrentPlaylist(playlistArea, playlist);
+		    controlArea.setPlaylistTitle(playlist.getPlaylistTitle());
+		    controlArea.setTrackTitle("");
+		    controlArea.setTrackTime(0);
+		});
 	}
 
 	@Override public void onNewTrack(org.luwrain.player.Playlist playlist, int trackNum)
 	{
-	    luwrain.runInMainThread(()->controlArea.onNewTrack(trackNum));
+	    luwrain.runInMainThread(()->
+				    {
+					//					controlArea.onNewTrack(trackNum);
+				    });
 	}
 
 	@Override public void onTrackTime(org.luwrain.player.Playlist playlist, int trackNum, long msec)
 	{
-	    luwrain.runInMainThread(()->controlArea.onTrackTime(msec));
+	    luwrain.runInMainThread(()->
+				    {
+					controlArea.setTrackTime(msec);
+				    });
 	}
 
 	@Override public void onPlayerStop()
 	{
-	    luwrain.runInMainThread(()->controlArea.onStop());
+	    luwrain.runInMainThread(()->{
+		    controlArea.setMode(ControlArea2.Mode.STOPPED);
+		});
 	}
     }
 }

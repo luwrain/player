@@ -36,7 +36,7 @@ public class PlayerApp implements Application, MonoApp
 
     private ListArea playlistsArea = null;
     private ListArea playlistArea = null;
-    private ControlArea controlArea = null;
+    private ControlArea2 controlArea = null;
     private AreaLayoutHelper layout = null;
 
     private final Playlist startingPlaylist;
@@ -191,7 +191,10 @@ public class PlayerApp implements Application, MonoApp
 		}
 	    };
 
-	controlArea = new ControlArea(luwrain, actions, base, strings){
+	final ControlArea2.Callback controlCallback = new ControlArea2.Callback(){
+	    };
+
+	controlArea = new ControlArea2(luwrain, controlCallback, strings, "ПАУЗА", "СТОП"){
 
 		@Override public boolean onKeyboardEvent(KeyboardEvent event)
 		{
