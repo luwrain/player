@@ -31,7 +31,7 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 
     private final Manager manager = new Manager();
     private final Vector<Listener> listeners = new Vector<Listener>();
-    
+
     private State state = State.STOPPED;
     private MediaResourcePlayer currentPlayer = null;
     private Playlist playlist = null;
@@ -69,10 +69,10 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 	return Result.OK;
     }
 
-    @Override public synchronized void stop()
+    @Override public synchronized boolean stop()
     {
 	if (state == State.STOPPED)
-	    return;
+	    return false;
 	//Current player may be null, this means we are paused
 	if (currentPlayer != null)
 	    currentPlayer.stop();
@@ -82,12 +82,13 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 	posMsec = 0;
 	state = State.STOPPED;
 	notifyListeners((listener)->listener.onNewState(playlist, State.STOPPED));
+	return true;
     }
 
-    @Override public synchronized void pauseResume()
+    @Override public synchronized boolean pauseResume()
     {
 	if (state == State.STOPPED)
-	    return;
+	    return false;
 	//FIXME:streaming
 	if (state == State.PLAYING)
 	{
@@ -102,18 +103,19 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 	    if (runPlayer() != Result.OK)
 	    {
 		//FIXME:
-		return;
+		return true;
 	    }
 	    state = State.PLAYING;
 	    notifyListeners((listener)->listener.onNewState(playlist, State.PLAYING));
 	    notifyListeners((listener)->listener.onTrackTime(playlist, trackNum, posMsec));
 	}
+	return true;
     }
 
-    @Override public synchronized void jump(long offsetMsec)
+    @Override public synchronized boolean jump(long offsetMsec)
     {
 	if (state == State.STOPPED || flags.contains(Flags.STREAMING))
-	    return;
+	    return false;
 	if (currentPlayer != null)
 	{
 	    currentPlayer.stop();
@@ -125,15 +127,16 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 	runPlayer();
 	state = State.PLAYING;
 	notifyListeners((listener)->listener.onTrackTime(playlist, trackNum, posMsec));
+	return true;
     }
 
-    @Override public synchronized void nextTrack()
+    @Override public synchronized boolean nextTrack()
     {
 	if (state == State.STOPPED || flags.contains(Flags.STREAMING))
-	    return;
+	    return false;
 	final String[] items = playlist.getPlaylistUrls();
 	if (items == null || trackNum + 1 >= items.length)
-	    return;
+	    return false;
 	final State prevState = state;
 	if (currentPlayer != null)
 	{
@@ -148,15 +151,16 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
 	    	notifyListeners((listener)->listener.onNewState(playlist, State.PLAYING));
 	notifyListeners((listener)->listener.onNewTrack(playlist, trackNum));
 	notifyListeners((listener)->listener.onTrackTime(playlist, trackNum, 0));
+	return true;
     }
 
-    @Override public synchronized void prevTrack()
+    @Override public synchronized boolean prevTrack()
     {
 	if (state == State.STOPPED || flags.contains(Flags.STREAMING))
-	    return;
+	    return false;
 	final String[] items = playlist.getPlaylistUrls();
 	if (items == null || trackNum == 0)
-	    return;
+	    return false;
 	final State prevState = state;
 	if (currentPlayer != null)
 	{
@@ -171,6 +175,7 @@ posMsec = 0;
 	    	notifyListeners((listener)->listener.onNewState(playlist, State.PLAYING));
 		    	notifyListeners((listener)->listener.onNewTrack(playlist, trackNum));
 	notifyListeners((listener)->listener.onTrackTime(playlist, trackNum, 0));
+	return true;
     }
 
     @Override public synchronized void onPlayerTime(MediaResourcePlayer sourcePlayer, long msec)

@@ -86,62 +86,54 @@ class Actions
 	    switch(event.getSpecial())
 	    {
 	    case F5:
-		pauseResume();
-		return true;
+		return pauseResume();
 	    case ESCAPE:
 	    case F6:
-		stop();
-		return true;
+		return stop();
 	    case F7:
-		prevTrack();
-		return true;
+		return prevTrack();
 	    case F8:
-		nextTrack();
-		return true;
+		return nextTrack();
 	    default:
 		return false;
 	    }
 	switch(event.getChar())
 	{
 	case '-':
-	    jump(-5000);
-	    return true;
+	    return jump(-5000);
 	case '=':
-	    jump(5000);
-	    return true;
+	    return jump(5000);
 	case '[':
-	    jump(-60000);
-	    return true;
+	    return jump(-60000);
 	case ']':
-	    jump(60000);
-	    return true;
+	    return jump(60000);
 	default:
 	    return false;
 	}
     }
 
-    void pauseResume()
+    boolean pauseResume()
     {
-	base.player.pauseResume();
+	return base.player.pauseResume();
     }
 
-    void stop()
+    boolean stop()
     {
-	base.player.stop();
+	return base.player.stop();
     }
 
-    void prevTrack()
+    boolean prevTrack()
     {
-	base.player.prevTrack();
+	return base.player.prevTrack();
     }
 
-    void nextTrack()
+    boolean nextTrack()
     {
-	base.player.nextTrack();
+	return base.player.nextTrack();
     }
 
-    void jump(long offsetMsec)
+    boolean jump(long offsetMsec)
     {
-	base.player.jump(offsetMsec);
+	return base.player.jump(offsetMsec);
     }
 }
