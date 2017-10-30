@@ -220,8 +220,11 @@ class Base
 	{
 	    NullCheck.notNull(playlist, "playlist");
 	    luwrain.runInMainThread(()->{
-		    setNewCurrentPlaylist(playlistArea, playlist);
-		    controlArea.setMode(ControlArea.Mode.PLAYING);
+		    final org.luwrain.player.Playlist.ExtInfo extInfo = playlist.getExtInfo();
+		    		    		    setNewCurrentPlaylist(playlistArea, playlist);
+						    if (extInfo != null && extInfo.getProp("streaming").equals("yes"))
+													    		    controlArea.setMode(ControlArea.Mode.PLAYING_STREAMING); else
+						    						    		    controlArea.setMode(ControlArea.Mode.PLAYING);
 		    controlArea.setPlaylistTitle(playlist.getPlaylistTitle());
 		    controlArea.setTrackTitle("");
 		    controlArea.setTrackTime(0);
@@ -230,18 +233,15 @@ class Base
 
 	@Override public void onNewTrack(org.luwrain.player.Playlist playlist, int trackNum)
 	{
-	    luwrain.runInMainThread(()->
-				    {
-					//					controlArea.onNewTrack(trackNum);
+	    luwrain.runInMainThread(()->{
+		    controlArea.setTrackTitle("fixme1");
+		    controlArea.setTrackTime(0);
 				    });
 	}
 
 	@Override public void onTrackTime(org.luwrain.player.Playlist playlist, int trackNum, long msec)
 	{
-	    luwrain.runInMainThread(()->
-				    {
-					controlArea.setTrackTime(msec);
-				    });
+	    luwrain.runInMainThread(()->controlArea.setTrackTime(msec));
 	}
 
 	@Override public void onPlayerStop()

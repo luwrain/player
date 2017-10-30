@@ -69,7 +69,11 @@ class Playlist implements Comparable
     {
 	if (loadedTracks == null)
 	    loadedTracks = tracksLoader.loadTracks();
-	return new org.luwrain.player.Playlist(loadedTracks);
+	final Map<String, String> props = new HashMap<String, String>();
+	props.put("streaming", flags.contains(Flags.STREAMING)?"yes":"no");
+	props.put("title", getPlaylistTitle());
+	final org.luwrain.player.Playlist.ExtInfo extInfo = new org.luwrain.player.Playlist.ExtInfo(props);
+	return new org.luwrain.player.Playlist(loadedTracks, extInfo);
     }
 
     @Override public int compareTo(Object o)
