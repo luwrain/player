@@ -289,7 +289,7 @@ posMsec = 0;
 		return null;
 	final String url = items[trackNum];
 	try {
-	    return new Task(new URL(url), flags.contains(Flags.STREAMING)?posMsec:0);
+	    return new Task(new URL(url), flags.contains(Flags.STREAMING)?0:posMsec);
 	}
 	catch (Exception e)
 	{
