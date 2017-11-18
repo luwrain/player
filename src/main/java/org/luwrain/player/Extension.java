@@ -76,6 +76,34 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		}
 	    },
 
+	    	    new Command(){
+		@Override public String getName()
+		{
+		    return "player-jump-forward";
+		}
+		@Override public void onCommand(Luwrain luwrain)
+		{
+		    final Player player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
+		    if (player != null)
+			player.jump(5000);
+		}
+	    },
+
+	    	    	    new Command(){
+		@Override public String getName()
+		{
+		    return "player-jump-backward";
+		}
+		@Override public void onCommand(Luwrain luwrain)
+		{
+		    final Player player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
+		    if (player != null)
+			player.jump(-5000);
+		}
+	    },
+
+
+
 	};
     }
 
