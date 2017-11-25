@@ -63,7 +63,7 @@ CustomDevice device = null;
 			stream = AudioSystem.getAudioInputStream(bufferedIn);
 			final AudioFormat bitFormat = stream.getFormat();
 			//			device = FactoryRegistry.systemRegistry().createAudioDevice();
-			device = new CustomDevice();
+			device = new CustomDevice(-10);
 			if(device==null)
 			{
 			    Log.error(LOG_COMPONENT, "unable to create an audio device for playing");
@@ -74,21 +74,6 @@ CustomDevice device = null;
 			final Decoder decoder=new Decoder();
 			device.open(decoder);
 
-			if (device.line != null)
-			{
-			    System.out.println("proba printing");
-			for(javax.sound.sampled.Control c: device.source.getControls())
-			    Log.debug("proba", c.toString());
-			/*
-final javax.sound.sampled.FloatControl control = (javax.sound.sampled.FloatControl)device.source.getControl(FloatControl.Type.MASTER_GAIN);
-			if (control != null)
-			    control.setValue((float)-20);
-			*/
-			} else
-			    System.out.println("proba still null");
-			
-
-			
 			final Bitstream bitstream = new Bitstream(stream);
 			
 			while(currentPosition < playFromMsec)
