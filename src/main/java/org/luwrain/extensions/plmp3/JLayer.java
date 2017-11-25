@@ -53,7 +53,7 @@ class JLayer implements org.luwrain.base.MediaResourcePlayer
 	interrupting = false;
 	task = new FutureTask(()->{
 		try {
-		    AudioDevice device = null;
+CustomDevice device = null;
 		    AudioInputStream stream = null;
 		    try {
 			long currentFrame = 0;
@@ -62,16 +62,35 @@ class JLayer implements org.luwrain.base.MediaResourcePlayer
 			final BufferedInputStream bufferedIn = new BufferedInputStream(url.openStream());
 			stream = AudioSystem.getAudioInputStream(bufferedIn);
 			final AudioFormat bitFormat = stream.getFormat();
-			device = FactoryRegistry.systemRegistry().createAudioDevice();
+			//			device = FactoryRegistry.systemRegistry().createAudioDevice();
+			device = new CustomDevice();
 			if(device==null)
 			{
 			    Log.error(LOG_COMPONENT, "unable to create an audio device for playing");
 			    listener.onPlayerError(new Exception("Unable to create an audio device for playing"));
 			    return;
 			}
+
 			final Decoder decoder=new Decoder();
 			device.open(decoder);
+
+			if (device.line != null)
+			{
+			    System.out.println("proba printing");
+			for(javax.sound.sampled.Control c: device.source.getControls())
+			    Log.debug("proba", c.toString());
+			/*
+final javax.sound.sampled.FloatControl control = (javax.sound.sampled.FloatControl)device.source.getControl(FloatControl.Type.MASTER_GAIN);
+			if (control != null)
+			    control.setValue((float)-20);
+			*/
+			} else
+			    System.out.println("proba still null");
+			
+
+			
 			final Bitstream bitstream = new Bitstream(stream);
+			
 			while(currentPosition < playFromMsec)
 			{
 			    final Header frame = bitstream.readFrame();
@@ -84,10 +103,12 @@ class JLayer implements org.luwrain.base.MediaResourcePlayer
 			    currentPosition = currentFrame * frame.ms_per_frame();
 			    bitstream.closeFrame();
 			}
+			
 			//starting real playing
 			listener.onPlayerTime(JLayer.this, new Float(currentPosition).longValue());
 			while(true)
 			{
+			    //			    System.out.println("proba step");
 			    if(interrupting || Thread.currentThread().isInterrupted())
 				return;
 			    final Header frame = bitstream.readFrame();
