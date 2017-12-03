@@ -20,6 +20,7 @@ import java.net.*;
 import java.util.*;
 import java.io.*;
 
+import org.luwrain.base.*;
 import org.luwrain.core.*;
 import org.luwrain.util.*;
 import org.luwrain.app.player.PlayerApp;
@@ -149,12 +150,12 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 	};
     }
 
-@Override public SharedObject[] getSharedObjects(Luwrain luwrain)
+@Override public ExtensionObject[] getExtObjects(Luwrain luwrain)
 {
-    return new SharedObject[]{
+    return new ExtensionObject[]{
 
 	new SharedObject(){
-	    @Override public String getName()
+	    @Override public String getExtObjName()
 	    {
 		return Player.SHARED_OBJECT_NAME;
 	    }

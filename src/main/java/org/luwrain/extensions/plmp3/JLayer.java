@@ -39,6 +39,7 @@ class JLayer implements org.luwrain.base.MediaResourcePlayer
     private final Listener listener;
     private FutureTask task = null; 
     private boolean interrupting = false;
+    private CustomDevice device = null;
 
     JLayer(Listener listener)
     {
@@ -53,7 +54,6 @@ class JLayer implements org.luwrain.base.MediaResourcePlayer
 	interrupting = false;
 	task = new FutureTask(()->{
 		try {
-CustomDevice device = null;
 		    AudioInputStream stream = null;
 		    try {
 			long currentFrame = 0;
@@ -62,7 +62,6 @@ CustomDevice device = null;
 			final BufferedInputStream bufferedIn = new BufferedInputStream(url.openStream());
 			stream = AudioSystem.getAudioInputStream(bufferedIn);
 			final AudioFormat bitFormat = stream.getFormat();
-			//			device = FactoryRegistry.systemRegistry().createAudioDevice();
 			device = new CustomDevice(-10);
 			if(device==null)
 			{
@@ -70,25 +69,21 @@ CustomDevice device = null;
 			    listener.onPlayerError(new Exception("Unable to create an audio device for playing"));
 			    return;
 			}
-
 			final Decoder decoder=new Decoder();
 			device.open(decoder);
-
 			final Bitstream bitstream = new Bitstream(stream);
-			
 			while(currentPosition < playFromMsec)
 			{
 			    final Header frame = bitstream.readFrame();
 			    if (frame == null)
 			    {
 				Log.warning(LOG_COMPONENT, "unable to read new frame before starting position is reached");
-												return;
+				return;
 			    }
 			    ++currentFrame;
 			    currentPosition = currentFrame * frame.ms_per_frame();
 			    bitstream.closeFrame();
 			}
-			
 			//starting real playing
 			listener.onPlayerTime(JLayer.this, new Float(currentPosition).longValue());
 			while(true)
@@ -138,7 +133,6 @@ CustomDevice device = null;
 
     @Override public void stop()
     {
-	Log.debug(LOG_COMPONENT, "processing the command to cancel playing");
 	interrupting = true;
 	task.cancel(true);
     }
