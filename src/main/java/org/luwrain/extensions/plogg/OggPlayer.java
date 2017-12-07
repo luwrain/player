@@ -35,8 +35,8 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
-import org.luwrain.core.Log;
-import org.luwrain.core.NullCheck;
+import org.luwrain.base.*;
+import org.luwrain.core.*;
 
 import com.jcraft.jogg.Packet;
 import com.jcraft.jogg.Page;
@@ -47,11 +47,11 @@ import com.jcraft.jorbis.Comment;
 import com.jcraft.jorbis.DspState;
 import com.jcraft.jorbis.Info;
 
-class OggPlayer implements org.luwrain.base.MediaResourcePlayer
+class OggPlayer implements org.luwrain.base.MediaResourcePlayer.Instance
 {
     private static final int NOTIFY_MSEC_COUNT=500;
 
-	private final Listener listener;
+	private final MediaResourcePlayer.Listener listener;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 	private SourceDataLine outputLine = null;
@@ -80,13 +80,13 @@ class OggPlayer implements org.luwrain.base.MediaResourcePlayer
 	private long totalSamples;                                     
 	private long skipSamples;                                     
 
-    OggPlayer(Listener listener)
+    OggPlayer(MediaResourcePlayer.Listener listener)
     {
 	NullCheck.notNull(listener, "listener");
 	this.listener = listener;
     }
 
-    @Override public Result play(URL url, long playFromMsec, Set<Flags> flags)
+    @Override public MediaResourcePlayer.Result play(URL url, long playFromMsec, Set<MediaResourcePlayer.Flags> flags)
 	{
 	    NullCheck.notNull(url, "url");
 	    NullCheck.notNull(flags, "flags");
@@ -97,7 +97,7 @@ class OggPlayer implements org.luwrain.base.MediaResourcePlayer
 		{
 			e.printStackTrace();
 			listener.onPlayerFinish(OggPlayer.this);
-			return new Result();//FIXME:
+			return new MediaResourcePlayer.Result();//FIXME:
 		}
 		//
     	FutureTask<Boolean> futureTask = new FutureTask<>(()->
@@ -127,7 +127,7 @@ class OggPlayer implements org.luwrain.base.MediaResourcePlayer
 			return true;
     	});
     	executor.execute(futureTask);
-	return new Result();
+	return new MediaResourcePlayer.Result();
 	}
 
 	private void init()

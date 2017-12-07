@@ -31,9 +31,10 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import org.luwrain.base.*;
 import org.luwrain.core.*;
 
-class WavePlayer implements org.luwrain.base.MediaResourcePlayer
+class WavePlayer implements org.luwrain.base.MediaResourcePlayer.Instance
 {
 	private static final int NOTIFY_MSEC_COUNT=500;
     private static final int BUF_SIZE = 512;
@@ -43,17 +44,17 @@ class WavePlayer implements org.luwrain.base.MediaResourcePlayer
 
 	AudioFormat format=null;
 
-	private final Listener listener;
+	private final MediaResourcePlayer.Listener listener;
 	private FutureTask<Boolean> futureTask = null;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    WavePlayer(Listener listener)
+    WavePlayer(MediaResourcePlayer.Listener listener)
     {
 	NullCheck.notNull(listener, "listener");
 	this.listener = listener;
     }
 
-    @Override public Result play(URL url, long playFromMsec, Set<Flags> flags)
+    @Override public MediaResourcePlayer.Result play(URL url, long playFromMsec, Set<MediaResourcePlayer.Flags> flags)
 	{
 	    NullCheck.notNull(url, "url");
 	    NullCheck.notNull(flags, "flags");
@@ -68,7 +69,7 @@ catch(Exception e)
 		{
 			e.printStackTrace();
 			listener.onPlayerFinish(WavePlayer.this);
-			return new Result();
+			return new MediaResourcePlayer.Result();
 		}
 		format=audioInputStream.getFormat();
 		futureTask = new FutureTask<>(()->{
@@ -126,7 +127,7 @@ catch(Exception e)
 		return true;
 		});
 		executor.execute(futureTask);
-		return new Result();
+		return new MediaResourcePlayer.Result();
 	}
 
 	private long mSecToBytesSamples(float msec)

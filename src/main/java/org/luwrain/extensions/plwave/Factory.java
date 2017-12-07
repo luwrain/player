@@ -20,9 +20,9 @@ package org.luwrain.extensions.plwave;
 import org.luwrain.base.*;
 import org.luwrain.core.*;
 
-public class Factory implements MediaResourcePlayerFactory
+public class Factory implements MediaResourcePlayer
 {
-    @Override public MediaResourcePlayer newMediaResourcePlayer(MediaResourcePlayer.Listener listener)
+    @Override public Instance newMediaResourcePlayer(Listener listener)
     {
 	NullCheck.notNull(listener, "listener");
 	return new WavePlayer(listener);

@@ -33,7 +33,7 @@ class PlayerImpl implements Player, MediaResourcePlayer.Listener
     private final Vector<Listener> listeners = new Vector<Listener>();
 
     private State state = State.STOPPED;
-    private MediaResourcePlayer currentPlayer = null;
+    private MediaResourcePlayer.Instance currentPlayer = null;
     private Playlist playlist = null;
     private Set<Flags> flags = null;
     private int trackNum = 0;
@@ -178,7 +178,7 @@ posMsec = 0;
 	return true;
     }
 
-    @Override public synchronized void onPlayerTime(MediaResourcePlayer sourcePlayer, long msec)
+    @Override public synchronized void onPlayerTime(MediaResourcePlayer.Instance sourcePlayer, long msec)
     {
 	if (currentPlayer == null || sourcePlayer == null || currentPlayer != sourcePlayer)
 	    return;
@@ -190,7 +190,7 @@ posMsec = 0;
 	notifyListeners((listener)->listener.onTrackTime(playlist, trackNum, posMsec));
     }
 
-    @Override public synchronized void onPlayerFinish(MediaResourcePlayer sourcePlayer)
+    @Override public synchronized void onPlayerFinish(MediaResourcePlayer.Instance sourcePlayer)
     {
 	if (currentPlayer == null || sourcePlayer == null || currentPlayer != sourcePlayer)
 	    return;
@@ -303,7 +303,7 @@ posMsec = 0;
 	final Task task = createTask();
 	if (task == null)
 	    return Result.INVALID_PLAYLIST;
-	final MediaResourcePlayer p = manager.play(this, task);
+	final MediaResourcePlayer.Instance p = manager.play(this, task);
 	if (p == null)
 	    return Result.UNSUPPORTED_FORMAT_STARTING_TRACK;
 	currentPlayer = p;

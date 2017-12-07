@@ -29,25 +29,26 @@ import javazoom.jl.player.advanced.*;
 import javazoom.jl.decoder.*;
 import javazoom.jl.player.*;
 
+import org.luwrain.base.*;
 import org.luwrain.core.*;
 
-class JLayer implements org.luwrain.base.MediaResourcePlayer
+class JLayer implements org.luwrain.base.MediaResourcePlayer.Instance
 {
     static private final String LOG_COMPONENT = "jlayer";
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private final Listener listener;
+    private final MediaResourcePlayer.Listener listener;
     private FutureTask task = null; 
     private boolean interrupting = false;
     private CustomDevice device = null;
 
-    JLayer(Listener listener)
+    JLayer(MediaResourcePlayer.Listener listener)
     {
 	NullCheck.notNull(listener, "listener");
 	this.listener = listener;
     }
 
-    @Override public Result play(URL url, long playFromMsec, Set<Flags> flags)
+    @Override public MediaResourcePlayer.Result play(URL url, long playFromMsec, Set<MediaResourcePlayer.Flags> flags)
     {
 	NullCheck.notNull(url, "url");
 	NullCheck.notNull(flags, "flags");
@@ -128,7 +129,7 @@ class JLayer implements org.luwrain.base.MediaResourcePlayer
 		}
 	    }, null);
 	executor.execute(task);
-	return new Result();
+	return new MediaResourcePlayer.Result();
     }
 
     @Override public void stop()

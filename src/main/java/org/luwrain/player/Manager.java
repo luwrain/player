@@ -25,54 +25,54 @@ class Manager
 {
 	static private final String LOG_COMPONENT = PlayerImpl.LOG_COMPONENT;
 
-    private final Map<String, MediaResourcePlayerFactory> factories = new HashMap<String, MediaResourcePlayerFactory>();
+    private final Map<String, MediaResourcePlayer> players = new HashMap();
 
     Manager()
     {
-	registryFactory(new org.luwrain.extensions.plwave.Factory());
-	registryFactory(new org.luwrain.extensions.plogg.Factory());
-	registryFactory(new org.luwrain.extensions.plmp3.Factory());
+	registryPlayer(new org.luwrain.extensions.plwave.Factory());
+	registryPlayer(new org.luwrain.extensions.plogg.Factory());
+	registryPlayer(new org.luwrain.extensions.plmp3.Factory());
     }
 
-    MediaResourcePlayer play(org.luwrain.base.MediaResourcePlayer.Listener listener, Task task)
+    MediaResourcePlayer.Instance play(org.luwrain.base.MediaResourcePlayer.Listener listener, Task task)
     {
 	NullCheck.notNull(listener, "listener");
 	NullCheck.notNull(task, "task");
-	final MediaResourcePlayerFactory factory = findFactory(task.url.toString());
-	if (factory == null)
+	final MediaResourcePlayer player = findPlayer(task.url.toString());
+	if (player == null)
 	{
-	    Log.info(LOG_COMPONENT, "unable to find a media resource player factory for " + task.url.toString());
+	    Log.info(LOG_COMPONENT, "unable to find a media resource player for " + task.url.toString());
 	    return null;
 	}
-	final MediaResourcePlayer player = factory.newMediaResourcePlayer(listener);
-	if (player == null)
+	final MediaResourcePlayer.Instance instance = player.newMediaResourcePlayer(listener);
+	if (instance == null)
 	    return null;
-	player.play(task.url, task.startPosMsec(), EnumSet.noneOf(MediaResourcePlayer.Flags.class));
-	return player;
+	instance.play(task.url, task.startPosMsec(), EnumSet.noneOf(MediaResourcePlayer.Flags.class));
+	return instance;
     }
 
-    private MediaResourcePlayerFactory findFactory(String url)
+    private MediaResourcePlayer findPlayer(String url)
     {
 	NullCheck.notEmpty(url, "url");
-	if (url.trim().toLowerCase().endsWith(".wav") && factories.containsKey("wav"))
-	    return factories.get("wav");
-	if (url.trim().toLowerCase().endsWith(".mp3") && factories.containsKey("mp3"))
-	    return factories.get("mp3");
-	if (url.trim().toLowerCase().endsWith(".ogg") && factories.containsKey("ogg"))
-	    return factories.get("ogg");
+	if (url.trim().toLowerCase().endsWith(".wav") && players.containsKey("wav"))
+	    return players.get("wav");
+	if (url.trim().toLowerCase().endsWith(".mp3") && players.containsKey("mp3"))
+	    return players.get("mp3");
+	if (url.trim().toLowerCase().endsWith(".ogg") && players.containsKey("ogg"))
+	    return players.get("ogg");
 	//mp3 as a default
-	if (factories.containsKey("mp3"))
-	    return factories.get("mp3");
+	if (players.containsKey("mp3"))
+	    return players.get("mp3");
 	return null;
     }
 
-    private void registryFactory(MediaResourcePlayerFactory factory)
+    private void registryPlayer(MediaResourcePlayer player)
     {
-	NullCheck.notNull(factory, "factory");
-	final String mimeType = factory.getSupportedMimeType();
+	NullCheck.notNull(player, "player");
+	final String mimeType = player.getSupportedMimeType();
 	if (mimeType == null || mimeType.isEmpty())
 	    return;
-	Log.debug(LOG_COMPONENT, "registering the media resource factory  for \'" + mimeType + "\'");
-	factories.put(mimeType.toLowerCase().trim(), factory);
+	Log.debug(LOG_COMPONENT, "registering the media resource player for \'" + mimeType + "\'");
+	players.put(mimeType.toLowerCase().trim(), player);
     }
 }
