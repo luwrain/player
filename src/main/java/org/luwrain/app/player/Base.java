@@ -51,7 +51,7 @@ class Base
 	this.strings = strings;
 	playlists = new RegistryPlaylists(this, luwrain.getRegistry());
 	playlistsModel = new PlaylistsModel(strings);
-	player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
+	player = luwrain.getPlayer();
 	if (player == null)
 	    return;
 	playlistsModel.setPlaylists(playlists.loadRegistryPlaylists());

@@ -58,7 +58,7 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		}
 		@Override public void onCommand(Luwrain luwrain)
 		{
-		    final Player player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
+		    final Player player = luwrain.getPlayer();
 		    if (player != null)
 			player.stop();
 		}
@@ -71,7 +71,7 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		}
 		@Override public void onCommand(Luwrain luwrain)
 		{
-		    final Player player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
+		    final Player player = luwrain.getPlayer();
 		    if (player != null)
 			player.pauseResume();
 		}
@@ -84,7 +84,7 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		}
 		@Override public void onCommand(Luwrain luwrain)
 		{
-		    final Player player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
+		    final Player player = luwrain.getPlayer();
 		    if (player != null)
 			player.jump(5000);
 		}
@@ -97,7 +97,7 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		}
 		@Override public void onCommand(Luwrain luwrain)
 		{
-		    final Player player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
+		    final Player player = luwrain.getPlayer();
 		    if (player != null)
 			player.jump(-5000);
 		}
@@ -134,7 +134,7 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		    NullCheck.notNullItems(args, "args");
 		    if (args.length != 1 || args[0].isEmpty())
 			return null;
-		    final Player player = (Player)luwrain.getSharedObject(Player.SHARED_OBJECT_NAME);
+		    final Player player = luwrain.getPlayer();
 		    if (player != null)
 		    {
 			final File f = new File(args[0]).getAbsoluteFile();
@@ -146,24 +146,6 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		    return null;
 		}
 	    },
-
-	};
-    }
-
-@Override public ExtensionObject[] getExtObjects(Luwrain luwrain)
-{
-    return new ExtensionObject[]{
-
-	new SharedObject(){
-	    @Override public String getExtObjName()
-	    {
-		return Player.SHARED_OBJECT_NAME;
-	    }
-	    @Override public Object getSharedObject()
-	    {
-		return player;
-	    }
-	},
 
 	};
     }

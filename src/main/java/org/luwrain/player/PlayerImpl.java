@@ -23,7 +23,7 @@ import java.nio.file.*;
 import org.luwrain.base.*;
 import org.luwrain.core.*;
 
-class PlayerImpl implements Player, MediaResourcePlayer.Listener
+public class PlayerImpl implements Player, MediaResourcePlayer.Listener
 {
     static final String LOG_COMPONENT = "player";
 
