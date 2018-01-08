@@ -1,5 +1,5 @@
 /*
-   Copyright 2012-2017 Michael Pozhidaev <michael.pozhidaev@gmail.com>
+   Copyright 2012-2018 Michael Pozhidaev <michael.pozhidaev@gmail.com>
 
    This file is part of LUWRAIN.
 
@@ -16,34 +16,21 @@
 
 package org.luwrain.player;
 
-import java.io.*;
 import java.net.*;
 
 import org.luwrain.core.*;
 
-public class Task
+final class Task
 {
-public final URL url;
-public long startPosMsec = 0;
+    final URL url;
+    final long startPosMsec;
 
-    public Task(URL url)
+    Task(URL url, long startPosMsec)
     {
 	NullCheck.notNull(url, "url");
-	this.url = url;
-	this.startPosMsec = 0;
-    }
-
-    public Task(URL url, long startPosMsec)
-    {
-	NullCheck.notNull(url, "url");
+	if (startPosMsec < 0)
+	    throw new IllegalArgumentException("startPosMsec (" + startPosMsec + ") may not be negative");
 	this.url = url;
 	this.startPosMsec = startPosMsec;
     }
-
-    InputStream openStream() throws IOException
-    {
-	return url.openStream();
-    }
-
-    public long startPosMsec() {return startPosMsec;}
 }

@@ -1,5 +1,5 @@
 /*
-   Copyright 2012-2017 Michael Pozhidaev <michael.pozhidaev@gmail.com>
+   Copyright 2012-2018 Michael Pozhidaev <michael.pozhidaev@gmail.com>
 
    This file is part of LUWRAIN.
 
@@ -23,13 +23,12 @@ import java.nio.file.*;
 import org.luwrain.base.*;
 import org.luwrain.core.*;
 
-public class PlayerImpl implements Player, MediaResourcePlayer.Listener
+public final class PlayerImpl implements Player, MediaResourcePlayer.Listener
 {
     static final String LOG_COMPONENT = "player";
 
     private final Random rand = new Random();
 
-    private final Manager manager = new Manager();
     private final Vector<Listener> listeners = new Vector<Listener>();
 
     private State state = State.STOPPED;
@@ -298,15 +297,23 @@ posMsec = 0;
 	}
     }
 
+    private MediaResourcePlayer findPlayer(Task task)
+    {
+	NullCheck.notNull(task, "task");
+	return null;
+    }
+
     private Result runPlayer()
     {
 	final Task task = createTask();
 	if (task == null)
 	    return Result.INVALID_PLAYLIST;
-	final MediaResourcePlayer.Instance p = manager.play(this, task);
+	final MediaResourcePlayer p = findPlayer(task);
 	if (p == null)
 	    return Result.UNSUPPORTED_FORMAT_STARTING_TRACK;
-	currentPlayer = p;
+	final MediaResourcePlayer.Instance instance = p.newMediaResourcePlayer(this);
+		instance.play(task.url, task.startPosMsec, EnumSet.noneOf(MediaResourcePlayer.Flags.class));
+	currentPlayer = instance;
 	return Result.OK;
     }
 
