@@ -14,7 +14,7 @@
    General Public License for more details.
 */
 
-package org.luwrain.player;
+package org.luwrain.app.player;
 
 import java.net.*;
 import java.util.*;
@@ -23,19 +23,9 @@ import java.io.*;
 import org.luwrain.base.*;
 import org.luwrain.core.*;
 import org.luwrain.util.*;
-import org.luwrain.app.player.PlayerApp;
-import org.luwrain.app.player.Strings;
 
 public class Extension extends org.luwrain.core.extensions.EmptyExtension
 {
-    private Player player;
-
-    @Override public String init(Luwrain luwrain)
-    {
-	player = new PlayerImpl();
-	return null;
-    }
-
     @Override public Command[] getCommands(Luwrain luwrain)
     {
 	return new Command[]{
@@ -58,7 +48,7 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		}
 		@Override public void onCommand(Luwrain luwrain)
 		{
-		    final Player player = luwrain.getPlayer();
+		    final org.luwrain.player.Player player = luwrain.getPlayer();
 		    if (player != null)
 			player.stop();
 		}
@@ -71,39 +61,37 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		}
 		@Override public void onCommand(Luwrain luwrain)
 		{
-		    final Player player = luwrain.getPlayer();
+		    final org.luwrain.player.Player player = luwrain.getPlayer();
 		    if (player != null)
 			player.pauseResume();
 		}
 	    },
 
-	    	    new Command(){
+	    new Command(){
 		@Override public String getName()
 		{
 		    return "player-jump-forward";
 		}
 		@Override public void onCommand(Luwrain luwrain)
 		{
-		    final Player player = luwrain.getPlayer();
+		    final org.luwrain.player.Player player = luwrain.getPlayer();
 		    if (player != null)
 			player.jump(5000);
 		}
 	    },
 
-	    	    	    new Command(){
+	    new Command(){
 		@Override public String getName()
 		{
 		    return "player-jump-backward";
 		}
 		@Override public void onCommand(Luwrain luwrain)
 		{
-		    final Player player = luwrain.getPlayer();
+		    final org.luwrain.player.Player player = luwrain.getPlayer();
 		    if (player != null)
 			player.jump(-5000);
 		}
 	    },
-
-
 
 	};
     }
@@ -120,7 +108,7 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		@Override public Application[] prepareApp(String[] args)
 		{
 		    NullCheck.notNullItems(args, "args");
-			return new Application[]{new PlayerApp(args)};
+		    return new Application[]{new App(args)};
 		}
 	    },
 
@@ -134,7 +122,7 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		    NullCheck.notNullItems(args, "args");
 		    if (args.length != 1 || args[0].isEmpty())
 			return null;
-		    final Player player = luwrain.getPlayer();
+		    final org.luwrain.player.Player player = luwrain.getPlayer();
 		    if (player != null)
 		    {
 			final File f = new File(args[0]).getAbsoluteFile();

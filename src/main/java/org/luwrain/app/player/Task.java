@@ -14,7 +14,7 @@
    General Public License for more details.
 */
 
-package org.luwrain.player;
+package org.luwrain.app.player;
 
 import java.net.*;
 

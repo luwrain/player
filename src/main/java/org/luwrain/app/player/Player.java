@@ -14,7 +14,7 @@
    General Public License for more details.
 */
 
-package org.luwrain.player;
+package org.luwrain.app.player;
 
 import java.util.*;
 import java.net.*;
@@ -23,22 +23,21 @@ import java.nio.file.*;
 import org.luwrain.base.*;
 import org.luwrain.core.*;
 
-public final class PlayerImpl implements Player, MediaResourcePlayer.Listener
+final class Player implements org.luwrain.player.Player, MediaResourcePlayer.Listener
 {
     static final String LOG_COMPONENT = "player";
 
     private final Random rand = new Random();
-
-    private final Vector<Listener> listeners = new Vector<Listener>();
+    private final List<org.luwrain.player.Listener> listeners = new Vector();
 
     private State state = State.STOPPED;
     private MediaResourcePlayer.Instance currentPlayer = null;
-    private Playlist playlist = null;
+    private org.luwrain.player.Playlist playlist = null;
     private Set<Flags> flags = null;
     private int trackNum = 0;
     private long posMsec = 0;
 
-    @Override public synchronized Result play(Playlist playlist, int startingTrackNum, long startingPosMsec, Set<Flags> flags)
+    @Override public synchronized Result play(org.luwrain.player.Playlist playlist, int startingTrackNum, long startingPosMsec, Set<Flags> flags)
     {
 	NullCheck.notNull(playlist, "playlist");
 	NullCheck.notNull(flags, "flags");
@@ -236,7 +235,7 @@ posMsec = 0;
 	return playlist != null;
     }
 
-    @Override public synchronized Playlist getPlaylist()
+    @Override public synchronized org.luwrain.player.Playlist getPlaylist()
     {
 	return playlist;
     }
@@ -251,16 +250,16 @@ posMsec = 0;
 	return state != null?state:State.STOPPED;
     }
 
-    @Override public synchronized void addListener(Listener listener)
+    @Override public synchronized void addListener(org.luwrain.player.Listener listener)
     {
 	NullCheck.notNull(listener, "listener");
-	for(Listener l: listeners)
+	for(org.luwrain.player.Listener l: listeners)
 	    if (l == listener)
 		return;
 	listeners.add(listener);
     }
 
-    @Override public synchronized void removeListener(Listener listener)
+    @Override public synchronized void removeListener(org.luwrain.player.Listener listener)
     {
 	NullCheck.notNull(listener, "listener");
 	for(int i = 0;i < listeners.size();++i)
@@ -274,7 +273,7 @@ posMsec = 0;
     private void notifyListeners(ListenerNotification notification)
     {
 	NullCheck.notNull(notification, "notification");
-	for(Listener l: listeners)
+	for(org.luwrain.player.Listener l: listeners)
 	    notification.notify(l);
     }
 
@@ -319,6 +318,6 @@ posMsec = 0;
 
     private interface ListenerNotification
     {
-	void notify(Listener listener);
+	void notify(org.luwrain.player.Listener listener);
     }
 }

@@ -1,5 +1,5 @@
 /*
-   Copyright 2012-2017 Michael Pozhidaev <michael.pozhidaev@gmail.com>
+   Copyright 2012-2018 Michael Pozhidaev <michael.pozhidaev@gmail.com>
 
    This file is part of LUWRAIN.
 
@@ -26,7 +26,7 @@ import org.luwrain.controls.*;
 import org.luwrain.player.*;
 import org.luwrain.popups.*;
 
-public class PlayerApp implements Application, MonoApp
+class App implements Application, MonoApp
 {
     private Luwrain luwrain = null;
     private Strings strings = null;
@@ -41,12 +41,12 @@ public class PlayerApp implements Application, MonoApp
 
     private final Playlist startingPlaylist;
 
-    public PlayerApp()
+    App()
     {
 	startingPlaylist = null;
     }
 
-    public PlayerApp(String[] args)
+    App(String[] args)
     {
 	startingPlaylist = null;
     }

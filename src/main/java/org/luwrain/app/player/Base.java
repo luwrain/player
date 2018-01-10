@@ -1,5 +1,5 @@
 /*
-   Copyright 2012-2017 Michael Pozhidaev <michael.pozhidaev@gmail.com>
+   Copyright 2012-2018 Michael Pozhidaev <michael.pozhidaev@gmail.com>
 
    This file is part of LUWRAIN.
 
@@ -37,7 +37,7 @@ class Base
     private final Luwrain luwrain;
     private final Strings strings;
     private Listener listener;
-    final Player player;
+    final org.luwrain.player.Player player;
 
     private HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
     private final RegistryPlaylists playlists;
