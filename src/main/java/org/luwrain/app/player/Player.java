@@ -27,6 +27,7 @@ final class Player implements org.luwrain.player.Player, MediaResourcePlayer.Lis
 {
     static final String LOG_COMPONENT = "player";
 
+    private final Luwrain luwrain;
     private final Random rand = new Random();
     private final List<org.luwrain.player.Listener> listeners = new Vector();
 
@@ -36,6 +37,12 @@ final class Player implements org.luwrain.player.Player, MediaResourcePlayer.Lis
     private Set<Flags> flags = null;
     private int trackNum = 0;
     private long posMsec = 0;
+
+    Player(Luwrain luwrain)
+    {
+	NullCheck.notNull(luwrain, "luwrain");
+	this.luwrain = luwrain;
+    }
 
     @Override public synchronized Result play(org.luwrain.player.Playlist playlist, int startingTrackNum, long startingPosMsec, Set<Flags> flags)
     {
