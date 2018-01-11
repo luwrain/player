@@ -293,10 +293,11 @@ posMsec = 0;
 	    if (items[i] == null)
 		return null;
 	final String url = items[trackNum];
+	Log.debug(LOG_COMPONENT, "creating task for " + url);
 	try {
 	    return new Task(new URL(url), flags.contains(Flags.STREAMING)?0:posMsec);
 	}
-	catch (Exception e)
+	catch (java.io.IOException e)
 	{
 	    Log.error(LOG_COMPONENT, "unable to create the URL object for " + url + ":" + e.getClass().getName() + ":" + e.getMessage());
 	    return null;
@@ -306,6 +307,14 @@ posMsec = 0;
     private MediaResourcePlayer findPlayer(Task task)
     {
 	NullCheck.notNull(task, "task");
+	final String contentType = luwrain.suggestContentType(task.url, ContentTypes.ExpectedType.AUDIO);
+	Log.debug(LOG_COMPONENT, "suggested content type is \'" + contentType + "\'");
+	for(MediaResourcePlayer p: luwrain.getMediaResourcePlayers())
+	{
+	    final String supportedTypes = p.getSupportedMimeType();
+	    if (supportedTypes.trim().toLowerCase().equals(contentType.trim().toLowerCase()))
+		return p;
+	}
 	return null;
     }
 
@@ -316,9 +325,13 @@ posMsec = 0;
 	    return Result.INVALID_PLAYLIST;
 	final MediaResourcePlayer p = findPlayer(task);
 	if (p == null)
+	{
+	    Log.error(LOG_COMPONENT, "unable to choose the player for " + task.url.toString());
 	    return Result.UNSUPPORTED_FORMAT_STARTING_TRACK;
+	}
+	Log.debug(LOG_COMPONENT, "the chosen player is \'" + p.getExtObjName() + "\'");
 	final MediaResourcePlayer.Instance instance = p.newMediaResourcePlayer(this);
-		instance.play(task.url, task.startPosMsec, EnumSet.noneOf(MediaResourcePlayer.Flags.class));
+	instance.play(task.url, task.startPosMsec, EnumSet.noneOf(MediaResourcePlayer.Flags.class));
 	currentPlayer = instance;
 	return Result.OK;
     }
