@@ -28,10 +28,12 @@ final class Player implements org.luwrain.player.Player, MediaResourcePlayer.Lis
     static final String LOG_COMPONENT = "player";
 
     private final Luwrain luwrain;
+    private final Settings sett;
     private final Random rand = new Random();
     private final List<org.luwrain.player.Listener> listeners = new Vector();
 
     private State state = State.STOPPED;
+    private int volume = 100;
     private MediaResourcePlayer.Instance currentPlayer = null;
     private org.luwrain.player.Playlist playlist = null;
     private Set<Flags> flags = null;
@@ -42,6 +44,12 @@ final class Player implements org.luwrain.player.Player, MediaResourcePlayer.Lis
     {
 	NullCheck.notNull(luwrain, "luwrain");
 	this.luwrain = luwrain;
+	this.sett = Settings.create(luwrain.getRegistry());
+	this.volume = this.sett.getVolume(100);
+	if (this.volume < 0)
+	    this.volume = 0;
+	if (this.volume > 100)
+	    this.volume = 100;
     }
 
     @Override public synchronized Result play(org.luwrain.player.Playlist playlist, int startingTrackNum, long startingPosMsec, Set<Flags> flags)
@@ -257,6 +265,24 @@ posMsec = 0;
 	return state != null?state:State.STOPPED;
     }
 
+    @Override public int getVolume()
+    {
+	return volume;
+    }
+
+    @Override public void setVolume(int value)
+    {
+	Log.debug(LOG_COMPONENT, "changing volume to " + value);
+	if (value < 0 || value > 100)
+	    throw new IllegalArgumentException("value (" + value + ") must be between 0 and 100 (inclusively)");
+	if (this.volume == value)
+	    return;
+	this.volume = value;
+	if (currentPlayer != null)
+	    currentPlayer.setVolume(this.volume);
+	sett.setVolume(this.volume);
+    }
+
     @Override public synchronized void addListener(org.luwrain.player.Listener listener)
     {
 	NullCheck.notNull(listener, "listener");
@@ -331,7 +357,19 @@ posMsec = 0;
 	}
 	Log.debug(LOG_COMPONENT, "the chosen player is \'" + p.getExtObjName() + "\'");
 	final MediaResourcePlayer.Instance instance = p.newMediaResourcePlayer(this);
-	instance.play(task.url, task.startPosMsec, EnumSet.noneOf(MediaResourcePlayer.Flags.class));
+	final MediaResourcePlayer.Params params = new MediaResourcePlayer.Params();
+	params.playFromMsec = task.startPosMsec;
+	params.volume = volume;
+	params.flags = EnumSet.noneOf(MediaResourcePlayer.Flags.class);
+	final MediaResourcePlayer.Result result = instance.play(task.url, params);
+	if (!result.isOk())
+	    switch(result.getType())
+	    {
+	    case INACCESSIBLE_SOURCE:
+		return Result.INACCESSIBLE_SOURCE;
+	    default:
+		return Result.GENERAL_PLAYER_ERROR;
+	    }
 	currentPlayer = instance;
 	return Result.OK;
     }

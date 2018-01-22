@@ -20,7 +20,8 @@ import org.luwrain.core.*;
 
 interface Settings
 {
-    static final String PLAYLISTS_PATH = "/org/luwrain/player/playlists";
+        static final String PLAYLISTS_PATH = "/org/luwrain/player/playlists";
+    static final String PLAYER_PATH = "/org/luwrain/player";
     static final String TYPE_VALUE = "type";
 
     static final String TYPE_DIRECTORY = "directory";
@@ -61,6 +62,15 @@ interface Settings
     {
 	String getM3uUrl(String defValue);
 	void setM3uUrl(String  value);
+    }
+
+    int getVolume(int defValue);
+    void setVolume(int value);
+
+    static Settings create(Registry registry)
+    {
+	NullCheck.notNull(registry, "registry");
+		return RegistryProxy.create(registry, PLAYER_PATH, Settings.class);
     }
 
     static DirectoryPlaylist createDirectoryPlaylist(Registry registry, String path)

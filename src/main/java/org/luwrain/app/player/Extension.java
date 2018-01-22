@@ -24,8 +24,10 @@ import org.luwrain.base.*;
 import org.luwrain.core.*;
 import org.luwrain.util.*;
 
-public class Extension extends org.luwrain.core.extensions.EmptyExtension
+public final class Extension extends org.luwrain.core.extensions.EmptyExtension
 {
+    static private final int VOLUME_STEP = 3;
+
     @Override public Command[] getCommands(Luwrain luwrain)
     {
 	return new Command[]{
@@ -90,6 +92,36 @@ public class Extension extends org.luwrain.core.extensions.EmptyExtension
 		    final org.luwrain.player.Player player = luwrain.getPlayer();
 		    if (player != null)
 			player.jump(-5000);
+		}
+	    },
+
+	    	    new Command(){
+		@Override public String getName()
+		{
+		    return "player-volume-inc";
+		}
+		@Override public void onCommand(Luwrain luwrain)
+		{
+		    NullCheck.notNull(luwrain, "luwrain");
+		    final org.luwrain.player.Player player = luwrain.getPlayer();
+		    if (player == null)
+			return;
+		    player.setVolume(Math.min(player.getVolume() + VOLUME_STEP, 100));
+		}
+	    },
+
+	    	    	    new Command(){
+		@Override public String getName()
+		{
+		    return "player-volume-dec";
+		}
+		@Override public void onCommand(Luwrain luwrain)
+		{
+		    NullCheck.notNull(luwrain, "luwrain");
+		    final org.luwrain.player.Player player = luwrain.getPlayer();
+		    if (player == null)
+			return;
+		    player.setVolume(Math.max(player.getVolume() - VOLUME_STEP, 0));
 		}
 	    },
 
