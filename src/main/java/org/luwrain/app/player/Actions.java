@@ -76,7 +76,10 @@ class Actions
 	    base.player.play(playlist.toGeneralPlaylist(), 0, 0, org.luwrain.player.Player.DEFAULT_FLAGS);	    
 	    luwrain.setActiveArea(playlistArea);
 	} else
+	{
+	    luwrain.playSound(Sounds.PARAGRAPH);
 	    base.player.play(playlist.toGeneralPlaylist(), 0, 0, EnumSet.of(org.luwrain.player.Player.Flags.STREAMING));
+	}
 	return true;
     }
 
