@@ -194,7 +194,7 @@ class Base
 	{
 	    if (index < 0 || index >= getPlaylistLen())
 		return "";
-	    return new PlaylistItem(getPlaylistUrls()[index], getTrackTextAppearance(getPlaylistUrls()[index]));
+	    return new PlaylistsModel.Item(getPlaylistUrls()[index], getTrackTextAppearance(getPlaylistUrls()[index]));
 	}
 
 	@Override public int getItemCount()
