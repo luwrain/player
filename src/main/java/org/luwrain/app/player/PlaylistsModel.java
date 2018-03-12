@@ -86,30 +86,4 @@ final class PlaylistsModel implements ListArea.Model
     @Override public void refresh()
     {
     }
-
-    static final class Item
-    {
-	final String url;
-	final String title;
-
-	Item(String url, String title)
-	{
-	    NullCheck.notNull(url, "url");
-	    NullCheck.notNull(title, "title");
-	    this.url = url;
-	    this.title = title;
-	}
-
-	@Override public String toString()
-	{
-	    return title;
-	}
-
-	@Override public boolean equals(Object o)
-	{
-	    if (o == null || !(o instanceof PlaylistsModel.Item))
-		return false;
-	    return url.equals(((PlaylistsModel.Item)o).url);
-	}
-    }
 }

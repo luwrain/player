@@ -169,45 +169,11 @@ class Base
 	trackInfoMap = map;
     }
 
-    class PlaylistModel implements EditableListArea.EditableModel
-    {
-	@Override public boolean clearList()
-	{
-	    return false;
-	}
 
-	@Override public boolean addToList(int pos,Clipboard clipboard)
-	{
-	    return false;
-	}
-
-	@Override public boolean removeFromList(int index)
-	{
-	    return false;
-	}
-
-	@Override public void refresh()
-	{
-	} 
-
-	@Override public Object getItem(int index)
-	{
-	    if (index < 0 || index >= getPlaylistLen())
-		return "";
-	    return new PlaylistsModel.Item(getPlaylistUrls()[index], getTrackTextAppearance(getPlaylistUrls()[index]));
-	}
-
-	@Override public int getItemCount()
-	{
-	    return getPlaylistLen();
-	}
-    }
-
-    class Listener  implements org.luwrain.player.Listener
+    private class Listener  implements org.luwrain.player.Listener
     {
 	private final ListArea playlistArea;
 	private final ControlArea controlArea;
-
 	Listener(ListArea playlistArea, ControlArea controlArea)
 	{
 	    NullCheck.notNull(playlistArea, "playlistArea");
@@ -215,7 +181,6 @@ class Base
 	    this.playlistArea = playlistArea;
 	    this.controlArea = controlArea;;
 	}
-
 	@Override public void onNewPlaylist(org.luwrain.player.Playlist playlist)
 	{
 	    NullCheck.notNull(playlist, "playlist");
@@ -229,7 +194,6 @@ class Base
 		    controlArea.setTrackTime(0);
 		});
 	}
-
 	@Override public void onNewTrack(org.luwrain.player.Playlist playlist, int trackNum)
 	{
 	    luwrain.runInMainThread(()->{
@@ -237,12 +201,10 @@ class Base
 		    controlArea.setTrackTime(0);
 		});
 	}
-
 	@Override public void onTrackTime(org.luwrain.player.Playlist playlist, int trackNum, long msec)
 	{
 	    luwrain.runInMainThread(()->controlArea.setTrackTime(msec));
 	}
-
 	@Override public void onNewState(org.luwrain.player.Playlist playlist, Player.State state)
 	{
 	    NullCheck.notNull(playlist, "playlist");
@@ -266,9 +228,60 @@ class Base
 		    }
 		});
 	}
-
 	@Override public void onPlayingError(org.luwrain.player.Playlist playlist, Exception e)
 	{
+	}
+    }
+
+    private class PlaylistModel implements EditableListArea.EditableModel
+    {
+	@Override public boolean clearList()
+	{
+	    return false;
+	}
+	@Override public boolean addToList(int pos,Clipboard clipboard)
+	{
+	    return false;
+	}
+	@Override public boolean removeFromList(int index)
+	{
+	    return false;
+	}
+	@Override public void refresh()
+	{
+	} 
+	@Override public Object getItem(int index)
+	{
+	    if (index < 0 || index >= getPlaylistLen())
+		return "";
+	    return new Item(getPlaylistUrls()[index], getTrackTextAppearance(getPlaylistUrls()[index]));
+	}
+	@Override public int getItemCount()
+	{
+	    return getPlaylistLen();
+	}
+    }
+
+    static private final class Item
+    {
+	final String url;
+	final String title;
+	Item(String url, String title)
+	{
+	    NullCheck.notNull(url, "url");
+	    NullCheck.notNull(title, "title");
+	    this.url = url;
+	    this.title = title;
+	}
+	@Override public String toString()
+	{
+	    return title;
+	}
+	@Override public boolean equals(Object o)
+	{
+	    if (o == null || !(o instanceof Item))
+		return false;
+	    return url.equals(((Item)o).url);
 	}
     }
 }
