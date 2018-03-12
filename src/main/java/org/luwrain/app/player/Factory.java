@@ -24,6 +24,6 @@ public class Factory implements org.luwrain.player.Factory
     {
 	NullCheck.notNull(params, "params");
 	NullCheck.notNull(params.luwrain, "params.luwrain");
-	return new Player(params.luwrain);
+	return new Dispatcher(params.luwrain);
     }
 }

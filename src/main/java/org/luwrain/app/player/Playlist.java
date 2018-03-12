@@ -20,7 +20,7 @@ import java.util.*;
 
 import org.luwrain.core.*;
 
-class Playlist implements Comparable
+final class Playlist implements Comparable
 {
     enum Flags {HAS_BOOKMARK, STREAMING };
 

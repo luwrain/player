@@ -23,7 +23,7 @@ import java.nio.file.*;
 import org.luwrain.base.*;
 import org.luwrain.core.*;
 
-final class Player implements org.luwrain.player.Player, MediaResourcePlayer.Listener
+final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer.Listener
 {
     static final String LOG_COMPONENT = "player";
 
@@ -40,7 +40,7 @@ final class Player implements org.luwrain.player.Player, MediaResourcePlayer.Lis
     private int trackNum = 0;
     private long posMsec = 0;
 
-    Player(Luwrain luwrain)
+    Dispatcher(Luwrain luwrain)
     {
 	NullCheck.notNull(luwrain, "luwrain");
 	this.luwrain = luwrain;
