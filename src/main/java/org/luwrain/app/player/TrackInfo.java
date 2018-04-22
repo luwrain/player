@@ -24,7 +24,7 @@ import com.mpatric.mp3agic.*;
 import org.luwrain.core.*;
 import org.luwrain.util.*;
 
-class TrackInfo
+final class TrackInfo
 {
     static private final String charset = "windows-1251";
 
