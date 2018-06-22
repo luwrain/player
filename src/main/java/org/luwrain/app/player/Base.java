@@ -158,7 +158,7 @@ class Base
 		{
 		    try {
 			map.put(s, new TrackInfo(new URL(s)));
-			luwrain.runInMainThread(()->area.redraw());
+			luwrain.runUiSafely(()->area.redraw());
 		    }
 		    catch(IOException e)
 		    {
@@ -184,7 +184,7 @@ class Base
 	@Override public void onNewPlaylist(org.luwrain.player.Playlist playlist)
 	{
 	    NullCheck.notNull(playlist, "playlist");
-	    luwrain.runInMainThread(()->{
+	    luwrain.runUiSafely(()->{
 		    setNewCurrentPlaylist(playlistArea, playlist);
 		    if (Utils.isStreamingPlaylist(playlist))
 			controlArea.setMode(ControlArea.Mode.PLAYING_STREAMING); else
@@ -196,20 +196,20 @@ class Base
 	}
 	@Override public void onNewTrack(org.luwrain.player.Playlist playlist, int trackNum)
 	{
-	    luwrain.runInMainThread(()->{
+	    luwrain.runUiSafely(()->{
 		    controlArea.setTrackTitle("fixme1");
 		    controlArea.setTrackTime(0);
 		});
 	}
 	@Override public void onTrackTime(org.luwrain.player.Playlist playlist, int trackNum, long msec)
 	{
-	    luwrain.runInMainThread(()->controlArea.setTrackTime(msec));
+	    luwrain.runUiSafely(()->controlArea.setTrackTime(msec));
 	}
 	@Override public void onNewState(org.luwrain.player.Playlist playlist, Player.State state)
 	{
 	    NullCheck.notNull(playlist, "playlist");
 	    NullCheck.notNull(state, "state");
-	    luwrain.runInMainThread(()->{
+	    luwrain.runUiSafely(()->{
 		    switch(state)
 		    {
 		    case STOPPED:
