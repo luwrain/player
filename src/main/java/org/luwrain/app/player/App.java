@@ -97,7 +97,7 @@ class App implements Application, MonoApp
 
 	playlistsArea = new ListArea(playlistsParams){
 
-		@Override public boolean onKeyboardEvent(KeyboardEvent event)
+		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
 		    if (actions.commonKeys(event))
@@ -111,7 +111,7 @@ class App implements Application, MonoApp
 			    luwrain.setActiveArea(playlistArea);
 			    return true;
 			}
-		    return super.onKeyboardEvent(event);
+		    return super.onInputEvent(event);
 		}
 
 		@Override public boolean onSystemEvent(EnvironmentEvent event)
@@ -152,7 +152,7 @@ class App implements Application, MonoApp
 
 	playlistArea = new ListArea(params){
 
-		@Override public boolean onKeyboardEvent(KeyboardEvent event)
+		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
 		    if (actions.commonKeys(event))
@@ -167,7 +167,7 @@ class App implements Application, MonoApp
 			    luwrain.setActiveArea(playlistsArea);
 			    return true;
 			}
-		    return super.onKeyboardEvent(event);
+		    return super.onInputEvent(event);
 		}
 
 		@Override public boolean onSystemEvent(EnvironmentEvent event)
@@ -196,7 +196,7 @@ class App implements Application, MonoApp
 
 	controlArea = new ControlArea(luwrain, controlCallback, strings, "ПАУЗА", "СТОП"){
 
-		@Override public boolean onKeyboardEvent(KeyboardEvent event)
+		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
 		    if (actions.commonKeys(event))
@@ -211,7 +211,7 @@ class App implements Application, MonoApp
 			    luwrain.setActiveArea(playlistArea);
 			    return true;
 			}
-		    return super.onKeyboardEvent(event);
+		    return super.onInputEvent(event);
 		}
 
 		@Override public boolean onSystemEvent(EnvironmentEvent event)
@@ -239,7 +239,7 @@ class App implements Application, MonoApp
 	    return false;
 	final Playlist playlist = (Playlist)obj;
 	final FormArea area = new FormArea(new DefaultControlEnvironment(luwrain), strings.playlistPropertiesAreaName()) {
-		@Override public boolean onKeyboardEvent(KeyboardEvent event)
+		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
 		    if (event.isSpecial() && !event.isModified())
@@ -249,7 +249,7 @@ case ESCAPE:
     layout.closeTempLayout();
     return true;
 			}
-		    return super.onKeyboardEvent(event);
+		    return super.onInputEvent(event);
 		}
 		@Override public boolean onSystemEvent(EnvironmentEvent event)
 		{
