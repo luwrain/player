@@ -114,11 +114,11 @@ class App implements Application, MonoApp
 		    return super.onKeyboardEvent(event);
 		}
 
-		@Override public boolean onEnvironmentEvent(EnvironmentEvent event)
+		@Override public boolean onSystemEvent(EnvironmentEvent event)
 		{
 		    NullCheck.notNull(event, "event");
 		    if (event.getType() != EnvironmentEvent.Type.REGULAR)
-			return super.onEnvironmentEvent(event);
+			return super.onSystemEvent(event);
 		    switch(event.getCode())
 		    {
 		    case CLOSE:
@@ -133,7 +133,7 @@ class App implements Application, MonoApp
 		    case PROPERTIES:
 			return onPlaylistProps();
 		    default:
-			return super.onEnvironmentEvent(event);
+			return super.onSystemEvent(event);
 		    }
 		}
 
@@ -170,7 +170,7 @@ class App implements Application, MonoApp
 		    return super.onKeyboardEvent(event);
 		}
 
-		@Override public boolean onEnvironmentEvent(EnvironmentEvent event)
+		@Override public boolean onSystemEvent(EnvironmentEvent event)
 		{
 		    NullCheck.notNull(event, "event");
 		    switch(event.getCode())
@@ -181,7 +181,7 @@ class App implements Application, MonoApp
 			closeApp();
 			return true;
 		    default:
-			return super.onEnvironmentEvent(event);
+			return super.onSystemEvent(event);
 		    }
 		}
 
@@ -214,18 +214,18 @@ class App implements Application, MonoApp
 		    return super.onKeyboardEvent(event);
 		}
 
-		@Override public boolean onEnvironmentEvent(EnvironmentEvent event)
+		@Override public boolean onSystemEvent(EnvironmentEvent event)
 		{
 		    NullCheck.notNull(event, "event");
 		    if (event.getType() != EnvironmentEvent.Type.REGULAR)
-			return super.onEnvironmentEvent(event);
+			return super.onSystemEvent(event);
 		    switch(event.getCode())
 		    {
 		    case CLOSE:
 			closeApp();
 			return true;
 		    default:
-			return super.onEnvironmentEvent(event);
+			return super.onSystemEvent(event);
 		    }
 		}
 
@@ -251,11 +251,11 @@ case ESCAPE:
 			}
 		    return super.onKeyboardEvent(event);
 		}
-		@Override public boolean onEnvironmentEvent(EnvironmentEvent event)
+		@Override public boolean onSystemEvent(EnvironmentEvent event)
 		{
 		    NullCheck.notNull(event, "event");
 		    if (event.getType() != EnvironmentEvent.Type.REGULAR)
-			return super.onEnvironmentEvent(event);
+			return super.onSystemEvent(event);
 		    switch(event.getCode())
 		    {
 		    case CLOSE:
@@ -274,7 +274,7 @@ case OK:
 	return true;
     }
 		    default:
-			return super.onEnvironmentEvent(event);
+			return super.onSystemEvent(event);
 		    }
 		}
 	    };
