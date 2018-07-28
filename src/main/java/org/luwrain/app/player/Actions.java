@@ -77,7 +77,7 @@ class Actions
 	    luwrain.setActiveArea(playlistArea);
 	} else
 	{
-	    luwrain.playSound(Sounds.PARAGRAPH);
+	    luwrain.playSound(Sounds.PLAYING);
 	    base.player.play(playlist.toGeneralPlaylist(), 0, 0, EnumSet.of(org.luwrain.player.Player.Flags.STREAMING));
 	}
 	return true;
