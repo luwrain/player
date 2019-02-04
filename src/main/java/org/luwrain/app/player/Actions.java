@@ -41,29 +41,29 @@ class Actions
     {
 	NullCheck.notNull(listArea, "listArea");
 	final Object obj = listArea.selected();
-	if (obj== null || !(obj instanceof Playlist))
+	if (obj== null || !(obj instanceof Album))
 	    return false;
-	final Playlist playlist = (Playlist)obj;
-	if (!conversations.confirmPlaylistDeleting(playlist.getPlaylistTitle()))
+	final Album album = (Album)obj;
+	if (!conversations.confirmPlaylistDeleting(album.getPlaylistTitle()))
 	    return true;
-	RegistryPlaylists.deletePlaylist(luwrain.getRegistry(), playlist.registryPath);
+	RegistryPlaylists.deletePlaylist(luwrain.getRegistry(), album.registryPath);
 	return true;
     }
 
     boolean onPlaylistsClick(Area playlistArea, Object obj)
     {
 	NullCheck.notNull(playlistArea, "playlistArea");
-	if (obj == null || !(obj instanceof Playlist))
+	if (obj == null || !(obj instanceof Album))
 	    return false;
-	final Playlist playlist = (Playlist)obj;
-	if (!playlist.flags.contains(Playlist.Flags.STREAMING))
+	final Album playlist = (Album)obj;
+	if (!playlist.flags.contains(Album.Flags.STREAMING))
 	{
-	    base.player.play(playlist.toGeneralPlaylist(), 0, 0, org.luwrain.player.Player.DEFAULT_FLAGS);	    
+	    base.player.play(playlist.toPlaylist(), 0, 0, org.luwrain.player.Player.DEFAULT_FLAGS);	    
 	    luwrain.setActiveArea(playlistArea);
 	} else
 	{
 	    luwrain.playSound(Sounds.PLAYING);
-	    base.player.play(playlist.toGeneralPlaylist(), 0, 0, EnumSet.of(org.luwrain.player.Player.Flags.STREAMING));
+	    base.player.play(playlist.toPlaylist(), 0, 0, EnumSet.of(org.luwrain.player.Player.Flags.STREAMING));
 	}
 	return true;
     }

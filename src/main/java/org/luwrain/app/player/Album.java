@@ -5,7 +5,7 @@ import java.util.*;
 
 import org.luwrain.core.*;
 
-final class Playlist implements Comparable
+final class Album implements Comparable
 {
     enum Flags {HAS_BOOKMARK, STREAMING };
 
@@ -21,7 +21,7 @@ final class Playlist implements Comparable
 
     private String[] loadedTracks = null;
 
-    Playlist(String registryPath, Settings.Base sett, TracksLoader tracksLoader)
+    Album(String registryPath, Settings.Base sett, TracksLoader tracksLoader)
     {
 	NullCheck.notEmpty(registryPath, "registryPath");
 	NullCheck.notNull(sett, "sett");
@@ -32,7 +32,7 @@ final class Playlist implements Comparable
 	this.tracksLoader = tracksLoader;
     }
 
-    Playlist(String registryPath, Settings.Base sett,
+    Album(String registryPath, Settings.Base sett,
 	     TracksLoader tracksLoader, Set<Flags> flags)
     {
 	NullCheck.notNull(registryPath, "registryPath");
@@ -50,7 +50,7 @@ final class Playlist implements Comparable
 	return sett.getTitle("-");
     }
 
-    org.luwrain.player.Playlist toGeneralPlaylist()
+    org.luwrain.player.Playlist toPlaylist()
     {
 	if (loadedTracks == null)
 	    loadedTracks = tracksLoader.loadTracks();
@@ -62,9 +62,9 @@ final class Playlist implements Comparable
 
     @Override public int compareTo(Object o)
     {
-	if (o == null || !(o instanceof Playlist))
+	if (o == null || !(o instanceof Album))
 	    return 0;
-	return getPlaylistTitle().compareTo(((Playlist)o).getPlaylistTitle());
+	return getPlaylistTitle().compareTo(((Album)o).getPlaylistTitle());
     }
 
     @Override public String toString()

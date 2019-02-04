@@ -20,21 +20,21 @@ class RegistryPlaylists
 	this.registry = registry;
     }
 
-    Playlist[] loadRegistryPlaylists()
+    Album[] loadRegistryPlaylists()
     {
-	final List<Playlist> res = new LinkedList<Playlist>();
+	final List<Album> res = new LinkedList();
 	registry.addDirectory(Settings.PLAYLISTS_PATH);
 	for(String s: registry.getDirectories(Settings.PLAYLISTS_PATH))
 	{
 	    final String path = Registry.join(Settings.PLAYLISTS_PATH, s);
-	    final Playlist playlist = loadPlaylist(path);
+	    final Album playlist = loadPlaylist(path);
 	    if (playlist != null)
 		res.add(playlist);
 	}
-	return res.toArray(new Playlist[res.size()]);
+	return res.toArray(new Album[res.size()]);
     }
 
-    private Playlist loadPlaylist(String path)
+    private Album loadPlaylist(String path)
     {
 	NullCheck.notEmpty(path, "path");
 	if (registry.getTypeOf(Registry.join(path, Settings.TYPE_VALUE)) != Registry.STRING)
@@ -51,7 +51,7 @@ class RegistryPlaylists
 	}
     }
 
-    private Playlist loadDirectoryPlaylist(String path)
+    private Album loadDirectoryPlaylist(String path)
     {
 	NullCheck.notEmpty(path, "path");
 	final Settings.DirectoryPlaylist sett = Settings.createDirectoryPlaylist(registry, path);
@@ -59,10 +59,10 @@ class RegistryPlaylists
 	final String dirPath = sett.getPath("");
 	if (title.isEmpty() || dirPath.isEmpty())
 	    return null;
-	return new Playlist(path, sett, TracksLoaders.newDirectoryLoader(base, dirPath));
+	return new Album(path, sett, TracksLoaders.newDirectoryLoader(base, dirPath));
     }
 
-    private Playlist loadStreamingPlaylist(String path)
+    private Album loadStreamingPlaylist(String path)
     {
 	NullCheck.notEmpty(path, "path");
 	final Settings.StreamingPlaylist sett = Settings.createStreamingPlaylist(registry, path);
@@ -70,9 +70,9 @@ class RegistryPlaylists
 	final String url = sett.getUrl("");
 	if (title.isEmpty() || url.isEmpty())
 	    return null;
-	return new Playlist(path, sett, ()->{
+	return new Album(path, sett, ()->{
 		return new String[]{url};
-	}, EnumSet.of(Playlist.Flags.STREAMING));
+	}, EnumSet.of(Album.Flags.STREAMING));
     }
 
     static boolean addPlaylist(Registry registry, Conversations.NewPlaylistParams params)

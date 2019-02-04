@@ -27,7 +27,7 @@ class TracksLoaders
     static private final String LOG_COMPONENT = Base.LOG_COMPONENT;
 
 
-    static Playlist.TracksLoader newDirectoryLoader(Base base, String dirPath)
+    static Album.TracksLoader newDirectoryLoader(Base base, String dirPath)
     {
 	NullCheck.notNull(base, "base");
 	NullCheck.notNull(dirPath, "dirPath");

@@ -39,7 +39,7 @@ class App implements Application, MonoApp
     private ControlArea controlArea = null;
     private AreaLayoutHelper layout = null;
 
-    private final Playlist startingPlaylist;
+    private final Album startingPlaylist;
 
     App()
     {
@@ -75,7 +75,7 @@ class App implements Application, MonoApp
 	    base.setNewCurrentPlaylist(playlistArea, base.getCurrentPlaylist());
 	*/
 	if (startingPlaylist != null)
-	    base.player.play(startingPlaylist.toGeneralPlaylist(), 0, 0, org.luwrain.player.Player.DEFAULT_FLAGS);
+	    base.player.play(startingPlaylist.toPlaylist(), 0, 0, org.luwrain.player.Player.DEFAULT_FLAGS);
 	return new InitResult();
     }
 
@@ -237,7 +237,7 @@ class App implements Application, MonoApp
 	final Object obj = playlistsArea.selected();
 	if (obj == null || !(obj instanceof Playlist))
 	    return false;
-	final Playlist playlist = (Playlist)obj;
+	final Album playlist = (Album)obj;
 	final FormArea area = new FormArea(new DefaultControlEnvironment(luwrain), strings.playlistPropertiesAreaName()) {
 		@Override public boolean onInputEvent(KeyboardEvent event)
 		{

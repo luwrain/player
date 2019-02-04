@@ -22,36 +22,36 @@ final class PlaylistsModel implements ListArea.Model
 	streamingPlaylists = strings.treeStreamingPlaylists();
     }
 
-    void setPlaylists(Playlist[] playlists)
+    void setPlaylists(Album[] playlists)
     {
 	NullCheck.notNullItems(playlists, "playlists");
-	final List<Playlist> withBookmarks = new LinkedList<Playlist>();
-	final List<Playlist> withoutBookmarks = new LinkedList<Playlist>();
-	final List<Playlist> streaming = new LinkedList<Playlist>();
-	for(Playlist p: playlists)
+	final List<Album> withBookmarks = new LinkedList();
+	final List<Album> withoutBookmarks = new LinkedList();
+	final List<Album> streaming = new LinkedList();
+	for(Album p: playlists)
 	{
-	    if (p.flags.contains(Playlist.Flags.STREAMING))
+	    if (p.flags.contains(Album.Flags.STREAMING))
 		streaming.add(p);
-	    if (p.flags.contains(Playlist.Flags.HAS_BOOKMARK) && !p.flags.contains(Playlist.Flags.STREAMING))
+	    if (p.flags.contains(Album.Flags.HAS_BOOKMARK) && !p.flags.contains(Album.Flags.STREAMING))
 		withBookmarks.add(p);
-	    if (!p.flags.contains(Playlist.Flags.HAS_BOOKMARK) && !p.flags.contains(Playlist.Flags.STREAMING))
+	    if (!p.flags.contains(Album.Flags.HAS_BOOKMARK) && !p.flags.contains(Album.Flags.STREAMING))
 		withoutBookmarks.add(p);
 	}
-	final Playlist[] sortingWithBookmarks = withBookmarks.toArray(new Playlist[withBookmarks.size()]);
-	final Playlist[] sortingWithoutBookmarks = withoutBookmarks.toArray(new Playlist[withoutBookmarks.size()]);
-	final Playlist[] sortingStreaming = streaming.toArray(new Playlist[streaming.size()]);
+	final Album[] sortingWithBookmarks = withBookmarks.toArray(new Album[withBookmarks.size()]);
+	final Album[] sortingWithoutBookmarks = withoutBookmarks.toArray(new Album[withoutBookmarks.size()]);
+	final Album[] sortingStreaming = streaming.toArray(new Album[streaming.size()]);
 	Arrays.sort(sortingWithBookmarks);
 	Arrays.sort(sortingWithoutBookmarks);
 	Arrays.sort(sortingStreaming);
 	final List res = new LinkedList();
 	res.add(playlistsWithoutBookmarks);
-	for(Playlist p: sortingWithoutBookmarks)
+	for(Album p: sortingWithoutBookmarks)
 	    res.add(p);
 	res.add(playlistsWithBookmarks);
-	for(Playlist p: sortingWithBookmarks)
+	for(Album p: sortingWithBookmarks)
 	    res.add(p);
 	res.add(streamingPlaylists);
-	for(Playlist p: sortingStreaming)
+	for(Album p: sortingStreaming)
 	    res.add(p);
 	items = res.toArray(new Object[res.size()]);
     }
