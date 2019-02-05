@@ -4,8 +4,9 @@ package org.luwrain.app.player;
 import java.util.*;
 
 import org.luwrain.core.*;
+import org.luwrain.script.*;
 
-final class Album implements Comparable
+final class Album extends EmptyHookObject implements Comparable
 {
     enum Flags {HAS_BOOKMARK, STREAMING };
 
@@ -18,6 +19,7 @@ final class Album implements Comparable
     final Settings.Base sett;
     final TracksLoader tracksLoader;
     final Set<Flags> flags;
+    final Map<String, String> props;
 
     private String[] loadedTracks = null;
 
@@ -30,7 +32,22 @@ final class Album implements Comparable
 	this.flags = EnumSet.noneOf(Flags.class);
 	this.sett = sett;
 	this.tracksLoader = tracksLoader;
+	this.props = new HashMap();
     }
+
+    Album(String registryPath, Settings.Base sett, Map<String, String> props, Set<Flags> flags)
+    {
+	NullCheck.notEmpty(registryPath, "registryPath");
+	NullCheck.notNull(sett, "sett");
+	NullCheck.notNull(props, "props");
+	NullCheck.notNull(flags, "flags");
+	this.registryPath = registryPath;
+	this.flags = flags;
+	this.sett = sett;
+	this.tracksLoader = null;
+	this.props = props;
+    }
+
 
     Album(String registryPath, Settings.Base sett,
 	     TracksLoader tracksLoader, Set<Flags> flags)
@@ -43,6 +60,25 @@ final class Album implements Comparable
 	this.sett = sett;
 	this.tracksLoader = tracksLoader;
 	this.flags = flags;
+	this.props = new HashMap();
+    }
+
+    @Override public Object getMember(String name)
+    {
+	NullCheck.notNull(name, "name");
+	switch(name)
+	{
+	case "title":
+	    return getPlaylistTitle();
+	case "streaming":
+	    return new Boolean(flags.contains(Flags.STREAMING));
+	case "url":
+	    if (!props.containsKey("url"))
+		return "";
+	    return props.get("url") != null?props.get("url"):"";
+	default:
+	    return super.getMember(name);
+	}
     }
 
     String getPlaylistTitle()

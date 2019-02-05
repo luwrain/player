@@ -34,21 +34,21 @@ class App implements Application, MonoApp
     private Actions actions = null;
     private ActionLists actionLists = null;
 
-    private ListArea playlistsArea = null;
+    private ListArea albumsArea = null;
     private ListArea playlistArea = null;
     private ControlArea controlArea = null;
     private AreaLayoutHelper layout = null;
 
-    private final Album startingPlaylist;
+    private final Album startingAlbum;
 
     App()
     {
-	startingPlaylist = null;
+	startingAlbum = null;
     }
 
     App(String[] args)
     {
-	startingPlaylist = null;
+	startingAlbum = null;
     }
 
     @Override public InitResult onLaunchApp(Luwrain luwrain)
@@ -68,26 +68,26 @@ class App implements Application, MonoApp
 	this.layout = new AreaLayoutHelper(()->{
 		luwrain.onNewAreaLayout();
 		luwrain.announceActiveArea();
-	    }, new AreaLayout(AreaLayout.LEFT_RIGHT_BOTTOM, playlistsArea, playlistArea, controlArea));
+	    }, new AreaLayout(AreaLayout.LEFT_RIGHT_BOTTOM, albumsArea, playlistArea, controlArea));
 	base.setListener(playlistArea, controlArea);
 	/*FIXME:
 	if (base.getCurrentPlaylist() != null)
 	    base.setNewCurrentPlaylist(playlistArea, base.getCurrentPlaylist());
 	*/
-	if (startingPlaylist != null)
-	    base.player.play(startingPlaylist.toPlaylist(), 0, 0, org.luwrain.player.Player.DEFAULT_FLAGS);
+	if (startingAlbum != null)
+	    base.player.play(startingAlbum.toPlaylist(), 0, 0, org.luwrain.player.Player.DEFAULT_FLAGS);
 	return new InitResult();
     }
 
     private void createAreas()
     {
-	final ListArea.Params playlistsParams = new ListArea.Params();
-	playlistsParams.context = new DefaultControlEnvironment(luwrain);
-	playlistsParams.model = base.playlistsModel;
-	playlistsParams.name = strings.treeAreaName();
-	playlistsParams.clickHandler = (area, index, obj)->actions.onPlaylistsClick(playlistArea, obj);
+	final ListArea.Params albumsParams = new ListArea.Params();
+	albumsParams.context = new DefaultControlEnvironment(luwrain);
+	albumsParams.model = base.playlistsModel;
+	albumsParams.name = strings.treeAreaName();
+	albumsParams.clickHandler = (area, index, obj)->actions.onAlbumClick(playlistArea, obj);
 
-	playlistsParams.appearance = new ListUtils.DoubleLevelAppearance(playlistsParams.context){
+	albumsParams.appearance = new ListUtils.DoubleLevelAppearance(albumsParams.context){
 		@Override public boolean isSectionItem(Object item)
 		{
 		    NullCheck.notNull(item, "item");
@@ -95,7 +95,7 @@ class App implements Application, MonoApp
 		}
 	    };
 
-	playlistsArea = new ListArea(playlistsParams){
+	albumsArea = new ListArea(albumsParams){
 
 		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
@@ -164,7 +164,7 @@ class App implements Application, MonoApp
 			    luwrain.setActiveArea(controlArea);
 			    return true;
 			case BACKSPACE:
-			    luwrain.setActiveArea(playlistsArea);
+			    luwrain.setActiveArea(albumsArea);
 			    return true;
 			}
 		    return super.onInputEvent(event);
@@ -205,7 +205,7 @@ class App implements Application, MonoApp
 			switch(event.getSpecial())
 			{
 			case TAB:
-			    luwrain.setActiveArea(playlistsArea);
+			    luwrain.setActiveArea(albumsArea);
 			    return true;
 			case BACKSPACE:
 			    luwrain.setActiveArea(playlistArea);
@@ -234,7 +234,7 @@ class App implements Application, MonoApp
 
     private boolean onPlaylistProps()
     {
-	final Object obj = playlistsArea.selected();
+	final Object obj = albumsArea.selected();
 	if (obj == null || !(obj instanceof Playlist))
 	    return false;
 	final Album playlist = (Album)obj;
@@ -269,7 +269,7 @@ case OK:
 	    return true;
 	}
 	playlist.sett.setTitle(title);
-	playlistsArea.refresh();
+	albumsArea.refresh();
 	layout.closeTempLayout();
 	return true;
     }

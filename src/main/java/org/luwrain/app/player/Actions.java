@@ -8,7 +8,7 @@ import org.luwrain.core.events.*;
 import org.luwrain.controls.*;
 import org.luwrain.popups.Popups;
 
-class Actions
+final class Actions
 {
     private final Luwrain luwrain;
     private final Base base;
@@ -50,12 +50,13 @@ class Actions
 	return true;
     }
 
-    boolean onPlaylistsClick(Area playlistArea, Object obj)
+    boolean onAlbumClick(Area playlistArea, Object obj)
     {
 	NullCheck.notNull(playlistArea, "playlistArea");
 	if (obj == null || !(obj instanceof Album))
 	    return false;
-	final Album playlist = (Album)obj;
+	final Album album = (Album)obj;
+	/*
 	if (!playlist.flags.contains(Album.Flags.STREAMING))
 	{
 	    base.player.play(playlist.toPlaylist(), 0, 0, org.luwrain.player.Player.DEFAULT_FLAGS);	    
@@ -65,6 +66,8 @@ class Actions
 	    luwrain.playSound(Sounds.PLAYING);
 	    base.player.play(playlist.toPlaylist(), 0, 0, EnumSet.of(org.luwrain.player.Player.Flags.STREAMING));
 	}
+	*/
+	luwrain.xRunHooks("luwrain.player.album.play", new Object[]{album}, true);
 	return true;
     }
 

@@ -27,14 +27,14 @@ class RegistryPlaylists
 	for(String s: registry.getDirectories(Settings.PLAYLISTS_PATH))
 	{
 	    final String path = Registry.join(Settings.PLAYLISTS_PATH, s);
-	    final Album playlist = loadPlaylist(path);
+	    final Album playlist = loadAlbum(path);
 	    if (playlist != null)
 		res.add(playlist);
 	}
 	return res.toArray(new Album[res.size()]);
     }
 
-    private Album loadPlaylist(String path)
+    private Album loadAlbum(String path)
     {
 	NullCheck.notEmpty(path, "path");
 	if (registry.getTypeOf(Registry.join(path, Settings.TYPE_VALUE)) != Registry.STRING)
@@ -45,7 +45,7 @@ class RegistryPlaylists
 	case Settings.TYPE_DIRECTORY:
 	    return loadDirectoryPlaylist(path);
 	case "streaming":
-	    return loadStreamingPlaylist(path);
+	    return loadStreamingAlbum(path);
 	default:
 	    return null;
 	}
@@ -62,7 +62,7 @@ class RegistryPlaylists
 	return new Album(path, sett, TracksLoaders.newDirectoryLoader(base, dirPath));
     }
 
-    private Album loadStreamingPlaylist(String path)
+    private Album loadStreamingAlbum(String path)
     {
 	NullCheck.notEmpty(path, "path");
 	final Settings.StreamingPlaylist sett = Settings.createStreamingPlaylist(registry, path);
@@ -70,9 +70,10 @@ class RegistryPlaylists
 	final String url = sett.getUrl("");
 	if (title.isEmpty() || url.isEmpty())
 	    return null;
-	return new Album(path, sett, ()->{
-		return new String[]{url};
-	}, EnumSet.of(Album.Flags.STREAMING));
+	final Map<String, String> props = new HashMap();
+	props.put("title", title);
+	props.put("url", url);
+	return new Album(path, sett, props, EnumSet.of(Album.Flags.STREAMING));
     }
 
     static boolean addPlaylist(Registry registry, Conversations.NewPlaylistParams params)
