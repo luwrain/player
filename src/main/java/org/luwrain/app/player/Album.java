@@ -8,6 +8,8 @@ import org.luwrain.script.*;
 
 final class Album extends EmptyHookObject implements Comparable
 {
+    enum Type {STREAMING, DIR, PLAYLIST};
+
     enum Flags {HAS_BOOKMARK, STREAMING };
 
     interface TracksLoader
@@ -17,51 +19,21 @@ final class Album extends EmptyHookObject implements Comparable
 
     final String registryPath;
     final Settings.Base sett;
-    final TracksLoader tracksLoader;
-    final Set<Flags> flags;
+    final Type type;
     final Map<String, String> props;
 
-    private String[] loadedTracks = null;
-
-    Album(String registryPath, Settings.Base sett, TracksLoader tracksLoader)
+    Album(Type type, String registryPath, Settings.Base sett, Map<String, String> props)
     {
-	NullCheck.notEmpty(registryPath, "registryPath");
-	NullCheck.notNull(sett, "sett");
-	NullCheck.notNull(tracksLoader, "tracksLoader");
-	this.registryPath = registryPath;
-	this.flags = EnumSet.noneOf(Flags.class);
-	this.sett = sett;
-	this.tracksLoader = tracksLoader;
-	this.props = new HashMap();
-    }
-
-    Album(String registryPath, Settings.Base sett, Map<String, String> props, Set<Flags> flags)
-    {
+	NullCheck.notNull(type, "type");
 	NullCheck.notEmpty(registryPath, "registryPath");
 	NullCheck.notNull(sett, "sett");
 	NullCheck.notNull(props, "props");
-	NullCheck.notNull(flags, "flags");
+	this.type = type;
 	this.registryPath = registryPath;
-	this.flags = flags;
 	this.sett = sett;
-	this.tracksLoader = null;
 	this.props = props;
     }
 
-
-    Album(String registryPath, Settings.Base sett,
-	     TracksLoader tracksLoader, Set<Flags> flags)
-    {
-	NullCheck.notNull(registryPath, "registryPath");
-	NullCheck.notNull(sett, "sett");
-	NullCheck.notNull(flags, "flags");
-	NullCheck.notNull(tracksLoader, "tracksLoader");
-	this.registryPath = registryPath;
-	this.sett = sett;
-	this.tracksLoader = tracksLoader;
-	this.flags = flags;
-	this.props = new HashMap();
-    }
 
     @Override public Object getMember(String name)
     {
@@ -70,12 +42,16 @@ final class Album extends EmptyHookObject implements Comparable
 	{
 	case "title":
 	    return getPlaylistTitle();
-	case "streaming":
-	    return new Boolean(flags.contains(Flags.STREAMING));
+	case "type":
+	    return type.toString().toLowerCase();
 	case "url":
 	    if (!props.containsKey("url"))
 		return "";
 	    return props.get("url") != null?props.get("url"):"";
+	    	case "path":
+	    if (!props.containsKey("path"))
+		return "";
+	    return props.get("path") != null?props.get("path"):"";
 	default:
 	    return super.getMember(name);
 	}
@@ -83,17 +59,17 @@ final class Album extends EmptyHookObject implements Comparable
 
     String getPlaylistTitle()
     {
-	return sett.getTitle("-");
+	if (!props.containsKey("title"))
+	    return "-";
+	final String res = props.get("title");
+	if (res == null || res.isEmpty())
+	    return "-";
+	return res;
     }
 
     org.luwrain.player.Playlist toPlaylist()
     {
-	if (loadedTracks == null)
-	    loadedTracks = tracksLoader.loadTracks();
-	final Map<String, String> props = new HashMap<String, String>();
-	props.put("streaming", flags.contains(Flags.STREAMING)?"yes":"no");
-	props.put("title", getPlaylistTitle());
-	return new org.luwrain.player.Playlist(loadedTracks, props);
+	return null;
     }
 
     @Override public int compareTo(Object o)
