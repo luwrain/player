@@ -1,3 +1,18 @@
+/*
+   Copyright 2012-2019 Michael Pozhidaev <michael.pozhidaev@gmail.com>
+
+   This file is part of LUWRAIN.
+
+   LUWRAIN is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public
+   License as published by the Free Software Foundation; either
+   version 3 of the License, or (at your option) any later version.
+
+   LUWRAIN is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+*/
 
 package org.luwrain.app.player;
 
@@ -10,30 +25,19 @@ final class Album extends EmptyHookObject implements Comparable
 {
     enum Type {STREAMING, DIR, PLAYLIST};
 
-    enum Flags {HAS_BOOKMARK, STREAMING };
-
-    interface TracksLoader
-    {
-	String[] loadTracks();
-    }
-
     final String registryPath;
-    final Settings.Base sett;
     final Type type;
     final Map<String, String> props;
 
-    Album(Type type, String registryPath, Settings.Base sett, Map<String, String> props)
+    Album(Type type, Map<String, String> props, String registryPath)
     {
 	NullCheck.notNull(type, "type");
-	NullCheck.notEmpty(registryPath, "registryPath");
-	NullCheck.notNull(sett, "sett");
 	NullCheck.notNull(props, "props");
+	NullCheck.notEmpty(registryPath, "registryPath");
 	this.type = type;
-	this.registryPath = registryPath;
-	this.sett = sett;
 	this.props = props;
+	this.registryPath = registryPath;
     }
-
 
     @Override public Object getMember(String name)
     {
@@ -48,7 +52,7 @@ final class Album extends EmptyHookObject implements Comparable
 	    if (!props.containsKey("url"))
 		return "";
 	    return props.get("url") != null?props.get("url"):"";
-	    	case "path":
+	case "path":
 	    if (!props.containsKey("path"))
 		return "";
 	    return props.get("path") != null?props.get("path"):"";

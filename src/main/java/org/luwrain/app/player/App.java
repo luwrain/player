@@ -1,5 +1,5 @@
 /*
-   Copyright 2012-2018 Michael Pozhidaev <michael.pozhidaev@gmail.com>
+   Copyright 2012-2019 Michael Pozhidaev <michael.pozhidaev@gmail.com>
 
    This file is part of LUWRAIN.
 
@@ -83,7 +83,7 @@ class App implements Application, MonoApp
     {
 	final ListArea.Params albumsParams = new ListArea.Params();
 	albumsParams.context = new DefaultControlEnvironment(luwrain);
-	albumsParams.model = base.playlistsModel;
+	albumsParams.model = base.albumsModel;
 	albumsParams.name = strings.treeAreaName();
 	albumsParams.clickHandler = (area, index, obj)->actions.onAlbumClick(playlistArea, obj);
 
@@ -268,7 +268,7 @@ case OK:
 	    luwrain.message("Название не может быть пустым", Luwrain.MessageType.ERROR);
 	    return true;
 	}
-	playlist.sett.setTitle(title);
+	//playlist.sett.setTitle(title);
 	albumsArea.refresh();
 	layout.closeTempLayout();
 	return true;
@@ -279,6 +279,7 @@ case OK:
 		}
 	    };
 	area.addEdit("title", strings.playlistPropertiesAreaTitle(), playlist.getPlaylistTitle());
+	/*
 	if (playlist.sett instanceof Settings.DirectoryPlaylist)
 	{
 	    final Settings.DirectoryPlaylist sett = (Settings.DirectoryPlaylist)playlist.sett;
@@ -289,6 +290,7 @@ case OK:
 	    final Settings.StreamingPlaylist sett = (Settings.StreamingPlaylist)playlist.sett;
 	    area.addEdit("url", "URL потока вещания:", sett.getUrl(""));//FIXME:
 	}
+	*/
 	layout.openTempArea(area);
 	return true;
     }

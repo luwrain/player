@@ -1,3 +1,18 @@
+/*
+   Copyright 2012-2019 Michael Pozhidaev <michael.pozhidaev@gmail.com>
+
+   This file is part of LUWRAIN.
+
+   LUWRAIN is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public
+   License as published by the Free Software Foundation; either
+   version 3 of the License, or (at your option) any later version.
+
+   LUWRAIN is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+*/
 
 package org.luwrain.app.player;
 
@@ -26,7 +41,7 @@ class Base
 
     private HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
     private final RegistryAlbums albums;
-    final PlaylistsModel playlistsModel;
+    final AlbumsModel albumsModel;
 
     Base(Luwrain luwrain, Strings strings)
     {
@@ -35,11 +50,11 @@ class Base
 	this.luwrain = luwrain;
 	this.strings = strings;
 	this.albums = new RegistryAlbums(this, luwrain.getRegistry());
-	playlistsModel = new PlaylistsModel(strings);
+	this.albumsModel = new AlbumsModel(strings);
 	player = luwrain.getPlayer();
 	if (player == null)
 	    return;
-	playlistsModel.setPlaylists(albums.loadRegistryAlbums());
+	albumsModel.setPlaylists(albums.loadRegistryAlbums());
     }
 
     String getTrackTextAppearance(String trackUrl)
