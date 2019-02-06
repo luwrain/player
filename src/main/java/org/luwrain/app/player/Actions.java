@@ -71,19 +71,14 @@ final class Actions
 	if (obj == null || !(obj instanceof Album))
 	    return false;
 	final Album album = (Album)obj;
-	/*
-	if (!playlist.flags.contains(Album.Flags.STREAMING))
-	{
-	    base.player.play(playlist.toPlaylist(), 0, 0, org.luwrain.player.Player.DEFAULT_FLAGS);	    
-	    luwrain.setActiveArea(playlistArea);
-	} else
-	{
-	    luwrain.playSound(Sounds.PLAYING);
-	    base.player.play(playlist.toPlaylist(), 0, 0, EnumSet.of(org.luwrain.player.Player.Flags.STREAMING));
+	try {
+	    return luwrain.xRunHooks("luwrain.player.album.play", new Object[]{album}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY);
 	}
-	*/
-	luwrain.xRunHooks("luwrain.player.album.play", new Object[]{album}, true);
-	return true;
+	    catch(Exception e)
+	    {
+		luwrain.message(luwrain.i18n().getExceptionDescr(e), Luwrain.MessageType.ERROR);
+		return true;
+	    }
     }
 
     boolean commonKeys(KeyboardEvent event)

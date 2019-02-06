@@ -96,10 +96,12 @@ class App implements Application, MonoApp
 	    };
 
 	albumsArea = new ListArea(albumsParams){
-
+	    
 		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
+		    if (luwrain.xRunHooks("luwrain.app.player.areas.albums.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), selected()}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
+			return true;
 		    if (actions.commonKeys(event))
 			return true;
 		    if (event.isSpecial() && !event.isModified())
