@@ -81,41 +81,6 @@ final class Actions
 	    }
     }
 
-    boolean commonKeys(KeyboardEvent event)
-    {
-	NullCheck.notNull(event, "event");
-	if (event.isModified())
-	    return false;
-	if (event.isSpecial())
-	    switch(event.getSpecial())
-	    {
-	    case F5:
-		return pauseResume();
-	    case ESCAPE:
-	    case F6:
-		return stop();
-	    case F7:
-		return prevTrack();
-	    case F8:
-		return nextTrack();
-	    default:
-		return false;
-	    }
-	switch(event.getChar())
-	{
-	case '-':
-	    return jump(-5000);
-	case '=':
-	    return jump(5000);
-	case '[':
-	    return jump(-60000);
-	case ']':
-	    return jump(60000);
-	default:
-	    return false;
-	}
-    }
-
     boolean pauseResume()
     {
 	return base.player.pauseResume();
