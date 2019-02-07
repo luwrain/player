@@ -31,7 +31,6 @@ public final class Extension extends org.luwrain.core.extensions.EmptyExtension
     @Override public Command[] getCommands(Luwrain luwrain)
     {
 	return new Command[]{
-
 	    new Command(){
 		@Override public String getName()
 		{
@@ -42,89 +41,6 @@ public final class Extension extends org.luwrain.core.extensions.EmptyExtension
 		    luwrain.launchApp("player");
 		}
 	    },
-
-	    new Command(){
-		@Override public String getName()
-		{
-		    return "player-stop";
-		}
-		@Override public void onCommand(Luwrain luwrain)
-		{
-		    final org.luwrain.player.Player player = luwrain.getPlayer();
-		    if (player != null)
-			player.stop();
-		}
-	    },
-
-	    new Command(){
-		@Override public String getName()
-		{
-		    return "player-pause";
-		}
-		@Override public void onCommand(Luwrain luwrain)
-		{
-		    final org.luwrain.player.Player player = luwrain.getPlayer();
-		    if (player != null)
-			player.pauseResume();
-		}
-	    },
-
-	    new Command(){
-		@Override public String getName()
-		{
-		    return "player-jump-forward";
-		}
-		@Override public void onCommand(Luwrain luwrain)
-		{
-		    final org.luwrain.player.Player player = luwrain.getPlayer();
-		    if (player != null)
-			player.jump(5000);
-		}
-	    },
-
-	    new Command(){
-		@Override public String getName()
-		{
-		    return "player-jump-backward";
-		}
-		@Override public void onCommand(Luwrain luwrain)
-		{
-		    final org.luwrain.player.Player player = luwrain.getPlayer();
-		    if (player != null)
-			player.jump(-5000);
-		}
-	    },
-
-	    	    new Command(){
-		@Override public String getName()
-		{
-		    return "player-volume-inc";
-		}
-		@Override public void onCommand(Luwrain luwrain)
-		{
-		    NullCheck.notNull(luwrain, "luwrain");
-		    final org.luwrain.player.Player player = luwrain.getPlayer();
-		    if (player == null)
-			return;
-		    player.setVolume(Math.min(player.getVolume() + VOLUME_STEP, 100));
-		}
-	    },
-
-	    	    	    new Command(){
-		@Override public String getName()
-		{
-		    return "player-volume-dec";
-		}
-		@Override public void onCommand(Luwrain luwrain)
-		{
-		    NullCheck.notNull(luwrain, "luwrain");
-		    final org.luwrain.player.Player player = luwrain.getPlayer();
-		    if (player == null)
-			return;
-		    player.setVolume(Math.max(player.getVolume() - VOLUME_STEP, 0));
-		}
-	    },
-
 	};
     }
 
