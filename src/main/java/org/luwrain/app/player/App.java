@@ -102,8 +102,6 @@ class App implements Application, MonoApp
 		    NullCheck.notNull(event, "event");
 		    if (luwrain.xRunHooks("luwrain.app.player.areas.albums.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), selected()}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
 			return true;
-		    if (actions.commonKeys(event))
-			return true;
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
 			{
@@ -157,7 +155,8 @@ class App implements Application, MonoApp
 		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
-		    if (actions.commonKeys(event))
+
+		    		    if (luwrain.xRunHooks("luwrain.app.player.areas.playlist.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), null}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
 			return true;
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
@@ -201,7 +200,7 @@ class App implements Application, MonoApp
 		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
-		    if (actions.commonKeys(event))
+		    		    		    if (luwrain.xRunHooks("luwrain.app.player.areas.control.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event)}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
 			return true;
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
