@@ -66,12 +66,13 @@ interface Settings
 	final Properties props = new Properties();
 	try {
 	    props.load(r);
+	    return props;
 	}
 	catch(IOException e)
 	{
 	    Log.warning(LOG_COMPONENT, "unable to decode albums properties:" + e.getClass().getName() + ":" + e.getMessage());
+	    return new Properties();
 	}
-	return null;
     }
 
     static String encodeProperties(Properties props)

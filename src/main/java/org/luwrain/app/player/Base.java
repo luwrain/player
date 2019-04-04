@@ -40,7 +40,7 @@ class Base
     final org.luwrain.player.Player player;
 
     private HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
-    private final RegistryAlbums albums;
+    private final Albums albums;
     final AlbumsModel albumsModel;
 
     Base(Luwrain luwrain, Strings strings)
@@ -49,12 +49,12 @@ class Base
 	NullCheck.notNull(strings, "strings");
 	this.luwrain = luwrain;
 	this.strings = strings;
-	this.albums = new RegistryAlbums(this, luwrain.getRegistry());
-	this.albumsModel = new AlbumsModel(strings);
+	this.albums = new Albums(this, luwrain.getRegistry());
+	this.albumsModel = new AlbumsModel();
 	player = luwrain.getPlayer();
 	if (player == null)
 	    return;
-	albumsModel.setPlaylists(albums.loadRegistryAlbums());
+	albumsModel.setAlbums(albums.loadRegistryAlbums());
     }
 
     String getTrackTextAppearance(String trackUrl)

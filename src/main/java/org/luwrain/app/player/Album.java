@@ -26,15 +26,18 @@ final class Album extends EmptyHookObject implements Comparable
     enum Type {STREAMING, DIR, PLAYLIST};
 
         final Type type;
+    final String title;
+        final Properties props;
     final String registryPath;
-    final Properties props;
 
-    Album(Type type, Properties props, String registryPath)
+    Album(Type type, String title, Properties props, String registryPath)
     {
 	NullCheck.notNull(type, "type");
+	NullCheck.notNull(title, "title");
 	NullCheck.notNull(props, "props");
-	NullCheck.notEmpty(registryPath, "registryPath");
+			NullCheck.notEmpty(registryPath, "registryPath");
 	this.type = type;
+	this.title = title;
 	this.props = props;
 	this.registryPath = registryPath;
     }
@@ -45,40 +48,37 @@ final class Album extends EmptyHookObject implements Comparable
 	switch(name)
 	{
 	case "title":
-	    return getPlaylistTitle();
+	    return getTitle();
 	case "type":
 	    return type.toString().toLowerCase();
-	case "props":
+	case "properties":
 	    return new PropertiesHookObject(props);
 	default:
 	    return super.getMember(name);
 	}
     }
 
-    String getPlaylistTitle()
+    String getTitle()
     {
-	if (!props.containsKey("title"))
-	    return "-";
-	final String res = props.getProperty("title");
-	if (res == null || res.isEmpty())
-	    return "-";
-	return res;
+	return title;
     }
 
+    /*
     org.luwrain.player.Playlist toPlaylist()
     {
 	return null;
     }
+    */
 
     @Override public int compareTo(Object o)
     {
 	if (o == null || !(o instanceof Album))
 	    return 0;
-	return getPlaylistTitle().compareTo(((Album)o).getPlaylistTitle());
+	return getTitle().compareTo(((Album)o).getTitle());
     }
 
     @Override public String toString()
     {
-	return getPlaylistTitle();
+	return getTitle();
     }
 }

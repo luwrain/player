@@ -47,7 +47,7 @@ final class Actions
 	final Conversations.NewPlaylistParams params = conversations.addPlaylist();
 	if (params == null)
 	    return true;
-	RegistryAlbums.addPlaylist(luwrain.getRegistry(), params);
+	Albums.addPlaylist(luwrain.getRegistry(), params);
 	listArea.refresh();
 	return true;
     }
@@ -59,9 +59,9 @@ final class Actions
 	if (obj== null || !(obj instanceof Album))
 	    return false;
 	final Album album = (Album)obj;
-	if (!conversations.confirmPlaylistDeleting(album.getPlaylistTitle()))
+	if (!conversations.confirmPlaylistDeleting(album.getTitle()))
 	    return true;
-	RegistryAlbums.deletePlaylist(luwrain.getRegistry(), album.registryPath);
+	Albums.deletePlaylist(luwrain.getRegistry(), album.registryPath);
 	return true;
     }
 

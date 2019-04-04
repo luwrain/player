@@ -74,8 +74,6 @@ class App implements Application, MonoApp
 	if (base.getCurrentPlaylist() != null)
 	    base.setNewCurrentPlaylist(playlistArea, base.getCurrentPlaylist());
 	*/
-	if (startingAlbum != null)
-	    base.player.play(startingAlbum.toPlaylist(), 0, 0, org.luwrain.player.Player.DEFAULT_FLAGS);
 	return new InitResult();
     }
 
@@ -279,7 +277,7 @@ case OK:
 		    }
 		}
 	    };
-	area.addEdit("title", strings.playlistPropertiesAreaTitle(), playlist.getPlaylistTitle());
+	area.addEdit("title", strings.playlistPropertiesAreaTitle(), playlist.getTitle());
 	/*
 	if (playlist.sett instanceof Settings.DirectoryPlaylist)
 	{
