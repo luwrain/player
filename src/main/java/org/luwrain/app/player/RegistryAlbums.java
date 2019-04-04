@@ -38,10 +38,10 @@ final class RegistryAlbums
     Album[] loadRegistryAlbums()
     {
 	final List<Album> res = new LinkedList();
-	registry.addDirectory(Settings.PLAYLISTS_PATH);
-	for(String s: registry.getDirectories(Settings.PLAYLISTS_PATH))
+	registry.addDirectory(Settings.ALBUMS_PATH);
+	for(String s: registry.getDirectories(Settings.ALBUMS_PATH))
 	{
-	    final String path = Registry.join(Settings.PLAYLISTS_PATH, s);
+	    final String path = Registry.join(Settings.ALBUMS_PATH, s);
 	    final Album album = loadAlbum(path);
 	    if (album != null)
 		res.add(album);
@@ -52,55 +52,30 @@ final class RegistryAlbums
     private Album loadAlbum(String path)
     {
 	NullCheck.notEmpty(path, "path");
-	if (registry.getTypeOf(Registry.join(path, Settings.TYPE_VALUE)) != Registry.STRING)
-	    return null;
-	final String type = registry.getString(Registry.join(path, Settings.TYPE_VALUE));
-	switch(type)
+	final Settings.Album sett = Settings.createAlbum(registry, path);
+	final String typeStr = sett.getType("");
+	final Album.Type type;
+	switch(typeStr)
 	{
 	case Settings.TYPE_DIRECTORY:
-	    return loadDirectoryAlbum(path);
+	    type = Album.Type.DIR;
+	    break;
 	case "streaming":
-	    return loadStreamingAlbum(path);
+type = Album.Type.STREAMING;
 	default:
 	    return null;
 	}
-    }
-
-    private Album loadDirectoryAlbum(String path)
-    {
-	NullCheck.notEmpty(path, "path");
-	final Settings.DirectoryPlaylist sett = Settings.createDirectoryPlaylist(registry, path);
-	final String title = sett.getTitle("");
-	final String dirPath = sett.getPath("");
-	if (title.isEmpty() || dirPath.isEmpty())
-	    return null;
-	final Map<String, String> props = new HashMap();
-	props.put("title", title);
-	props.put("path", dirPath);
-	return new Album(Album.Type.DIR, props, path);
-    }
-
-    private Album loadStreamingAlbum(String path)
-    {
-	NullCheck.notEmpty(path, "path");
-	final Settings.StreamingPlaylist sett = Settings.createStreamingPlaylist(registry, path);
-	final String title = sett.getTitle("");
-	final String url = sett.getUrl("");
-	if (title.isEmpty() || url.isEmpty())
-	    return null;
-	final Map<String, String> props = new HashMap();
-	props.put("title", title);
-	props.put("url", url);
-	return new Album(Album.Type.STREAMING, props, path);
+	return new Album(type, Settings.decodeProperties(sett.getProperties("")), path);
     }
 
     static boolean addPlaylist(Registry registry, Conversations.NewPlaylistParams params)
     {
 	NullCheck.notNull(registry, "registry");
 	NullCheck.notNull(params, "params");
-	final int num = Registry.nextFreeNum(registry, Settings.PLAYLISTS_PATH);
-	final String path = Registry.join(Settings.PLAYLISTS_PATH, "" + num);
+	final int num = Registry.nextFreeNum(registry, Settings.ALBUMS_PATH);
+	final String path = Registry.join(Settings.ALBUMS_PATH, "" + num);
 	registry.addDirectory(path);
+	/*
 	switch(params.type)
 	{
 	case DIRECTORY:
@@ -150,6 +125,8 @@ final class RegistryAlbums
 	default:
 	    return false;
 	}
+	*/
+	return false;
     }
 
     static void deletePlaylist(Registry registry, String path)

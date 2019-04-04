@@ -25,11 +25,11 @@ final class Album extends EmptyHookObject implements Comparable
 {
     enum Type {STREAMING, DIR, PLAYLIST};
 
+        final Type type;
     final String registryPath;
-    final Type type;
-    final Map<String, String> props;
+    final Properties props;
 
-    Album(Type type, Map<String, String> props, String registryPath)
+    Album(Type type, Properties props, String registryPath)
     {
 	NullCheck.notNull(type, "type");
 	NullCheck.notNull(props, "props");
@@ -48,14 +48,8 @@ final class Album extends EmptyHookObject implements Comparable
 	    return getPlaylistTitle();
 	case "type":
 	    return type.toString().toLowerCase();
-	case "url":
-	    if (!props.containsKey("url"))
-		return "";
-	    return props.get("url") != null?props.get("url"):"";
-	case "path":
-	    if (!props.containsKey("path"))
-		return "";
-	    return props.get("path") != null?props.get("path"):"";
+	case "props":
+	    return new PropertiesHookObject(props);
 	default:
 	    return super.getMember(name);
 	}
@@ -65,7 +59,7 @@ final class Album extends EmptyHookObject implements Comparable
     {
 	if (!props.containsKey("title"))
 	    return "-";
-	final String res = props.get("title");
+	final String res = props.getProperty("title");
 	if (res == null || res.isEmpty())
 	    return "-";
 	return res;

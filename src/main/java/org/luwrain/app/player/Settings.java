@@ -16,11 +16,16 @@
 
 package org.luwrain.app.player;
 
+import java.io.*;
+import java.util.*;
+
 import org.luwrain.core.*;
 
 interface Settings
 {
-        static final String PLAYLISTS_PATH = "/org/luwrain/player/playlists";
+    static final String LOG_COMPONENT = Base.LOG_COMPONENT;
+    
+        static final String ALBUMS_PATH = "/org/luwrain/player/playlists";
     static final String PLAYER_PATH = "/org/luwrain/player";
     static final String TYPE_VALUE = "type";
 
@@ -28,40 +33,14 @@ interface Settings
     static final String TYPE_M3U = "m3u";
     static final String TYPE_STREAMING = "streaming";
 
-    interface Base
+    interface Album
     {
+	String getType(String defValue);
+	void setType(String value);
+	String getProperties(String defValue);
+	void setProperties(String value);
 	String getTitle(String defValue);
 	void setTitle(String value);
-	String getType(String type);
-	void setType(String type);
-    }
-
-    interface Bookmark extends Base
-    {
-	boolean getWithBookmark(boolean defValue);
-	void setWithBookmark(boolean value);
-	int getTrackNum(int defValue);
-	void setTrackNum(int value);
-	int getPosSec(int defValue);
-	void setPosSec(int value);
-    }
-
-    interface StreamingPlaylist extends Base
-    {
-	String getUrl(String defValue);
-	void setUrl(String value);
-    }
-
-    interface DirectoryPlaylist extends Bookmark
-    {
-	String getPath(String defValue);
-	void setPath(String  value);
-    }
-
-    interface M3uPlaylist extends Bookmark
-    {
-	String getM3uUrl(String defValue);
-	void setM3uUrl(String  value);
     }
 
     int getVolume(int defValue);
@@ -73,24 +52,45 @@ interface Settings
 		return RegistryProxy.create(registry, PLAYER_PATH, Settings.class);
     }
 
-    static DirectoryPlaylist createDirectoryPlaylist(Registry registry, String path)
+    static Album createAlbum(Registry registry, String path)
     {
 	NullCheck.notNull(registry, "registry");
-	NullCheck.notNull(path, "path");
-	return RegistryProxy.create(registry, path, DirectoryPlaylist.class);
+	NullCheck.notEmpty(path, "path");
+	return RegistryProxy.create(registry, path, Album.class);
     }
 
-    static M3uPlaylist createM3uPlaylist(Registry registry, String path)
+    static Properties decodeProperties(String value)
     {
-	NullCheck.notNull(registry, "registry");
-	NullCheck.notNull(path, "path");
-	return RegistryProxy.create(registry, path, M3uPlaylist.class);
+	NullCheck.notNull(value, "value");
+	final StringReader r = new StringReader(value);
+	final Properties props = new Properties();
+	try {
+	    props.load(r);
+	}
+	catch(IOException e)
+	{
+	    Log.warning(LOG_COMPONENT, "unable to decode albums properties:" + e.getClass().getName() + ":" + e.getMessage());
+	}
+	return null;
     }
 
-    static StreamingPlaylist createStreamingPlaylist(Registry registry, String path)
+    static String encodeProperties(Properties props)
     {
-	NullCheck.notNull(registry, "registry");
-	NullCheck.notNull(path, "path");
-	return RegistryProxy.create(registry, path, StreamingPlaylist.class);
+	NullCheck.notNull(props, "props");
+	final StringWriter w = new StringWriter();
+	try {
+	    try {
+		props.store(w, "");
+	    }
+	    finally {
+		w.flush();
+	    }
+	    return w.toString();
+	}
+	catch(IOException e)
+	{
+	    Log.warning(LOG_COMPONENT, "unable to save the properties:" + e.getClass().getName() + ":" + e.getMessage());
+	    return "";
+	}
     }
 }
