@@ -41,7 +41,7 @@ class Base
 
     private HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
     private final Albums albums;
-    final AlbumsModel albumsModel;
+    final ListUtils.FixedModel albumsModel;
 
     Base(Luwrain luwrain, Strings strings)
     {
@@ -50,11 +50,10 @@ class Base
 	this.luwrain = luwrain;
 	this.strings = strings;
 	this.albums = new Albums(this, luwrain.getRegistry());
-	this.albumsModel = new AlbumsModel();
+	this.albumsModel = new ListUtils.FixedModel(albums.loadRegistryAlbums());
 	player = luwrain.getPlayer();
 	if (player == null)
 	    return;
-	albumsModel.setAlbums(albums.loadRegistryAlbums());
     }
 
     String getTrackTextAppearance(String trackUrl)
