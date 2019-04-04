@@ -81,7 +81,7 @@ class Base
 	    return false;
 	if (index < 0 || index >= getPlaylistLen())
 	    return false;
-	player.play(player.getPlaylist(), index, 0, org.luwrain.player.Player.DEFAULT_FLAGS);
+	player.play(player.getPlaylist(), index, 0, org.luwrain.player.Player.DEFAULT_FLAGS, null);
 	return true;
     }
 
@@ -99,7 +99,8 @@ class Base
     {
 	if (!player.hasPlaylist())
 	    return "";
-	return player.getPlaylist().getPlaylistTitle();
+	//	return player.getPlaylist().getPlaylistTitle();
+	return "FIXME:Playlist title";
     }
 
     String getCurrentTrackTitle()
@@ -188,7 +189,7 @@ class Base
 		    if (Utils.isStreamingPlaylist(playlist))
 			controlArea.setMode(ControlArea.Mode.PLAYING_STREAMING); else
 			controlArea.setMode(ControlArea.Mode.PLAYING);
-		    controlArea.setPlaylistTitle(playlist.getPlaylistTitle());
+		    //FIXME:controlArea.setPlaylistTitle(playlist.getPlaylistTitle());
 		    controlArea.setTrackTitle("");
 		    controlArea.setTrackTime(0);
 		});

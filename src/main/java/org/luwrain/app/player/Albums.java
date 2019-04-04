@@ -60,10 +60,10 @@ final class Albums
 	final Album.Type type;
 	switch(typeStr)
 	{
-	case Settings.TYPE_DIRECTORY:
+	case Settings.TYPE_DIR:
 	    type = Album.Type.DIR;
 	    break;
-	case "streaming":
+	case Settings.TYPE_STREAMING:
 type = Album.Type.STREAMING;
 break;
 	default:

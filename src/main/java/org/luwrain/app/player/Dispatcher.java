@@ -37,6 +37,7 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
     private MediaResourcePlayer.Instance currentPlayer = null;
     private org.luwrain.player.Playlist playlist = null;
     private Set<Flags> flags = null;
+    private Properties props = null;
     private int trackNum = 0;
     private long posMsec = 0;
 
@@ -52,17 +53,16 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
 	    this.volume = 100;
     }
 
-    @Override public synchronized Result play(org.luwrain.player.Playlist playlist, int startingTrackNum, long startingPosMsec, Set<Flags> flags)
+    @Override public synchronized Result play(org.luwrain.player.Playlist playlist, int startingTrackNum, long startingPosMsec, Set<Flags> flags, Properties props)
     {
 	NullCheck.notNull(playlist, "playlist");
 	NullCheck.notNull(flags, "flags");
-	if (playlist.getPlaylistUrls() == null)
-	    return Result.INVALID_PLAYLIST;
 	if (startingTrackNum < 0 || startingTrackNum >= playlist.getPlaylistUrls().length)
 	    return Result.INVALID_PLAYLIST;
 	stop();
 	this.playlist = playlist;
 	this.flags = flags;
+	this.props = props != null?props:new Properties();
 	this.trackNum = startingTrackNum;
 	this.posMsec = startingPosMsec;
 	final Result res = runPlayer();
@@ -281,6 +281,20 @@ posMsec = 0;
 	if (currentPlayer != null)
 	    currentPlayer.setVolume(this.volume);
 	sett.setVolume(this.volume);
+    }
+
+    @Override public Set<Flags> getFlags()
+    {
+	return this.flags;
+    }
+
+    @Override public String getProperty(String propName)
+    {
+	NullCheck.notEmpty(propName, "propName");
+	if (props == null)
+	    return "";
+	final String res = props.getProperty(propName);
+	return res != null?res:"";
     }
 
     @Override public synchronized void addListener(org.luwrain.player.Listener listener)

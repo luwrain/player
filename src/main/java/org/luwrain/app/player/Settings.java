@@ -29,9 +29,10 @@ interface Settings
     static final String PLAYER_PATH = "/org/luwrain/player";
     static final String TYPE_VALUE = "type";
 
-    static final String TYPE_DIRECTORY = "directory";
+    static final String TYPE_DIR = "dir";
+        static final String TYPE_STREAMING = "streaming";
     static final String TYPE_M3U = "m3u";
-    static final String TYPE_STREAMING = "streaming";
+
 
     interface Album
     {

@@ -84,6 +84,7 @@ class Utils
 
     static boolean isStreamingPlaylist(org.luwrain.player.Playlist playlist)
     {
+	/*
 	NullCheck.notNull(playlist, "playlist");
 	if (!playlist.getProperties().containsKey("streaming"))
 	    return false;
@@ -91,5 +92,7 @@ class Utils
 	if (value == null)
 	    return false;
 	return value.toLowerCase().equals("true");
+	*/
+	return false;
     }
 }
