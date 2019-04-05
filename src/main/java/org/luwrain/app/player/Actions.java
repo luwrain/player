@@ -74,35 +74,10 @@ final class Actions
 	try {
 	    return luwrain.xRunHooks("luwrain.player.album.play", new Object[]{album}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY);
 	}
-	    catch(Exception e)
-	    {
-		luwrain.message(luwrain.i18n().getExceptionDescr(e), Luwrain.MessageType.ERROR);
-		return true;
-	    }
-    }
-
-    boolean pauseResume()
-    {
-	return base.player.pauseResume();
-    }
-
-    boolean stop()
-    {
-	return base.player.stop();
-    }
-
-    boolean prevTrack()
-    {
-	return base.player.prevTrack();
-    }
-
-    boolean nextTrack()
-    {
-	return base.player.nextTrack();
-    }
-
-    boolean jump(long offsetMsec)
-    {
-	return base.player.jump(offsetMsec);
+	catch(Exception e)
+	{
+	    luwrain.message(luwrain.i18n().getExceptionDescr(e), Luwrain.MessageType.ERROR);
+	    return true;
+	}
     }
 }

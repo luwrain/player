@@ -41,11 +41,11 @@ final class Conversations
 	    return null;
 	if (typeRes == dir)
 	    return Album.Type.DIR;
-		if (typeRes == m3u)
+	if (typeRes == m3u)
 	    return Album.Type.M3U;
-				if (typeRes == streaming)
+	if (typeRes == streaming)
 	    return Album.Type.STREAMING;
-				return null;
+	return null;
     }
 
     boolean confirmAlbumDeleting(String title)
