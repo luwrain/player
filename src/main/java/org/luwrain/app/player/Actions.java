@@ -28,7 +28,7 @@ final class Actions
     private final Luwrain luwrain;
     private final Base base;
     private final Strings strings;
-    final Conversations conversations;
+    final Conversations conv;
 
     Actions(Luwrain luwrain, Base base, Strings strings)
     {
@@ -38,30 +38,30 @@ final class Actions
 	this.luwrain = luwrain;
 	this.strings = strings;
 	this.base = base;
-	this.conversations = new Conversations(luwrain);
+	this.conv = new Conversations(luwrain);
     }
 
-    boolean onAddPlaylist(ListArea listArea)
+    boolean onAddAlbum(ListArea listArea)
     {
 	NullCheck.notNull(listArea, "listArea");
-	final Conversations.NewPlaylistParams params = conversations.addPlaylist();
-	if (params == null)
+	final Album.Type type = conv.newAlbumType();
+	if (type == null)
 	    return true;
-	Albums.addPlaylist(luwrain.getRegistry(), params);
+	Albums.addAlbum(luwrain.getRegistry(), type);
 	listArea.refresh();
 	return true;
     }
 
-    boolean onDeletePlaylist(ListArea listArea)
+    boolean onDeleteAlbum(ListArea listArea)
     {
 	NullCheck.notNull(listArea, "listArea");
 	final Object obj = listArea.selected();
 	if (obj== null || !(obj instanceof Album))
 	    return false;
 	final Album album = (Album)obj;
-	if (!conversations.confirmPlaylistDeleting(album.getTitle()))
+	if (!conv.confirmAlbumDeleting(album.getTitle()))
 	    return true;
-	Albums.deletePlaylist(luwrain.getRegistry(), album.registryPath);
+	Albums.deleteAlbum(luwrain.getRegistry(), album.registryPath);
 	return true;
     }
 

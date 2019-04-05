@@ -73,68 +73,31 @@ break;
 	return new Album(type, sett.getTitle(""), Settings.decodeProperties(sett.getProperties("")), path);
     }
 
-    static boolean addPlaylist(Registry registry, Conversations.NewPlaylistParams params)
+    static boolean addAlbum(Registry registry, Album.Type type)
     {
 	NullCheck.notNull(registry, "registry");
-	NullCheck.notNull(params, "params");
+	NullCheck.notNull(type, "type");
+registry.addDirectory(Settings.ALBUMS_PATH);
 	final int num = Registry.nextFreeNum(registry, Settings.ALBUMS_PATH);
 	final String path = Registry.join(Settings.ALBUMS_PATH, "" + num);
-	registry.addDirectory(path);
-	/*
-	switch(params.type)
+		registry.addDirectory(path);
+			final Settings.Album sett = Settings.createAlbum(registry, path);
+	switch(type)
 	{
-	case DIRECTORY:
-	    {
-		final Settings.DirectoryPlaylist sett = Settings.createDirectoryPlaylist(registry, path);
-		sett.setType(Settings.TYPE_DIRECTORY);
-		sett.setTitle(params.name);
-		sett.setPath(params.arg);
-		sett.setWithBookmark(false);
-		return true;
-	    }
-	case M3U:
-	    {
-		final Settings.M3uPlaylist sett = Settings.createM3uPlaylist(registry, path);
-		sett.setType(Settings.TYPE_M3U);
-		sett.setTitle(params.name);
-		sett.setM3uUrl(params.arg);
-		sett.setWithBookmark(false);
-		return true;
-	    }
-	case WITH_BOOKMARK_DIR:
-	    {
-		final Settings.DirectoryPlaylist sett = Settings.createDirectoryPlaylist(registry, path);
-		sett.setType(Settings.TYPE_DIRECTORY);
-		sett.setTitle(params.name);
-		sett.setPath(params.arg);
-		sett.setWithBookmark(true);
-		return true;
-	    }
-	case WITH_BOOKMARK_M3U:
-	    {
-		final Settings.M3uPlaylist sett = Settings.createM3uPlaylist(registry, path);
-		sett.setType(Settings.TYPE_M3U);
-		sett.setTitle(params.name);
-		sett.setM3uUrl(params.arg);
-		sett.setWithBookmark(true);
-		return true;
-	    }
+	case DIR:
+	    sett.setType(Settings.TYPE_DIR);
+	    break;
 	case STREAMING:
-	    {
-		final Settings.StreamingPlaylist sett = Settings.createStreamingPlaylist(registry, path);
-		sett.setType(Settings.TYPE_M3U);
-		sett.setTitle(params.name);
-		sett.setUrl(params.arg);
-		return true;
-	    }
+	    sett.setType(Settings.TYPE_STREAMING);
+	    break;
 	default:
 	    return false;
 	}
-	*/
-	return false;
+	sett.setTitle("Новый альбом");//FIXME:
+	return true;
     }
 
-    static void deletePlaylist(Registry registry, String path)
+    static void deleteAlbum(Registry registry, String path)
     {
 	NullCheck.notNull(registry, "registry");
 	NullCheck.notEmpty(path, "path");

@@ -23,7 +23,7 @@ import org.luwrain.script.*;
 
 final class Album extends EmptyHookObject implements Comparable
 {
-    enum Type {STREAMING, DIR, PLAYLIST};
+    enum Type {STREAMING, DIR, M3U};
 
         final Type type;
     final String title;

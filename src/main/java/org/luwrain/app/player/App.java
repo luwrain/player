@@ -124,9 +124,9 @@ class App implements Application, MonoApp
 			return true;
 		    case ACTION:
 			if (ActionEvent.isAction(event, "add-playlist"))
-			    return actions.onAddPlaylist(this);
+			    return actions.onAddAlbum(this);
 			if (ActionEvent.isAction(event, "delete-playlist"))
-			    return actions.onDeletePlaylist(this);
+			    return actions.onDeleteAlbum(this);
 			return false;
 		    case PROPERTIES:
 			return onPlaylistProps();
