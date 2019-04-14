@@ -57,7 +57,7 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
     {
 	NullCheck.notNull(playlist, "playlist");
 	NullCheck.notNull(flags, "flags");
-	if (startingTrackNum < 0 || startingTrackNum >= playlist.getPlaylistUrls().length)
+	if (startingTrackNum < 0 || startingTrackNum >= playlist.getTrackCount())
 	    return Result.INVALID_PLAYLIST;
 	stop();
 	this.playlist = playlist;
@@ -147,8 +147,7 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
     {
 	if (state == State.STOPPED || flags.contains(Flags.STREAMING))
 	    return false;
-	final String[] items = playlist.getPlaylistUrls();
-	if (items == null || trackNum + 1 >= items.length)
+	if (trackNum + 1 >= playlist.getTrackCount())
 	    return false;
 	final State prevState = state;
 	if (currentPlayer != null)
@@ -171,8 +170,7 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
     {
 	if (state == State.STOPPED || flags.contains(Flags.STREAMING))
 	    return false;
-	final String[] items = playlist.getPlaylistUrls();
-	if (items == null || trackNum == 0)
+	if (trackNum == 0)
 	    return false;
 	final State prevState = state;
 	if (currentPlayer != null)
@@ -209,15 +207,14 @@ posMsec = 0;
 	    return;
 	if (state != State.PLAYING)
 	    return;
-	final String[] items = playlist.getPlaylistUrls();
-	if (flags.contains(Flags.STREAMING) || items == null || items.length == 0)
+	if (flags.contains(Flags.STREAMING))
 	{
 	    stop();
 	    return;
 	}
 	if (!flags.contains(Flags.CYCLED) && !flags.contains(Flags.RANDOM))
 	{
-	    if (trackNum + 1 < items.length)
+	    if (trackNum + 1 < playlist.getTrackCount())
 		nextTrack(); else
 		stop();
 	    return;
@@ -229,11 +226,11 @@ posMsec = 0;
 	}
 	if (!flags.contains(Flags.RANDOM))
 	{
-	    if (trackNum + 1 < items.length)
+	    if (trackNum + 1 < playlist.getTrackCount())
 		++trackNum; else
 		trackNum = 0;
 	} else
-	    trackNum = rand.nextInt(items.length);
+	    trackNum = rand.nextInt(playlist.getTrackCount());
 	posMsec = 0;
 	runPlayer();
 	state = State.PLAYING;
@@ -326,13 +323,9 @@ posMsec = 0;
 
     private Task createTask()
     {
-	final String[] items = playlist.getPlaylistUrls();
-	if (items == null || trackNum < 0 || trackNum >= items.length)
+	if (trackNum >= playlist.getTrackCount())
 	    return null;
-	for(int i = 0;i < items.length;++i)
-	    if (items[i] == null)
-		return null;
-	final String url = items[trackNum];
+	final String url = playlist.getTrack(trackNum);
 	Log.debug(LOG_COMPONENT, "creating task for " + url);
 	try {
 	    return new Task(new URL(url), flags.contains(Flags.STREAMING)?0:posMsec);

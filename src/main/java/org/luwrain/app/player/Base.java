@@ -113,21 +113,21 @@ class Base
 
     boolean isEmptyPlaylist()
     {
-	return !player.hasPlaylist() || player.getPlaylist().getPlaylistUrls().length < 1;
+	return !player.hasPlaylist();
     }
 
     String[] getPlaylistUrls()
     {
 	if (!player.hasPlaylist())
 	    return new String[0];
-	return player.getPlaylist().getPlaylistUrls();
+	return player.getPlaylist().getTracks();
     }
 
     int getPlaylistLen()
     {
 	if (!player.hasPlaylist())
 	    return 0;
-	return player.getPlaylist().getPlaylistUrls().length;
+	return player.getPlaylist().getTrackCount();
     }
 
     PlaylistModel newPlaylistModel()
@@ -154,7 +154,7 @@ class Base
 	    return;
 	final HashMap<String, TrackInfo> map = new HashMap<String, TrackInfo>();
 	new Thread(()->{
-		for(String s: playlist.getPlaylistUrls())
+		for(String s: playlist.getTracks())
 		{
 		    try {
 			map.put(s, new TrackInfo(new URL(s)));
