@@ -30,6 +30,7 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
     private final Luwrain luwrain;
     private final Settings sett;
     private final Random rand = new Random();
+    private MediaResourcePlayer[] mediaResourcePlayers;
     private final List<org.luwrain.player.Listener> listeners = new Vector();
 
     private State state = State.STOPPED;
@@ -46,6 +47,9 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
 	NullCheck.notNull(luwrain, "luwrain");
 	this.luwrain = luwrain;
 	this.sett = Settings.create(luwrain.getRegistry());
+	this.mediaResourcePlayers = luwrain.getMediaResourcePlayers();
+	for(MediaResourcePlayer p: mediaResourcePlayers)
+	    Log.debug(LOG_COMPONENT, "\'" + p.getExtObjName() + "\' is a known media resource player");
 	this.volume = this.sett.getVolume(100);
 	if (this.volume < 0)
 	    this.volume = 0;
@@ -214,6 +218,7 @@ posMsec = 0;
 	}
 	if (!flags.contains(Flags.CYCLED) && !flags.contains(Flags.RANDOM))
 	{
+	    Log.debug("proba", "for next track");
 	    if (trackNum + 1 < playlist.getTrackCount())
 		nextTrack(); else
 		stop();
@@ -342,7 +347,7 @@ posMsec = 0;
 	NullCheck.notNull(task, "task");
 	final String contentType = luwrain.suggestContentType(task.url, ContentTypes.ExpectedType.AUDIO);
 	Log.debug(LOG_COMPONENT, "suggested content type is \'" + contentType + "\'");
-	for(MediaResourcePlayer p: luwrain.getMediaResourcePlayers())
+	for(MediaResourcePlayer p: mediaResourcePlayers)
 	{
 	    final String supportedTypes = p.getSupportedMimeType();
 	    if (supportedTypes.trim().toLowerCase().equals(contentType.trim().toLowerCase()))
