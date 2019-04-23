@@ -80,7 +80,7 @@ class App implements Application, MonoApp
     private void createAreas()
     {
 	final ListArea.Params albumsParams = new ListArea.Params();
-	albumsParams.context = new DefaultControlEnvironment(luwrain);
+	albumsParams.context = new DefaultControlContext(luwrain);
 	albumsParams.model = base.albumsModel;
 	albumsParams.name = strings.treeAreaName();
 	albumsParams.clickHandler = (area, index, obj)->actions.onAlbumClick(playlistArea, obj);
@@ -142,7 +142,7 @@ class App implements Application, MonoApp
 	    };
 
 	final ListArea.Params params = new ListArea.Params();
-	params.context = new DefaultControlEnvironment(luwrain);
+	params.context = new DefaultControlContext(luwrain);
 	params.model = base.newPlaylistModel();
 	params.appearance = new ListUtils.DefaultAppearance(params.context);//new PlaylistAppearance(luwrain, base);
 	params.clickHandler = (area, index, obj)->base.playPlaylistItem(index);
@@ -237,7 +237,7 @@ class App implements Application, MonoApp
 	if (obj == null || !(obj instanceof Playlist))
 	    return false;
 	final Album playlist = (Album)obj;
-	final FormArea area = new FormArea(new DefaultControlEnvironment(luwrain), strings.playlistPropertiesAreaName()) {
+	final FormArea area = new FormArea(new DefaultControlContext(luwrain), strings.playlistPropertiesAreaName()) {
 		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");

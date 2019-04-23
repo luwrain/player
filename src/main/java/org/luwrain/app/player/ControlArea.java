@@ -44,7 +44,7 @@ interface Callback
     ControlArea(Luwrain luwrain, Callback callback, Strings strings,
 		 String pauseResume, String stop)
     {
-	super(new DefaultControlEnvironment(luwrain));
+	super(new DefaultControlContext(luwrain));
 	NullCheck.notNull(luwrain, "luwrain");
 	NullCheck.notNull(callback, "callback");
 	NullCheck.notNull(strings, "strings");

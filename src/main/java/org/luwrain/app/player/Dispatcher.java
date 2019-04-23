@@ -218,7 +218,6 @@ posMsec = 0;
 	}
 	if (!flags.contains(Flags.CYCLED) && !flags.contains(Flags.RANDOM))
 	{
-	    Log.debug("proba", "for next track");
 	    if (trackNum + 1 < playlist.getTrackCount())
 		nextTrack(); else
 		stop();
@@ -323,7 +322,13 @@ posMsec = 0;
     {
 	NullCheck.notNull(notification, "notification");
 	for(org.luwrain.player.Listener l: listeners)
-	    notification.notify(l);
+	    try {
+		notification.notify(l);
+	    }
+	    catch(Throwable e)
+	    {
+		Log.warning(LOG_COMPONENT, "some listener has thrown an exception:" + e.getClass().getName() + ":" + e.getMessage());
+	    }
     }
 
     private Task createTask()
