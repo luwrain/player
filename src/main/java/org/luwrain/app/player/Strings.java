@@ -20,6 +20,11 @@ public interface Strings
 {
 static final String NAME = "luwrain.player";
 
+    String albumTypeDir();
+    String albumTypeStreaming();
+    String albumTypeM3u();
+    String newAlbumTypePopupName();
+
     String appName();
     String treeAreaName();
     String playlistAreaName();
@@ -46,4 +51,5 @@ static final String NAME = "luwrain.player";
     String treePlaylistsWithBookmarks();
     String treePlaylistsWithoutBookmarks();
     String treeStreamingPlaylists();
+    String newAlbumTitle();
 }

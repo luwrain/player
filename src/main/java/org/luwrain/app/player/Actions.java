@@ -38,7 +38,7 @@ final class Actions
 	this.luwrain = luwrain;
 	this.strings = strings;
 	this.base = base;
-	this.conv = new Conversations(luwrain);
+	this.conv = new Conversations(luwrain, strings);
     }
 
     boolean onAddAlbum(ListArea listArea)
@@ -47,7 +47,8 @@ final class Actions
 	final Album.Type type = conv.newAlbumType();
 	if (type == null)
 	    return true;
-	Albums.addAlbum(luwrain.getRegistry(), type);
+	final String path = Albums.addAlbum(luwrain.getRegistry(), type, strings.newAlbumTitle());
+	base.updateAlbums();
 	listArea.refresh();
 	return true;
     }

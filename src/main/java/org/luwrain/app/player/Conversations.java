@@ -24,19 +24,22 @@ import org.luwrain.popups.Popups;
 final class Conversations
 {
     private final Luwrain luwrain;
+    private final Strings strings;
 
-    Conversations(Luwrain luwrain)
+    Conversations(Luwrain luwrain, Strings strings)
     {
 	NullCheck.notNull(luwrain, "luwrain");
+	NullCheck.notNull(strings, "strings");
 	this.luwrain = luwrain;
+	this.strings = strings;
     }
 
     Album.Type newAlbumType()
     {
-	final String dir = "Каталог с музыкальными файлами";//FIXME:
-	final String m3u = "M3U-файл";//FIXME:
-	final String streaming = "Интернет-радио";//FIXME:
-	final Object typeRes = Popups.fixedList(luwrain, "Тип нового плейлиста:", new Object[]{dir, m3u, streaming});//FIXME:
+	final String dir = strings.albumTypeDir();
+	final String m3u = strings.albumTypeM3u();
+	final String streaming = strings.albumTypeStreaming();
+	final Object typeRes = Popups.fixedList(luwrain, strings.newAlbumTypePopupName(), new Object[]{dir, m3u, streaming});
 	if (typeRes == null)
 	    return null;
 	if (typeRes == dir)

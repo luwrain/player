@@ -56,6 +56,11 @@ class Base
 	    return;
     }
 
+    void updateAlbums()
+    {
+	this.albumsModel.setItems(albums.loadRegistryAlbums());
+    }
+
     String getTrackTextAppearance(String trackUrl)
     {
 	NullCheck.notNull(trackUrl, "trackUrl");

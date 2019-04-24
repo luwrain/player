@@ -73,15 +73,17 @@ break;
 	return new Album(type, sett.getTitle(""), Settings.decodeProperties(sett.getProperties("")), path);
     }
 
-    static boolean addAlbum(Registry registry, Album.Type type)
+    //Returns the path of the newly created album or null in the case of any error
+    static String addAlbum(Registry registry, Album.Type type, String title)
     {
 	NullCheck.notNull(registry, "registry");
 	NullCheck.notNull(type, "type");
-registry.addDirectory(Settings.ALBUMS_PATH);
+	NullCheck.notEmpty(title, "title");
+	registry.addDirectory(Settings.ALBUMS_PATH);
 	final int num = Registry.nextFreeNum(registry, Settings.ALBUMS_PATH);
-	final String path = Registry.join(Settings.ALBUMS_PATH, "" + num);
-		registry.addDirectory(path);
-			final Settings.Album sett = Settings.createAlbum(registry, path);
+	final String path = Registry.join(Settings.ALBUMS_PATH, String.valueOf(num));
+	registry.addDirectory(path);
+	final Settings.Album sett = Settings.createAlbum(registry, path);
 	switch(type)
 	{
 	case DIR:
@@ -91,10 +93,10 @@ registry.addDirectory(Settings.ALBUMS_PATH);
 	    sett.setType(Settings.TYPE_STREAMING);
 	    break;
 	default:
-	    return false;
+	    return null;
 	}
-	sett.setTitle("Новый альбом");//FIXME:
-	return true;
+	sett.setTitle(title);
+	return path;
     }
 
     static void deleteAlbum(Registry registry, String path)
