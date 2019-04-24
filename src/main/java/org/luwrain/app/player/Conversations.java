@@ -54,6 +54,6 @@ final class Conversations
     boolean confirmAlbumDeleting(String title)
     {
 	NullCheck.notNull(title, "title");
-	return Popups.confirmDefaultNo(luwrain, "Удаление плейлиста", "Вы действительно хотите удалить плейлист \"" + title + "\"?");
+	return Popups.confirmDefaultNo(luwrain, strings.albumDeletingPopupName(), strings.albumDeletingPopupText(title));
     }
 }

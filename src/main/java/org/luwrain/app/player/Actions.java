@@ -53,16 +53,18 @@ final class Actions
 	return true;
     }
 
-    boolean onDeleteAlbum(ListArea listArea)
+    boolean onDeleteAlbum(ListArea albumsArea)
     {
-	NullCheck.notNull(listArea, "listArea");
-	final Object obj = listArea.selected();
+	NullCheck.notNull(albumsArea, "albumsArea");
+	final Object obj = albumsArea.selected();
 	if (obj== null || !(obj instanceof Album))
 	    return false;
 	final Album album = (Album)obj;
 	if (!conv.confirmAlbumDeleting(album.getTitle()))
 	    return true;
 	Albums.deleteAlbum(luwrain.getRegistry(), album.registryPath);
+	base.updateAlbums();
+		albumsArea.refresh();
 	return true;
     }
 

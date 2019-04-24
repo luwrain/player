@@ -52,4 +52,6 @@ static final String NAME = "luwrain.player";
     String treePlaylistsWithoutBookmarks();
     String treeStreamingPlaylists();
     String newAlbumTitle();
+    String albumDeletingPopupName();
+    String albumDeletingPopupText(String albumName);
 }
