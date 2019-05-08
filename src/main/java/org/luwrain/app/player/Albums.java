@@ -25,7 +25,7 @@ import org.luwrain.core.*;
 final class Albums
 {
     static private final String LOG_COMPONENT = Base.LOG_COMPONENT;
-    
+
     private final Base base;
     private final Registry registry;
 
@@ -64,8 +64,8 @@ final class Albums
 	    type = Album.Type.DIR;
 	    break;
 	case Settings.TYPE_STREAMING:
-type = Album.Type.STREAMING;
-break;
+	    type = Album.Type.STREAMING;
+	    break;
 	default:
 	    Log.warning(LOG_COMPONENT, "the album of the unknown type \'" + typeStr + "\' in " + path);
 	    return null;

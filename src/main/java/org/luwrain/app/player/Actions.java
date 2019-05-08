@@ -64,7 +64,7 @@ final class Actions
 	    return true;
 	Albums.deleteAlbum(luwrain.getRegistry(), album.registryPath);
 	base.updateAlbums();
-		albumsArea.refresh();
+	albumsArea.refresh();
 	return true;
     }
 
