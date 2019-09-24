@@ -79,22 +79,7 @@ class App implements Application, MonoApp
 
     private void createAreas()
     {
-	final ListArea.Params albumsParams = new ListArea.Params();
-	albumsParams.context = new DefaultControlContext(luwrain);
-	albumsParams.model = base.albumsModel;
-	albumsParams.name = strings.treeAreaName();
-	albumsParams.clickHandler = (area, index, obj)->actions.onAlbumClick(playlistArea, obj);
-
-	albumsParams.appearance = new ListUtils.DoubleLevelAppearance(albumsParams.context){
-		@Override public boolean isSectionItem(Object item)
-		{
-		    NullCheck.notNull(item, "item");
-		    return (item instanceof String);
-		}
-	    };
-
-	albumsArea = new ListArea(albumsParams){
-	    
+	this.albumsArea = new ListArea(base.createAlbumsListParams((area, index, obj)->actions.onAlbumClick(playlistArea, obj))){
 		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
@@ -104,14 +89,16 @@ class App implements Application, MonoApp
 			switch(event.getSpecial())
 			{
 			case TAB:
-			    if (!base.player.hasPlaylist())
-				return false;
-			    luwrain.setActiveArea(playlistArea);
-			    return true;
+			    {
+				final Area nextArea = getAreaLayout().getNextArea(this);
+				if (nextArea == null)
+				    return false;
+				luwrain.setActiveArea(nextArea);
+				return true;
+			    }
 			}
 		    return super.onInputEvent(event);
 		}
-
 		@Override public boolean onSystemEvent(EnvironmentEvent event)
 		{
 		    NullCheck.notNull(event, "event");
@@ -134,27 +121,17 @@ class App implements Application, MonoApp
 			return super.onSystemEvent(event);
 		    }
 		}
-
 		@Override public Action[] getAreaActions()
 		{
 		    return actionLists.getPlaylistsActions();
 		}
 	    };
 
-	final ListArea.Params params = new ListArea.Params();
-	params.context = new DefaultControlContext(luwrain);
-	params.model = base.newPlaylistModel();
-	params.appearance = new ListUtils.DefaultAppearance(params.context);//new PlaylistAppearance(luwrain, base);
-	params.clickHandler = (area, index, obj)->base.playPlaylistItem(index);
-	params.name = strings.playlistAreaName();
-
-	playlistArea = new ListArea(params){
-
+	this.playlistArea = new ListArea(base.createPlaylistParams((area, index, obj)->base.playPlaylistItem(index))){
 		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
-
-		    		    if (luwrain.xRunHooks("luwrain.app.player.areas.playlist.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), null}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
+		    if (luwrain.xRunHooks("luwrain.app.player.areas.playlist.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), null}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
 			return true;
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
@@ -168,7 +145,6 @@ class App implements Application, MonoApp
 			}
 		    return super.onInputEvent(event);
 		}
-
 		@Override public boolean onSystemEvent(EnvironmentEvent event)
 		{
 		    NullCheck.notNull(event, "event");
@@ -183,22 +159,18 @@ class App implements Application, MonoApp
 			return super.onSystemEvent(event);
 		    }
 		}
-
 		@Override public Action[] getAreaActions()
 		{
 		    return actionLists.getPlaylistActions();
 		}
 	    };
 
-	final ControlArea.Callback controlCallback = new ControlArea.Callback(){
-	    };
-
-	controlArea = new ControlArea(luwrain, controlCallback, strings, "ПАУЗА", "СТОП"){
-
+	final ControlArea.Callback controlCallback = new ControlArea.Callback(){};
+	this.controlArea = new ControlArea(luwrain, controlCallback, strings, "ПАУЗА", "СТОП"){
 		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
-		    		    		    if (luwrain.xRunHooks("luwrain.app.player.areas.control.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event)}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
+		    if (luwrain.xRunHooks("luwrain.app.player.areas.control.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event)}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
 			return true;
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
@@ -212,7 +184,6 @@ class App implements Application, MonoApp
 			}
 		    return super.onInputEvent(event);
 		}
-
 		@Override public boolean onSystemEvent(EnvironmentEvent event)
 		{
 		    NullCheck.notNull(event, "event");
@@ -227,7 +198,6 @@ class App implements Application, MonoApp
 			return super.onSystemEvent(event);
 		    }
 		}
-
 	    };
     }
 
@@ -244,9 +214,9 @@ class App implements Application, MonoApp
 		    if (event.isSpecial() && !event.isModified())
 			switch(event.getSpecial())
 			{
-case ESCAPE:
-    layout.closeTempLayout();
-    return true;
+			case ESCAPE:
+			    layout.closeTempLayout();
+			    return true;
 			}
 		    return super.onInputEvent(event);
 		}
@@ -259,19 +229,19 @@ case ESCAPE:
 		    {
 		    case CLOSE:
 			closeApp();
-case OK:
-    {
-	final String title = getEnteredText("title").trim();
-	if (title.isEmpty())
-	{
-	    luwrain.message("Название не может быть пустым", Luwrain.MessageType.ERROR);
-	    return true;
-	}
-	//playlist.sett.setTitle(title);
-	albumsArea.refresh();
-	layout.closeTempLayout();
-	return true;
-    }
+		    case OK:
+			{
+			    final String title = getEnteredText("title").trim();
+			    if (title.isEmpty())
+			    {
+				luwrain.message("Название не может быть пустым", Luwrain.MessageType.ERROR);
+				return true;
+			    }
+			    //playlist.sett.setTitle(title);
+			    albumsArea.refresh();
+			    layout.closeTempLayout();
+			    return true;
+			}
 		    default:
 			return super.onSystemEvent(event);
 		    }
@@ -279,13 +249,13 @@ case OK:
 	    };
 	area.addEdit("title", strings.playlistPropertiesAreaTitle(), playlist.getTitle());
 	/*
-	if (playlist.sett instanceof Settings.DirectoryPlaylist)
-	{
-	    final Settings.DirectoryPlaylist sett = (Settings.DirectoryPlaylist)playlist.sett;
-	    area.addEdit("path", "Каталог с файлами:", sett.getPath(""));
-	}
-	if (playlist.sett instanceof Settings.StreamingPlaylist)
-	{
+	  if (playlist.sett instanceof Settings.DirectoryPlaylist)
+	  {
+	  final Settings.DirectoryPlaylist sett = (Settings.DirectoryPlaylist)playlist.sett;
+	  area.addEdit("path", "Каталог с файлами:", sett.getPath(""));
+	  }
+	  if (playlist.sett instanceof Settings.StreamingPlaylist)
+	  {
 	    final Settings.StreamingPlaylist sett = (Settings.StreamingPlaylist)playlist.sett;
 	    area.addEdit("url", "URL потока вещания:", sett.getUrl(""));//FIXME:
 	}

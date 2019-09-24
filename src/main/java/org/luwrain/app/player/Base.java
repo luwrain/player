@@ -41,7 +41,7 @@ class Base
 
     private HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
     private final Albums albums;
-    final ListUtils.FixedModel albumsModel;
+    private final ListUtils.FixedModel albumsModel;
 
     Base(Luwrain luwrain, Strings strings)
     {
@@ -135,11 +135,6 @@ class Base
 	return player.getPlaylist().getTrackCount();
     }
 
-    PlaylistModel newPlaylistModel()
-    {
-	return new PlaylistModel();
-    }
-
     private void setNewCurrentPlaylist(ListArea area, org.luwrain.player.Playlist playlist)
     {
 	NullCheck.notNull(area, "area");
@@ -172,6 +167,43 @@ class Base
 		}
 	}).start();
 	trackInfoMap = map;
+    }
+
+    ListArea.Params createAlbumsListParams(ListArea.ClickHandler clickHandler)
+    {
+	NullCheck.notNull(clickHandler, "clickHandler");
+	final ListArea.Params params = new ListArea.Params();
+	params.context = new DefaultControlContext(luwrain);
+	params.model = albumsModel;
+	params.name = strings.treeAreaName();
+	params.clickHandler = clickHandler;
+	params.appearance = new ListUtils.DoubleLevelAppearance(params.context){
+		@Override public boolean isSectionItem(Object item)
+		{
+		    NullCheck.notNull(item, "item");
+		    return (item instanceof String);
+		}
+	    };
+		params.transition = new ListUtils.DoubleLevelTransition(params.model){
+		@Override public boolean isSectionItem(Object item)
+		{
+		    NullCheck.notNull(item, "item");
+		    return (item instanceof String);
+		}
+	    };
+	return params;
+    }
+
+    ListArea.Params createPlaylistParams(ListArea.ClickHandler clickHandler)
+    {
+	NullCheck.notNull(clickHandler, "clickHandler");
+	final ListArea.Params params = new ListArea.Params();
+	params.context = new DefaultControlContext(luwrain);
+	params.model = new PlaylistModel();
+	params.appearance = new ListUtils.DefaultAppearance(params.context);//new PlaylistAppearance(luwrain, base);
+	params.clickHandler = clickHandler;
+	params.name = strings.playlistAreaName();
+	return params;
     }
 
 
