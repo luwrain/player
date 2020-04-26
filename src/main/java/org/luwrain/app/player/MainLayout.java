@@ -14,12 +14,17 @@ import org.luwrain.popups.*;
 final class MainLayout
 {
     private final App app;
+    private final Player player;
     private ListArea albumsArea = null;
     private ListArea playlistArea = null;
     private ControlArea controlArea = null;
 
-    MainLayout(App app)
+    MainLayout(App app, Player player)
     {
+	NullCheck.notNull(app, "app");
+	NullCheck.notNull(player, "player");
+	this.app = app;
+	this.player = player;
 	this.albumsArea = new ListArea(createAlbumsParams()){
 		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
@@ -123,6 +128,29 @@ final class MainLayout
 	return params;
     }
 
+                int getPlaylistLen()
+    {
+	if (!player.hasPlaylist())
+	    return 0;
+	return player.getPlaylist().getTrackCount();
+    }
+
+
+        String[] getPlaylistUrls()
+    {
+	if (!player.hasPlaylist())
+	    return new String[0];
+	return player.getPlaylist().getTracks();
+    }
+
+        String getTrackTextAppearance(String trackUrl)
+    {
+	NullCheck.notNull(trackUrl, "trackUrl");
+	return Utils.getTrackTextAppearanceWithMap(trackUrl, app.trackInfoMap);
+    }
+
+
+
 
 
     private class PlaylistModel implements EditableListArea.EditableModel
@@ -146,7 +174,7 @@ final class MainLayout
 	{
 	    if (index < 0 || index >= getPlaylistLen())
 		return "";
-	    return new Item(getPlaylistUrls()[index], getTrackTextAppearance(getPlaylistUrls()[index]));
+	    return new AlbumItem(getPlaylistUrls()[index], getTrackTextAppearance(getPlaylistUrls()[index]));
 	}
 	@Override public int getItemCount()
 	{

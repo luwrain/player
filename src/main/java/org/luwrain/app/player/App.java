@@ -18,7 +18,7 @@ class App extends AppBase<Strings> implements Application, MonoApp
     private final String[] args;
 private org.luwrain.player.Player player = null;
         private Listener listener = null;
-    private HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
+    final HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
     private Albums albums = null;
 
 
@@ -49,6 +49,10 @@ private org.luwrain.player.Player player = null;
 	return this.albums;
     }
 
+
+
+
+
     @Override public AreaLayout getDefaultAreaLayout()
     {
 	return null;//layout.getLayout();
@@ -66,6 +70,9 @@ private org.luwrain.player.Player player = null;
 	NullCheck.notNull(app, "app");
 	return MonoApp.Result.BRING_FOREGROUND;
     }
+
+
+    
 }
     /*
 
