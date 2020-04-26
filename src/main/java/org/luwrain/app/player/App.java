@@ -29,12 +29,12 @@ import org.luwrain.template.*;
 class App extends AppBase<Strings> implements Application, MonoApp
 {
     static final String DATA_DIR_NAME = "luwrain.player";
-    
     static final String LOG_COMPONENT = "player";
 
     private final String[] args;
-private org.luwrain.player.Player player = null;
-        private Listener listener = null;
+    private org.luwrain.player.Player player = null;
+    private Conversations conv = null;
+    private Listener listener = null;
     private MainLayout layout = null;
     private Hooks hooks = null;
     final HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
@@ -53,10 +53,13 @@ private org.luwrain.player.Player player = null;
 
     @Override public boolean onAppInit() throws IOException
     {
+	this.conv = new Conversations(this);
 	this.albums = new Albums(getLuwrain());
+	this.listener = new Listener(this);
 	this.player = getLuwrain().getPlayer();
 	if (player == null)
 	    return false;
+	this.player.addListener(listener);
 	this.hooks = new Hooks(getLuwrain());
 	this.layout = new MainLayout(this, this.player);
 	setAppName(getStrings().appName());
@@ -73,6 +76,11 @@ private org.luwrain.player.Player player = null;
 	return this.hooks;
     }
 
+    Conversations getConv()
+    {
+	return conv;
+    }
+
     @Override public AreaLayout getDefaultAreaLayout()
     {
 	return this.layout.getLayout();
@@ -84,76 +92,9 @@ private org.luwrain.player.Player player = null;
 	super.closeApp();
     }
 
-
     @Override public MonoApp.Result onMonoAppSecondInstance(Application app)
     {
 	NullCheck.notNull(app, "app");
 	return MonoApp.Result.BRING_FOREGROUND;
     }
-
-
-    
 }
-    /*
-
-    boolean playPlaylistItem(int index)
-    {
-	if (!player.hasPlaylist())
-	    return false;
-	if (index < 0 || index >= getPlaylistLen())
-	    return false;
-	player.play(player.getPlaylist(), index, 0, org.luwrain.player.Player.DEFAULT_FLAGS, null);
-	return true;
-    }
-
-    boolean isStreamingPlaylist()
-    {
-	return false;
-    }
-
-    boolean onAddStreamingPlaylist()
-    {
-	return false;
-    }
-
-    String getCurrentPlaylistTitle()
-    {
-	if (!player.hasPlaylist())
-	    return "";
-	//	return player.getPlaylist().getPlaylistTitle();
-	return "FIXME:Playlist title";
-    }
-
-    String getCurrentTrackTitle()
-    {
-	if (isEmptyPlaylist())
-	    return "";
-	final String res = getPlaylistUrls()[player.getTrackNum()];
-	return res != null?res:"";
-    }
-
-    boolean isEmptyPlaylist()
-    {
-	return !player.hasPlaylist();
-    }
-
-    String[] getPlaylistUrls()
-    {
-	if (!player.hasPlaylist())
-	    return new String[0];
-	return player.getPlaylist().getTracks();
-    }
-
-    int getPlaylistLen()
-    {
-	if (!player.hasPlaylist())
-	    return 0;
-	return player.getPlaylist().getTrackCount();
-    }
-
-    private void setNewCurrentPlaylist(ListArea area, org.luwrain.player.Playlist playlist)
-    {
-	NullCheck.notNull(area, "area");
-	NullCheck.notNull(playlist, "playlist");
-
-    */

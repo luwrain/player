@@ -29,6 +29,13 @@ final class Hooks
 	this.luwrain = luwrain;
     }
 
+    boolean onAlbumPlay(Object selected)
+    {
+	if (selected == null || !(selected instanceof Album))
+	    return false;
+	return luwrain.xRunHooks("luwrain.player.album.play", new Object[]{selected}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY);
+    }
+
     boolean onAlbumsInput(KeyboardEvent event, Object selected)
     {
 	NullCheck.notNull(event, "event");

@@ -21,11 +21,12 @@ import org.luwrain.player.*;
 
 final class Listener  implements org.luwrain.player.Listener
     {
-	//	private final ListArea playlistArea;
-	//	private final ControlArea controlArea;
-	
+	final App app;
+
 	Listener(App app)
 	{
+	    NullCheck.notNull(app, "app");
+	    this.app = app;
 	}
 
 	@Override public void onNewPlaylist(org.luwrain.player.Playlist playlist)

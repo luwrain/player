@@ -24,9 +24,9 @@ import org.luwrain.core.*;
 import org.luwrain.core.events.*;
 import org.luwrain.controls.*;
 import org.luwrain.player.*;
-import org.luwrain.popups.*;
+import org.luwrain.template.*;
 
-final class MainLayout
+final class MainLayout extends LayoutBase
 {
     private final App app;
     private final Player player;
@@ -41,27 +41,35 @@ final class MainLayout
 	this.app = app;
 	this.player = player;
 	this.albumsArea = new ListArea(createAlbumsParams()){
+		final Actions actions = actions(
+						action("add-playlist", app.getStrings().actionAddPlaylist(), new KeyboardEvent(KeyboardEvent.Special.INSERT), MainLayout.this::actAddPlaylist)
+						);
 		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
 		    if (app.getHooks().onAlbumsInput(event, selected()))
 			return true;
-		    		    if (app.getLuwrain().xRunHooks("luwrain.app.player.areas.albums.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), selected()}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
+		    if (app.onInputEvent(this, event))
 			return true;
-			if (app.onInputEvent(this, event))
-			    return true;
 		    return super.onInputEvent( event);
 		}
 		@Override public boolean onSystemEvent(EnvironmentEvent event)
 		{
 		    NullCheck.notNull(event, "event");
-		    if (app.onSystemEvent(this, event))
+		    if (app.onSystemEvent(this, event, actions))
 			return true;
 		    return super.onSystemEvent(event);
 		}
+				@Override public boolean onAreaQuery(AreaQuery query)
+		{
+		    NullCheck.notNull(query, "query");
+		    if (app.onAreaQuery(this, query))
+			return true;
+		    return super.onAreaQuery(query);
+		}
 		@Override public Action[] getAreaActions()
 		{
-		    return new Action[0];
+		    return actions.getAreaActions();
 		}
 	    };
 	this.playlistArea = new ListArea(createPlaylistParams()){
@@ -69,7 +77,7 @@ final class MainLayout
 		{
 		    NullCheck.notNull(event, "event");
 		    /*
-		    if (app.getLuwrain().xRunHooks("luwrain.app.player.areas.playlist.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), null}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
+		      if (app.getLuwrain().xRunHooks("luwrain.app.player.areas.playlist.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), null}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
 			return true;
 		    */
 		    if (app.onInputEvent(this, event))
@@ -83,7 +91,14 @@ final class MainLayout
 			return true;
 		    return super.onSystemEvent(event);
 		}
-		@Override public Action[] getAreaActions()
+				@Override public boolean onAreaQuery(AreaQuery query)
+		{
+		    NullCheck.notNull(query, "query");
+		    if (app.onAreaQuery(this, query))
+			return true;
+		    return super.onAreaQuery(query);
+		}
+		    		@Override public Action[] getAreaActions()
 		{
 		    return new Action[0];
 		}
@@ -108,7 +123,20 @@ final class MainLayout
 			return true;
 		    return super.onSystemEvent(event);
 		}
+				@Override public boolean onAreaQuery(AreaQuery query)
+		{
+		    NullCheck.notNull(query, "query");
+		    if (app.onAreaQuery(this, query))
+			return true;
+		    return super.onAreaQuery(query);
+		}		    
 	    };
+    }
+
+    private boolean actAddPlaylist()
+    {
+	final Album.Type type = app.getConv().newAlbumType();
+	return true;
     }
 
     private ListArea.Params createAlbumsParams()
@@ -117,7 +145,7 @@ final class MainLayout
 	params.context = new DefaultControlContext(app.getLuwrain());
 	params.model = app.getAlbums();
 	params.name = app.getStrings().treeAreaName();
-	//	params.clickHandler = clickHandler;
+	params.clickHandler = (area, index, obj)->app.getHooks().onAlbumPlay(obj);
 	params.appearance = new ListUtils.DoubleLevelAppearance(params.context){
 		@Override public boolean isSectionItem(Object item)
 		{
