@@ -34,7 +34,7 @@ final class Album extends EmptyHookObject implements Comparable
     private String title = "";
 
     @SerializedName("props")
-        private Properties props = null;
+    private Properties props = new Properties();
 
     @Override public Object getMember(String name)
     {
@@ -46,7 +46,7 @@ final class Album extends EmptyHookObject implements Comparable
 	case "type":
 	    return getType().toString().toLowerCase();
 	case "properties":
-	    return new PropertiesHookObject(props);
+	    return new PropertiesHookObject(getProps());
 	default:
 	    return super.getMember(name);
 	}

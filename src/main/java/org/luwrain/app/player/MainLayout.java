@@ -44,11 +44,10 @@ final class MainLayout
 		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
-		    /*
-		    if (app.getLuwrain().xRunHooks("luwrain.app.player.areas.albums.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), selected()}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
+		    if (app.getHooks().onAlbumsInput(event, selected()))
 			return true;
-		    */
-		    if (event.isSpecial() && !event.isModified())
+		    		    if (app.getLuwrain().xRunHooks("luwrain.app.player.areas.albums.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), selected()}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
+			return true;
 			if (app.onInputEvent(this, event))
 			    return true;
 		    return super.onInputEvent( event);

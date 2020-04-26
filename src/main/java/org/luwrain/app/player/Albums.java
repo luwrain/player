@@ -68,7 +68,6 @@ this.albumsFile = new File(dataDir, "albums.json");
 
         private void save() throws IOException
     {
-	this.albums.clear();
 	final BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(albumsFile)));
 	try {
 	    gson.toJson(albums, w);
