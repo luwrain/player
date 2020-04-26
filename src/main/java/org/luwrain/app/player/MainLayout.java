@@ -44,8 +44,10 @@ final class MainLayout
 		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
+		    /*
 		    if (app.getLuwrain().xRunHooks("luwrain.app.player.areas.albums.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), selected()}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
 			return true;
+		    */
 		    if (event.isSpecial() && !event.isModified())
 			if (app.onInputEvent(this, event))
 			    return true;
@@ -63,13 +65,14 @@ final class MainLayout
 		    return new Action[0];
 		}
 	    };
-
 	this.playlistArea = new ListArea(createPlaylistParams()){
 		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
+		    /*
 		    if (app.getLuwrain().xRunHooks("luwrain.app.player.areas.playlist.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), null}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
 			return true;
+		    */
 		    if (app.onInputEvent(this, event))
 			return true;
 		    return super.onInputEvent(event);
@@ -86,18 +89,19 @@ final class MainLayout
 		    return new Action[0];
 		}
 	    };
-
 	final ControlArea.Callback controlCallback = new ControlArea.Callback(){};
 	this.controlArea = new ControlArea(app.getLuwrain(), controlCallback, app.getStrings(), "ПАУЗА", "СТОП"){
 		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
 		    NullCheck.notNull(event, "event");
+		    /*
 		    if (app.getLuwrain().xRunHooks("luwrain.app.player.areas.control.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event)}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
 			return true;
+		    */
 		    if (app.onInputEvent(this, event))
 			return true;
 		    return super.onInputEvent(event);
-			}
+		}
 		@Override public boolean onSystemEvent(EnvironmentEvent event)
 		{
 		    NullCheck.notNull(event, "event");
@@ -122,7 +126,7 @@ final class MainLayout
 		    return (item instanceof String);
 		}
 	    };
-		params.transition = new ListUtils.DoubleLevelTransition(params.model){
+	params.transition = new ListUtils.DoubleLevelTransition(params.model){
 		@Override public boolean isSectionItem(Object item)
 		{
 		    NullCheck.notNull(item, "item");
@@ -143,30 +147,30 @@ final class MainLayout
 	return params;
     }
 
-                int getPlaylistLen()
+    private int getPlaylistLen()
     {
 	if (!player.hasPlaylist())
 	    return 0;
 	return player.getPlaylist().getTrackCount();
     }
 
-
-        String[] getPlaylistUrls()
+    private String[] getPlaylistUrls()
     {
 	if (!player.hasPlaylist())
 	    return new String[0];
 	return player.getPlaylist().getTracks();
     }
 
-        String getTrackTextAppearance(String trackUrl)
+    private String getTrackTextAppearance(String trackUrl)
     {
 	NullCheck.notNull(trackUrl, "trackUrl");
 	return Utils.getTrackTextAppearanceWithMap(trackUrl, app.trackInfoMap);
     }
 
-
-
-
+    AreaLayout getLayout()
+    {
+	return new AreaLayout(AreaLayout.LEFT_TOP_BOTTOM, albumsArea, playlistArea, controlArea);
+    }
 
     private class PlaylistModel implements EditableListArea.EditableModel
     {

@@ -19,6 +19,10 @@ package org.luwrain.app.player;
 import java.util.*;
 import java.io.*;
 import java.net.*;
+import java.lang.reflect.*;
+
+import com.google.gson.*;
+import com.google.gson.reflect.*;
 
 import org.luwrain.core.*;
 import org.luwrain.controls.*;
@@ -26,52 +30,56 @@ import org.luwrain.controls.*;
 final class Albums implements ListArea.Model
 {
     static private final String LOG_COMPONENT = App.LOG_COMPONENT;
+    	static final Type ALBUM_LIST_TYPE = new TypeToken<List<Album>>(){}.getType();
 
-    private final Registry registry;
+    private final Gson gson = new Gson();
+    private final Luwrain luwrain;
+    private final File albumsFile;
+    private final List<Album> albums = new Vector();
 
-    Albums(Registry registry)
+    Albums(Luwrain luwrain) throws IOException
     {
-	NullCheck.notNull(registry, "registry");
-	this.registry = registry;
+	NullCheck.notNull(luwrain, "luwrain");
+	this.luwrain = luwrain;
+		final File dataDir = luwrain.getAppDataDir(App.DATA_DIR_NAME).toFile();
+this.albumsFile = new File(dataDir, "albums.json");
+	load();
     }
 
-    Album[] loadRegistryAlbums()
+    private void load() throws IOException
     {
-	final List<Album> res = new LinkedList();
-	registry.addDirectory(Settings.ALBUMS_PATH);
-	for(String s: registry.getDirectories(Settings.ALBUMS_PATH))
-	{
-	    final String path = Registry.join(Settings.ALBUMS_PATH, s);
-	    final Album album = loadAlbum(path);
-	    if (album != null)
-		res.add(album);
+	this.albums.clear();
+	if (!albumsFile.exists() || !albumsFile.isFile())
+	    return;
+	final List<Album> res;
+	final BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(albumsFile)));
+	try {
+	 res = gson.fromJson(r, ALBUM_LIST_TYPE);
 	}
-	return res.toArray(new Album[res.size()]);
+    finally {
+	r.close();
     }
+	if (res == null)
+	    return;
+	for(Album a: res)
+	    if (a != null)
+		this.albums.add(a);
+		        }
 
-    private Album loadAlbum(String path)
+        private void save() throws IOException
     {
-	NullCheck.notEmpty(path, "path");
-	Log.debug(LOG_COMPONENT, "loading album from " + path);
-	final Settings.Album sett = Settings.createAlbum(registry, path);
-	final String typeStr = sett.getType("");
-	final Album.Type type;
-	switch(typeStr)
-	{
-	case Settings.TYPE_DIR:
-	    type = Album.Type.DIR;
-	    break;
-	case Settings.TYPE_STREAMING:
-	    type = Album.Type.STREAMING;
-	    break;
-	default:
-	    Log.warning(LOG_COMPONENT, "the album of the unknown type \'" + typeStr + "\' in " + path);
-	    return null;
+	this.albums.clear();
+	final BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(albumsFile)));
+	try {
+	    gson.toJson(albums, w);
+	    w.flush();
 	}
-	return new Album(type, sett.getTitle(""), Settings.decodeProperties(sett.getProperties("")), path);
-    }
+	finally {
+	    w.close();
+	}
+		        }
 
-    //Returns the path of the newly created album or null in the case of any error
+    /*
     static String addAlbum(Registry registry, Album.Type type, String title)
     {
 	NullCheck.notNull(registry, "registry");
@@ -103,15 +111,16 @@ final class Albums implements ListArea.Model
 	NullCheck.notEmpty(path, "path");
 	registry.deleteDirectory(path);
     }
+    */
 
     @Override public int getItemCount()
     {
-	return 0;
+	return albums.size();
     }
 
     @Override public Object getItem(int index)
     {
-	return "123";
+	return albums.get(index);
     }
 
     @Override public void refresh()

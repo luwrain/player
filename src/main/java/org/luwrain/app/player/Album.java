@@ -16,6 +16,8 @@
 
 package org.luwrain.app.player;
 
+import com.google.gson.annotations.*;
+
 import java.util.*;
 
 import org.luwrain.core.*;
@@ -23,24 +25,16 @@ import org.luwrain.script.*;
 
 final class Album extends EmptyHookObject implements Comparable
 {
-    enum Type {STREAMING, DIR, M3U};
+    enum Type {STREAMING, DIR, M3U, UNKNOWN};
 
-        final Type type;
-    final String title;
-        final Properties props;
-    final String registryPath;
+    @SerializedName("type")
+    private String type = "";
 
-    Album(Type type, String title, Properties props, String registryPath)
-    {
-	NullCheck.notNull(type, "type");
-	NullCheck.notNull(title, "title");
-	NullCheck.notNull(props, "props");
-			NullCheck.notEmpty(registryPath, "registryPath");
-	this.type = type;
-	this.title = title;
-	this.props = props;
-	this.registryPath = registryPath;
-    }
+    @SerializedName("title")
+    private String title = "";
+
+    @SerializedName("props")
+        private Properties props = null;
 
     @Override public Object getMember(String name)
     {
@@ -50,7 +44,7 @@ final class Album extends EmptyHookObject implements Comparable
 	case "title":
 	    return getTitle();
 	case "type":
-	    return type.toString().toLowerCase();
+	    return getType().toString().toLowerCase();
 	case "properties":
 	    return new PropertiesHookObject(props);
 	default:
@@ -60,15 +54,46 @@ final class Album extends EmptyHookObject implements Comparable
 
     String getTitle()
     {
-	return title;
+	return title != null?title:"";
     }
 
-    /*
-    org.luwrain.player.Playlist toPlaylist()
+    void setTitle(String title)
     {
-	return null;
+	NullCheck.notNull(title, "title");
+	this.title = title;
     }
-    */
+
+    Type getType()
+    {
+	if (type == null)
+	    return Type.UNKNOWN;
+	switch(type)
+	{
+	case "M3U":
+	    return Type.M3U;
+	case "DIR":
+	    return Type.DIR;
+	case "STREAMING":
+	    return Type.STREAMING;
+	default:
+	    return Type.UNKNOWN;
+	}
+    }
+
+    void setType(Type type)
+    {
+	NullCheck.notNull(type, "type");
+	if (type == Type.UNKNOWN)
+	    throw new IllegalArgumentException("type can't be equal to Type.UNKNOWN");
+	this.type = type.toString();
+    }
+
+    Properties getProps()
+    {
+	if (props == null)
+	    props = new Properties();
+	return props;
+    }
 
     @Override public int compareTo(Object o)
     {

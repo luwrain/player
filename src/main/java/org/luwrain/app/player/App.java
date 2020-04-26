@@ -28,14 +28,16 @@ import org.luwrain.template.*;
 
 class App extends AppBase<Strings> implements Application, MonoApp
 {
+    static final String DATA_DIR_NAME = "luwrain.player";
+    
     static final String LOG_COMPONENT = "player";
 
     private final String[] args;
 private org.luwrain.player.Player player = null;
         private Listener listener = null;
+    private MainLayout layout = null;
     final HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
     private Albums albums = null;
-
 
     App()
     {
@@ -48,13 +50,13 @@ private org.luwrain.player.Player player = null;
 	this.args = args.clone();
     }
 
-    @Override public boolean onAppInit()
+    @Override public boolean onAppInit() throws IOException
     {
-	this.albums = new Albums(getLuwrain().getRegistry());
-	player = getLuwrain().getPlayer();
+	this.albums = new Albums(getLuwrain());
+	this.player = getLuwrain().getPlayer();
 	if (player == null)
 	    return false;
-
+	this.layout = new MainLayout(this, this.player);
 	setAppName(getStrings().appName());
 	return true;
     }
@@ -64,13 +66,9 @@ private org.luwrain.player.Player player = null;
 	return this.albums;
     }
 
-
-
-
-
     @Override public AreaLayout getDefaultAreaLayout()
     {
-	return null;//layout.getLayout();
+	return this.layout.getLayout();
     }
 
     @Override public void closeApp()
