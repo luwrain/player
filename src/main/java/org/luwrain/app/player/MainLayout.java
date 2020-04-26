@@ -60,7 +60,7 @@ final class MainLayout extends LayoutBase
 			return true;
 		    return super.onSystemEvent(event);
 		}
-				@Override public boolean onAreaQuery(AreaQuery query)
+		@Override public boolean onAreaQuery(AreaQuery query)
 		{
 		    NullCheck.notNull(query, "query");
 		    if (app.onAreaQuery(this, query))
@@ -78,7 +78,7 @@ final class MainLayout extends LayoutBase
 		    NullCheck.notNull(event, "event");
 		    /*
 		      if (app.getLuwrain().xRunHooks("luwrain.app.player.areas.playlist.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), null}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
-			return true;
+		      return true;
 		    */
 		    if (app.onInputEvent(this, event))
 			return true;
@@ -91,14 +91,14 @@ final class MainLayout extends LayoutBase
 			return true;
 		    return super.onSystemEvent(event);
 		}
-				@Override public boolean onAreaQuery(AreaQuery query)
+		@Override public boolean onAreaQuery(AreaQuery query)
 		{
 		    NullCheck.notNull(query, "query");
 		    if (app.onAreaQuery(this, query))
 			return true;
 		    return super.onAreaQuery(query);
 		}
-		    		@Override public Action[] getAreaActions()
+		@Override public Action[] getAreaActions()
 		{
 		    return new Action[0];
 		}
@@ -109,8 +109,8 @@ final class MainLayout extends LayoutBase
 		{
 		    NullCheck.notNull(event, "event");
 		    /*
-		    if (app.getLuwrain().xRunHooks("luwrain.app.player.areas.control.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event)}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
-			return true;
+		      if (app.getLuwrain().xRunHooks("luwrain.app.player.areas.control.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event)}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
+		      return true;
 		    */
 		    if (app.onInputEvent(this, event))
 			return true;
@@ -123,7 +123,7 @@ final class MainLayout extends LayoutBase
 			return true;
 		    return super.onSystemEvent(event);
 		}
-				@Override public boolean onAreaQuery(AreaQuery query)
+		@Override public boolean onAreaQuery(AreaQuery query)
 		{
 		    NullCheck.notNull(query, "query");
 		    if (app.onAreaQuery(this, query))
