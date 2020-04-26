@@ -1,18 +1,3 @@
-/*
-   Copyright 2012-2019 Michael Pozhidaev <msp@luwrain.org>
-
-   This file is part of LUWRAIN.
-
-   LUWRAIN is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public
-   License as published by the Free Software Foundation; either
-   version 3 of the License, or (at your option) any later version.
-
-   LUWRAIN is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-*/
 
 package org.luwrain.app.player;
 
@@ -24,261 +9,57 @@ import org.luwrain.core.*;
 import org.luwrain.core.events.*;
 import org.luwrain.controls.*;
 import org.luwrain.player.*;
-import org.luwrain.popups.*;
+import org.luwrain.template.*;
 
-class App implements Application, MonoApp
+class App extends AppBase<Strings> implements Application, MonoApp
 {
-    private Luwrain luwrain = null;
-    private Strings strings = null;
-    private Base base = null;
-    private Actions actions = null;
-    private ActionLists actionLists = null;
+    static final String LOG_COMPONENT = "player";
 
-    private ListArea albumsArea = null;
-    private ListArea playlistArea = null;
-    private ControlArea controlArea = null;
-    private AreaLayoutHelper layout = null;
+    private final String[] args;
+private org.luwrain.player.Player player = null;
+        private Listener listener = null;
+    private HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
+    private Albums albums = null;
 
-    private final Album startingAlbum;
 
     App()
     {
-	startingAlbum = null;
+	this(null);
     }
 
     App(String[] args)
     {
-	startingAlbum = null;
+	super(Strings.NAME, Strings.class);
+	this.args = args.clone();
     }
 
-    @Override public InitResult onLaunchApp(Luwrain luwrain)
+    @Override public boolean onAppInit()
     {
-	NullCheck.notNull(luwrain, "luwrain");
-	final Object o = luwrain.i18n().getStrings(Strings.NAME);
-	if (o == null || !(o instanceof Strings))
-	    return new InitResult(InitResult.Type.NO_STRINGS_OBJ, Strings.NAME);
-	strings = (Strings)o;
-	this.luwrain = luwrain;
-	this.base = new Base(luwrain, strings);
-	if (base.player == null)
-	    return new InitResult(InitResult.Type.FAILURE);
-	this.actions = new Actions(luwrain, base, strings);
-	this.actionLists = new ActionLists(strings);
-	createAreas();
-	this.layout = new AreaLayoutHelper(()->{
-		luwrain.onNewAreaLayout();
-		luwrain.announceActiveArea();
-	    }, new AreaLayout(AreaLayout.LEFT_RIGHT_BOTTOM, albumsArea, playlistArea, controlArea));
-	base.setListener(playlistArea, controlArea);
-	/*FIXME:
-	if (base.getCurrentPlaylist() != null)
-	    base.setNewCurrentPlaylist(playlistArea, base.getCurrentPlaylist());
-	*/
-	return new InitResult();
-    }
-
-    private void createAreas()
-    {
-	this.albumsArea = new ListArea(base.createAlbumsListParams((area, index, obj)->actions.onAlbumClick(playlistArea, obj))){
-		@Override public boolean onInputEvent(KeyboardEvent event)
-		{
-		    NullCheck.notNull(event, "event");
-		    if (luwrain.xRunHooks("luwrain.app.player.areas.albums.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), selected()}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
-			return true;
-		    if (event.isSpecial() && !event.isModified())
-			switch(event.getSpecial())
-			{
-			case TAB:
-			    {
-				final Area nextArea = getAreaLayout().getNextArea(this);
-				if (nextArea == null)
-				    return false;
-				luwrain.setActiveArea(nextArea);
-				return true;
-			    }
-			}
-		    return super.onInputEvent(event);
-		}
-		@Override public boolean onSystemEvent(EnvironmentEvent event)
-		{
-		    NullCheck.notNull(event, "event");
-		    if (event.getType() != EnvironmentEvent.Type.REGULAR)
-			return super.onSystemEvent(event);
-		    switch(event.getCode())
-		    {
-		    case CLOSE:
-			closeApp();
-			return true;
-		    case ACTION:
-			if (ActionEvent.isAction(event, "add-playlist"))
-			    return actions.onAddAlbum(this);
-			if (ActionEvent.isAction(event, "delete-playlist"))
-			    return actions.onDeleteAlbum(this);
-			return false;
-		    case PROPERTIES:
-			return onPlaylistProps();
-		    default:
-			return super.onSystemEvent(event);
-		    }
-		}
-		@Override public Action[] getAreaActions()
-		{
-		    return actionLists.getPlaylistsActions();
-		}
-	    };
-
-	this.playlistArea = new ListArea(base.createPlaylistParams((area, index, obj)->base.playPlaylistItem(index))){
-		@Override public boolean onInputEvent(KeyboardEvent event)
-		{
-		    NullCheck.notNull(event, "event");
-		    if (luwrain.xRunHooks("luwrain.app.player.areas.playlist.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), null}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
-			return true;
-		    if (event.isSpecial() && !event.isModified())
-			switch(event.getSpecial())
-			{
-			case TAB:
-			    luwrain.setActiveArea(controlArea);
-			    return true;
-			case BACKSPACE:
-			    luwrain.setActiveArea(albumsArea);
-			    return true;
-			}
-		    return super.onInputEvent(event);
-		}
-		@Override public boolean onSystemEvent(EnvironmentEvent event)
-		{
-		    NullCheck.notNull(event, "event");
-		    switch(event.getCode())
-		    {
-		    case ACTION:
-			return false;
-		    case CLOSE:
-			closeApp();
-			return true;
-		    default:
-			return super.onSystemEvent(event);
-		    }
-		}
-		@Override public Action[] getAreaActions()
-		{
-		    return actionLists.getPlaylistActions();
-		}
-	    };
-
-	final ControlArea.Callback controlCallback = new ControlArea.Callback(){};
-	this.controlArea = new ControlArea(luwrain, controlCallback, strings, "ПАУЗА", "СТОП"){
-		@Override public boolean onInputEvent(KeyboardEvent event)
-		{
-		    NullCheck.notNull(event, "event");
-		    if (luwrain.xRunHooks("luwrain.app.player.areas.control.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event)}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
-			return true;
-		    if (event.isSpecial() && !event.isModified())
-			switch(event.getSpecial())
-			{
-			case TAB:
-			    luwrain.setActiveArea(albumsArea);
-			    return true;
-			case BACKSPACE:
-			    luwrain.setActiveArea(playlistArea);
-			    return true;
-			}
-		    return super.onInputEvent(event);
-		}
-		@Override public boolean onSystemEvent(EnvironmentEvent event)
-		{
-		    NullCheck.notNull(event, "event");
-		    if (event.getType() != EnvironmentEvent.Type.REGULAR)
-			return super.onSystemEvent(event);
-		    switch(event.getCode())
-		    {
-		    case CLOSE:
-			closeApp();
-			return true;
-		    default:
-			return super.onSystemEvent(event);
-		    }
-		}
-	    };
-    }
-
-    private boolean onPlaylistProps()
-    {
-	final Object obj = albumsArea.selected();
-	if (obj == null || !(obj instanceof Playlist))
+	this.albums = new Albums(getLuwrain().getRegistry());
+	player = getLuwrain().getPlayer();
+	if (player == null)
 	    return false;
-	final Album playlist = (Album)obj;
-	final FormArea area = new FormArea(new DefaultControlContext(luwrain), strings.playlistPropertiesAreaName()) {
-		@Override public boolean onInputEvent(KeyboardEvent event)
-		{
-		    NullCheck.notNull(event, "event");
-		    if (event.isSpecial() && !event.isModified())
-			switch(event.getSpecial())
-			{
-			case ESCAPE:
-			    layout.closeTempLayout();
-			    return true;
-			}
-		    return super.onInputEvent(event);
-		}
-		@Override public boolean onSystemEvent(EnvironmentEvent event)
-		{
-		    NullCheck.notNull(event, "event");
-		    if (event.getType() != EnvironmentEvent.Type.REGULAR)
-			return super.onSystemEvent(event);
-		    switch(event.getCode())
-		    {
-		    case CLOSE:
-			closeApp();
-		    case OK:
-			{
-			    final String title = getEnteredText("title").trim();
-			    if (title.isEmpty())
-			    {
-				luwrain.message("Название не может быть пустым", Luwrain.MessageType.ERROR);
-				return true;
-			    }
-			    //playlist.sett.setTitle(title);
-			    albumsArea.refresh();
-			    layout.closeTempLayout();
-			    return true;
-			}
-		    default:
-			return super.onSystemEvent(event);
-		    }
-		}
-	    };
-	area.addEdit("title", strings.playlistPropertiesAreaTitle(), playlist.getTitle());
-	/*
-	  if (playlist.sett instanceof Settings.DirectoryPlaylist)
-	  {
-	  final Settings.DirectoryPlaylist sett = (Settings.DirectoryPlaylist)playlist.sett;
-	  area.addEdit("path", "Каталог с файлами:", sett.getPath(""));
-	  }
-	  if (playlist.sett instanceof Settings.StreamingPlaylist)
-	  {
-	    final Settings.StreamingPlaylist sett = (Settings.StreamingPlaylist)playlist.sett;
-	    area.addEdit("url", "URL потока вещания:", sett.getUrl(""));//FIXME:
-	}
-	*/
-	layout.openTempArea(area);
+
+	setAppName(getStrings().appName());
 	return true;
     }
 
-    @Override public String getAppName()
+    Albums getAlbums()
     {
-	return strings.appName();
+	return this.albums;
     }
 
-    @Override public AreaLayout getAreaLayout()
+    @Override public AreaLayout getDefaultAreaLayout()
     {
-	return layout.getLayout();
+	return null;//layout.getLayout();
     }
 
     @Override public void closeApp()
     {
-	base.removeListener();
-	luwrain.closeApp();
+	this.player.removeListener(this.listener);
+	super.closeApp();
     }
+
 
     @Override public MonoApp.Result onMonoAppSecondInstance(Application app)
     {
@@ -286,3 +67,66 @@ class App implements Application, MonoApp
 	return MonoApp.Result.BRING_FOREGROUND;
     }
 }
+    /*
+
+    boolean playPlaylistItem(int index)
+    {
+	if (!player.hasPlaylist())
+	    return false;
+	if (index < 0 || index >= getPlaylistLen())
+	    return false;
+	player.play(player.getPlaylist(), index, 0, org.luwrain.player.Player.DEFAULT_FLAGS, null);
+	return true;
+    }
+
+    boolean isStreamingPlaylist()
+    {
+	return false;
+    }
+
+    boolean onAddStreamingPlaylist()
+    {
+	return false;
+    }
+
+    String getCurrentPlaylistTitle()
+    {
+	if (!player.hasPlaylist())
+	    return "";
+	//	return player.getPlaylist().getPlaylistTitle();
+	return "FIXME:Playlist title";
+    }
+
+    String getCurrentTrackTitle()
+    {
+	if (isEmptyPlaylist())
+	    return "";
+	final String res = getPlaylistUrls()[player.getTrackNum()];
+	return res != null?res:"";
+    }
+
+    boolean isEmptyPlaylist()
+    {
+	return !player.hasPlaylist();
+    }
+
+    String[] getPlaylistUrls()
+    {
+	if (!player.hasPlaylist())
+	    return new String[0];
+	return player.getPlaylist().getTracks();
+    }
+
+    int getPlaylistLen()
+    {
+	if (!player.hasPlaylist())
+	    return 0;
+	return player.getPlaylist().getTrackCount();
+    }
+
+    private void setNewCurrentPlaylist(ListArea area, org.luwrain.player.Playlist playlist)
+    {
+	NullCheck.notNull(area, "area");
+	NullCheck.notNull(playlist, "playlist");
+
+    */

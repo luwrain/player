@@ -1,18 +1,3 @@
-/*
-   Copyright 2012-2019 Michael Pozhidaev <msp@luwrain.org>
-
-   This file is part of LUWRAIN.
-
-   LUWRAIN is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public
-   License as published by the Free Software Foundation; either
-   version 3 of the License, or (at your option) any later version.
-
-   LUWRAIN is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-*/
 
 package org.luwrain.app.player;
 
@@ -21,19 +6,17 @@ import java.io.*;
 import java.net.*;
 
 import org.luwrain.core.*;
+import org.luwrain.controls.*;
 
-final class Albums
+final class Albums implements ListArea.Model
 {
-    static private final String LOG_COMPONENT = Base.LOG_COMPONENT;
+    static private final String LOG_COMPONENT = App.LOG_COMPONENT;
 
-    private final Base base;
     private final Registry registry;
 
-    Albums(Base base, Registry registry)
+    Albums(Registry registry)
     {
-	NullCheck.notNull(base, "base");
 	NullCheck.notNull(registry, "registry");
-	this.base = base;
 	this.registry = registry;
     }
 
@@ -104,5 +87,19 @@ final class Albums
 	NullCheck.notNull(registry, "registry");
 	NullCheck.notEmpty(path, "path");
 	registry.deleteDirectory(path);
+    }
+
+    @Override public int getItemCount()
+    {
+	return 0;
+    }
+
+    @Override public Object getItem(int index)
+    {
+	return "123";
+    }
+
+    @Override public void refresh()
+    {
     }
 }

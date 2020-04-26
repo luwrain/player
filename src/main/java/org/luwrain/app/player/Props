@@ -1,0 +1,63 @@
+/*
+    private boolean onPlaylistProps()
+    {
+	final Object obj = albumsArea.selected();
+	if (obj == null || !(obj instanceof Playlist))
+	    return false;
+	final Album playlist = (Album)obj;
+	final FormArea area = new FormArea(new DefaultControlContext(luwrain), strings.playlistPropertiesAreaName()) {
+		@Override public boolean onInputEvent(KeyboardEvent event)
+		{
+		    NullCheck.notNull(event, "event");
+		    if (event.isSpecial() && !event.isModified())
+			switch(event.getSpecial())
+			{
+			case ESCAPE:
+			    layout.closeTempLayout();
+			    return true;
+			}
+		    return super.onInputEvent(event);
+		}
+		@Override public boolean onSystemEvent(EnvironmentEvent event)
+		{
+		    NullCheck.notNull(event, "event");
+		    if (event.getType() != EnvironmentEvent.Type.REGULAR)
+			return super.onSystemEvent(event);
+		    switch(event.getCode())
+		    {
+		    case CLOSE:
+			closeApp();
+		    case OK:
+			{
+			    final String title = getEnteredText("title").trim();
+			    if (title.isEmpty())
+			    {
+				luwrain.message("Название не может быть пустым", Luwrain.MessageType.ERROR);
+				return true;
+			    }
+			    //playlist.sett.setTitle(title);
+			    albumsArea.refresh();
+			    layout.closeTempLayout();
+			    return true;
+			}
+		    default:
+			return super.onSystemEvent(event);
+		    }
+		}
+	    };
+	area.addEdit("title", strings.playlistPropertiesAreaTitle(), playlist.getTitle());
+	/*
+	  if (playlist.sett instanceof Settings.DirectoryPlaylist)
+	  {
+	  final Settings.DirectoryPlaylist sett = (Settings.DirectoryPlaylist)playlist.sett;
+	  area.addEdit("path", "Каталог с файлами:", sett.getPath(""));
+	  }
+	  if (playlist.sett instanceof Settings.StreamingPlaylist)
+	  {
+	    final Settings.StreamingPlaylist sett = (Settings.StreamingPlaylist)playlist.sett;
+	    area.addEdit("url", "URL потока вещания:", sett.getUrl(""));//FIXME:
+	}
+	*/
+	layout.openTempArea(area);
+	return true;
+    }

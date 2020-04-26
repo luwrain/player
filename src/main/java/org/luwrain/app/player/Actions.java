@@ -25,22 +25,11 @@ import org.luwrain.popups.Popups;
 
 final class Actions
 {
-    private final Luwrain luwrain;
-    private final Base base;
-    private final Strings strings;
-    final Conversations conv;
+    private final Luwrain luwrain = null;
+    private final Strings strings = null;
+    final Conversations conv = null;
 
-    Actions(Luwrain luwrain, Base base, Strings strings)
-    {
-	NullCheck.notNull(luwrain, "luwrain");
-	NullCheck.notNull(base, "base");
-	NullCheck.notNull(strings, "strings");
-	this.luwrain = luwrain;
-	this.strings = strings;
-	this.base = base;
-	this.conv = new Conversations(luwrain, strings);
-    }
-
+    /*
     boolean onAddAlbum(ListArea listArea)
     {
 	NullCheck.notNull(listArea, "listArea");
@@ -83,4 +72,5 @@ final class Actions
 	    return true;
 	}
     }
+    */
 }
