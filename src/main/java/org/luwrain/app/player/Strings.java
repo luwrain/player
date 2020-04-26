@@ -54,5 +54,6 @@ static final String NAME = "luwrain.player";
     String newAlbumTitle();
     String albumDeletingPopupName();
     String albumDeletingPopupText(String albumName);
-    String actionAddPlaylist();
+    String actionAddAlbum();
+    String actionDeleteAlbum();
 }

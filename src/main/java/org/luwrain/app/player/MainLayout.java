@@ -42,7 +42,8 @@ final class MainLayout extends LayoutBase
 	this.player = player;
 	this.albumsArea = new ListArea(createAlbumsParams()){
 		final Actions actions = actions(
-						action("add-playlist", app.getStrings().actionAddPlaylist(), new KeyboardEvent(KeyboardEvent.Special.INSERT), MainLayout.this::actAddPlaylist)
+						action("add-album", app.getStrings().actionAddAlbum(), new KeyboardEvent(KeyboardEvent.Special.INSERT), MainLayout.this::actAddAlbum),
+												action("delete-album", app.getStrings().actionDeleteAlbum(), new KeyboardEvent(KeyboardEvent.Special.DELETE), MainLayout.this::actDeleteAlbum)
 						);
 		@Override public boolean onInputEvent(KeyboardEvent event)
 		{
@@ -133,11 +134,68 @@ final class MainLayout extends LayoutBase
 	    };
     }
 
-    private boolean actAddPlaylist()
+    private boolean actAddAlbum()
     {
 	final Album.Type type = app.getConv().newAlbumType();
+	if (type == null)
+	return true;
+	final String title = app.getConv().newAlbumTitle();
+	if (title == null)
+	    return true;
+			final Album album = new Album();
+		album.setType(type);
+		album.setTitle(title);
+	switch(type)
+	{
+	    case STREAMING:
+	    {
+		final String url = app.getConv().newStreamingAlbumUrl();
+		if (url == null)
+		    return true;
+		return true;
+	    }
+	case DIR:
+	    {
+		final File path = app.getConv().newDirAlbumPath();
+		if (path == null)
+		    return true;
+		album.getProps().setProperty("path", path.getAbsolutePath());
+		break;
+	    }
+	default:
+	    return true;
+	     }
+	try {
+	    app.getAlbums().add(album);
+	}
+	catch(IOException e)
+	{
+	    app.getLuwrain().crash(e);
+	    return true;
+	}
+	albumsArea.refresh();
 	return true;
     }
+
+    private boolean actDeleteAlbum()
+    {
+	final int index = albumsArea.selectedIndex();
+	if (index < 0)
+	    return false;
+	final Album album = app.getAlbums().getItem(index);
+	if (!app.getConv().confirmAlbumDeleting(album))
+	    return true;
+	try {
+	    app.getAlbums().delete(index);
+	}
+	catch(IOException e)
+	{
+	    app.getLuwrain().crash(e);
+	    return true;
+	}
+	albumsArea.refresh();
+	return true;
+		    }
 
     private ListArea.Params createAlbumsParams()
     {

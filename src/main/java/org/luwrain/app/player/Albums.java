@@ -78,46 +78,27 @@ this.albumsFile = new File(dataDir, "albums.json");
 	}
 		        }
 
-    /*
-    static String addAlbum(Registry registry, Album.Type type, String title)
+    void add(Album album) throws IOException
     {
-	NullCheck.notNull(registry, "registry");
-	NullCheck.notNull(type, "type");
-	NullCheck.notEmpty(title, "title");
-	registry.addDirectory(Settings.ALBUMS_PATH);
-	final int num = Registry.nextFreeNum(registry, Settings.ALBUMS_PATH);
-	final String path = Registry.join(Settings.ALBUMS_PATH, String.valueOf(num));
-	registry.addDirectory(path);
-	final Settings.Album sett = Settings.createAlbum(registry, path);
-	switch(type)
-	{
-	case DIR:
-	    sett.setType(Settings.TYPE_DIR);
-	    break;
-	case STREAMING:
-	    sett.setType(Settings.TYPE_STREAMING);
-	    break;
-	default:
-	    return null;
-	}
-	sett.setTitle(title);
-	return path;
+	NullCheck.notNull(album, "album");
+	albums.add(album);
+	save();
     }
 
-    static void deleteAlbum(Registry registry, String path)
+    void delete(int index) throws IOException
     {
-	NullCheck.notNull(registry, "registry");
-	NullCheck.notEmpty(path, "path");
-	registry.deleteDirectory(path);
+	if (index < 0 || index >= albums.size())
+	    throw new IllegalArgumentException("index (" + String.valueOf(index) + ") must be non-negative and less than " + String.valueOf(albums.size()));
+	albums.remove(index);
+	save();
     }
-    */
 
     @Override public int getItemCount()
     {
 	return albums.size();
     }
 
-    @Override public Object getItem(int index)
+    @Override public Album getItem(int index)
     {
 	return albums.get(index);
     }

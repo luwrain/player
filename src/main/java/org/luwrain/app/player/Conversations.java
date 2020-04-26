@@ -50,9 +50,24 @@ final class Conversations
 	return null;
     }
 
-    boolean confirmAlbumDeleting(String title)
+    boolean confirmAlbumDeleting(Album album)
     {
-	NullCheck.notNull(title, "title");
-	return Popups.confirmDefaultNo(luwrain, strings.albumDeletingPopupName(), strings.albumDeletingPopupText(title));
+	NullCheck.notNull(album, "album");
+	return Popups.confirmDefaultNo(luwrain, strings.albumDeletingPopupName(), strings.albumDeletingPopupText(album.getTitle()));
+    }
+
+    String newAlbumTitle()
+    {
+	return Popups.textNotEmpty(luwrain, "Новы альбом", "Имя нового альбома:", "");
+    }
+
+    String newStreamingAlbumUrl()
+    {
+	return Popups.textNotEmpty(luwrain, "Новый альбом", "Адрес потока радиостанции:", "http://");
+    }
+
+    File newDirAlbumPath()
+    {
+	return Popups.existingDir(luwrain, "Новый альбом", "Каталог с файлами для нового альбома:");
     }
 }
