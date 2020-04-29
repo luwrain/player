@@ -1,24 +1,36 @@
 
 package org.luwrain.app.player;
 
+import java.util.*;
+
 import org.luwrain.core.*;
 
 final class AlbumItem
 {
     final String url;
-    final String title;
+    final Map<String, TrackInfo> trackInfoMap;
 
-    AlbumItem(String url, String title)
+    AlbumItem(String url, Map<String, TrackInfo> trackInfoMap)
     {
-	NullCheck.notNull(url, "url");
-	NullCheck.notNull(title, "title");
+	NullCheck.notEmpty(url, "url");
+	NullCheck.notNull(trackInfoMap, "trackInfoMap");
 	this.url = url;
-	this.title = title;
+	this.trackInfoMap = trackInfoMap;
+    }
+
+    String getTitle()
+    {
+	final TrackInfo info = trackInfoMap.get(url);
+	if (info == null)
+	    return url;
+	final StringBuilder b = new StringBuilder();
+	b.append(info.artist).append(" - ").append(info.title);
+	return new String(b);
     }
 
     @Override public String toString()
     {
-	return title;
+	return getTitle();
     }
 
     @Override public boolean equals(Object o)

@@ -17,8 +17,10 @@
 package org.luwrain.app.player;
 
 import java.util.*;
+import java.util.concurrent.*;
 import java.io.*;
-import java.nio.charset.*;
+import java.net.*;
+//import java.nio.charset.*;
 
 import org.luwrain.core.*;
 import org.luwrain.core.events.*;
@@ -36,7 +38,7 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
     private Conversations conv = null;
     private MainLayout layout = null;
     private Hooks hooks = null;
-    final HashMap<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
+    final Map<String, TrackInfo> trackInfoMap = new ConcurrentHashMap();
     private Albums albums = null;
 
     App()
@@ -62,6 +64,28 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
 	this.layout = new MainLayout(this, this.player);
 	setAppName(getStrings().appName());
 	return true;
+    }
+
+    void fillTrackInfoMap(Playlist playlist, ListArea listArea)
+    {
+	NullCheck.notNull(playlist, "playlist");
+	NullCheck.notNull(listArea, "listArea");
+	final String[] tracks = playlist.getTracks();
+	if (tracks == null || tracks.length == 0)
+	    return;
+	getLuwrain().executeBkg(new FutureTask(()->{
+		    for(String s: tracks)
+		    {
+			try {
+			    trackInfoMap.put(s, new TrackInfo(new URL(s)));
+			    getLuwrain().runUiSafely(()->listArea.refresh());
+			}
+			catch(IOException e)
+			{
+			    Log.warning(LOG_COMPONENT, "unable to get track info for " + s +  ":" + e.getClass().getName() + ":" + e.getMessage());
+			}
+		    }
+	}, null));
     }
 
     Albums getAlbums()

@@ -34,6 +34,8 @@ final class MainLayout extends LayoutBase
     private ListArea playlistArea = null;
     private ControlArea controlArea = null;
 
+    private AlbumItem[] tracks = new AlbumItem[0];
+
     MainLayout(App app, Player player)
     {
 	NullCheck.notNull(app, "app");
@@ -200,7 +202,13 @@ final class MainLayout extends LayoutBase
     void onNewPlaylist(Playlist  playlist)
     {
 	NullCheck.notNull(playlist, "playlist");
-
+	final String[]  urls = playlist.getTracks();
+	this.tracks = new AlbumItem[urls.length];
+	for(int i = 0;i < urls.length;i++)
+	    this.tracks[i] = new AlbumItem(urls[i], app.trackInfoMap);
+	app.fillTrackInfoMap(playlist, playlistArea);
+	playlistArea.reset(false);
+	playlistArea.refresh();
 			    /*
 		    if (Utils.isStreamingPlaylist(playlist))
 			controlArea.setMode(ControlArea.Mode.PLAYING_STREAMING); else
@@ -290,13 +298,13 @@ final class MainLayout extends LayoutBase
 	} 
 	@Override public Object getItem(int index)
 	{
-	    if (index < 0 || index >= getPlaylistLen())
+	    if (index < 0 || index >= tracks.length)
 		return "";
-	    return new AlbumItem(getPlaylistUrls()[index], getTrackTextAppearance(getPlaylistUrls()[index]));
+	    return tracks[index];
 	}
 	@Override public int getItemCount()
 	{
-	    return getPlaylistLen();
+	    return tracks.length;
 	}
     }
 }
