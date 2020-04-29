@@ -195,7 +195,21 @@ final class MainLayout extends LayoutBase
 	}
 	albumsArea.refresh();
 	return true;
-		    }
+    }
+
+    void onNewPlaylist(Playlist  playlist)
+    {
+	NullCheck.notNull(playlist, "playlist");
+
+			    /*
+		    if (Utils.isStreamingPlaylist(playlist))
+			controlArea.setMode(ControlArea.Mode.PLAYING_STREAMING); else
+			controlArea.setMode(ControlArea.Mode.PLAYING);
+		    //FIXME:controlArea.setPlaylistTitle(playlist.getPlaylistTitle());
+		    controlArea.setTrackTitle("");
+		    controlArea.setTrackTime(0);
+			    */
+    }
 
     private ListArea.Params createAlbumsParams()
     {
