@@ -44,10 +44,10 @@ final class MainLayout extends LayoutBase
 	this.player = player;
 	this.albumsArea = new ListArea(createAlbumsParams()){
 		final Actions actions = actions(
-						action("add-album", app.getStrings().actionAddAlbum(), new KeyboardEvent(KeyboardEvent.Special.INSERT), MainLayout.this::actAddAlbum),
-												action("delete-album", app.getStrings().actionDeleteAlbum(), new KeyboardEvent(KeyboardEvent.Special.DELETE), MainLayout.this::actDeleteAlbum)
+						action("add-album", app.getStrings().actionAddAlbum(), new InputEvent(InputEvent.Special.INSERT), MainLayout.this::actAddAlbum),
+												action("delete-album", app.getStrings().actionDeleteAlbum(), new InputEvent(InputEvent.Special.DELETE), MainLayout.this::actDeleteAlbum)
 						);
-		@Override public boolean onInputEvent(KeyboardEvent event)
+		@Override public boolean onInputEvent(InputEvent event)
 		{
 		    NullCheck.notNull(event, "event");
 		    if (app.getHooks().onAlbumsInput(event, selected()))
@@ -76,7 +76,7 @@ final class MainLayout extends LayoutBase
 		}
 	    };
 	this.playlistArea = new ListArea(createPlaylistParams()){
-		@Override public boolean onInputEvent(KeyboardEvent event)
+		@Override public boolean onInputEvent(InputEvent event)
 		{
 		    NullCheck.notNull(event, "event");
 		    /*
@@ -108,7 +108,7 @@ final class MainLayout extends LayoutBase
 	    };
 	final ControlArea.Callback controlCallback = new ControlArea.Callback(){};
 	this.controlArea = new ControlArea(app.getLuwrain(), controlCallback, app.getStrings(), "ПАУЗА", "СТОП"){
-		@Override public boolean onInputEvent(KeyboardEvent event)
+		@Override public boolean onInputEvent(InputEvent event)
 		{
 		    NullCheck.notNull(event, "event");
 		    /*

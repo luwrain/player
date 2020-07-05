@@ -36,7 +36,7 @@ final class Hooks
 	return luwrain.xRunHooks("luwrain.player.album.play", new Object[]{selected}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY);
     }
 
-    boolean onAlbumsInput(KeyboardEvent event, Object selected)
+    boolean onAlbumsInput(InputEvent event, Object selected)
     {
 	NullCheck.notNull(event, "event");
 	if (selected == null)
@@ -44,7 +44,7 @@ final class Hooks
 	return luwrain.xRunHooks("luwrain.app.player.areas.albums.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), selected}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY);
 	    }
 
-boolean onPlaylistInput(KeyboardEvent event, Object selected)
+boolean onPlaylistInput(InputEvent event, Object selected)
 {
     NullCheck.notNull(event, "event");
     if (selected == null)
@@ -52,7 +52,7 @@ boolean onPlaylistInput(KeyboardEvent event, Object selected)
     return luwrain.xRunHooks("luwrain.app.player.areas.playlist.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), selected}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY);
 	}
 
-boolean onControlInput(KeyboardEvent event)
+boolean onControlInput(InputEvent event)
 {
     NullCheck.notNull(event , "event");
     return luwrain.xRunHooks("luwrain.app.player.areas.control.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event)}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY);

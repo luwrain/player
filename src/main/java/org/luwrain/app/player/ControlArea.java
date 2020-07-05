@@ -139,7 +139,7 @@ interface Callback
     }
 
     /*
-    @Override public boolean onInputEvent(KeyboardEvent event)
+    @Override public boolean onInputEvent(InputEvent event)
     {
 	NullCheck.notNull(event, "event");
 	if (event.isSpecial() && !event.isModified())
@@ -162,7 +162,7 @@ interface Callback
     }
     */
 
-    private boolean onEnter(KeyboardEvent event)
+    private boolean onEnter(InputEvent event)
     {
 	return false;
     }
