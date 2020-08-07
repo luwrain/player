@@ -26,7 +26,7 @@ import org.luwrain.core.*;
 import org.luwrain.core.events.*;
 import org.luwrain.controls.*;
 import org.luwrain.player.*;
-import org.luwrain.template.*;
+import org.luwrain.app.base.*;
 
 class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.player.Listener
 {
@@ -48,7 +48,7 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
 
     App(String[] args)
     {
-	super(Strings.NAME, Strings.class);
+	super(Strings.NAME, Strings.class, "luwrain.player");
 	this.args = args.clone();
     }
 
