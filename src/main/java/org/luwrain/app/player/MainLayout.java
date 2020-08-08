@@ -30,7 +30,7 @@ final class MainLayout extends LayoutBase
 {
     private final App app;
     private final Player player;
-    private ListArea albumsArea = null;
+    private EditableListArea albumsArea = null;
     private ListArea playlistArea = null;
     private ControlArea controlArea = null;
 
@@ -42,7 +42,7 @@ final class MainLayout extends LayoutBase
 	NullCheck.notNull(player, "player");
 	this.app = app;
 	this.player = player;
-	this.albumsArea = new ListArea(createAlbumsParams()){
+	this.albumsArea = new EditableListArea(createAlbumsParams()){
 		final Actions actions = actions(
 						action("add-album", app.getStrings().actionAddAlbum(), new InputEvent(InputEvent.Special.INSERT), MainLayout.this::actAddAlbum),
 												action("delete-album", app.getStrings().actionDeleteAlbum(), new InputEvent(InputEvent.Special.DELETE), MainLayout.this::actDeleteAlbum)
@@ -219,9 +219,9 @@ final class MainLayout extends LayoutBase
 			    */
     }
 
-    private ListArea.Params createAlbumsParams()
+    private EditableListArea.Params createAlbumsParams()
     {
-	final ListArea.Params params = new ListArea.Params();
+	final EditableListArea.Params params = new EditableListArea.Params();
 	params.context = new DefaultControlContext(app.getLuwrain());
 	params.model = app.getAlbums();
 	params.name = app.getStrings().treeAreaName();
@@ -240,6 +240,19 @@ final class MainLayout extends LayoutBase
 		    return (item instanceof String);
 		}
 	    };
+	params.clipboardSaver = (area, model, appearance, fromIndex, toIndex, clipboard)->{
+	    final List<Album> a = new LinkedList();
+	    final List<String> s = new LinkedList();
+	    for(int i = fromIndex; i < toIndex;i++)
+	    {
+		final Album album = (Album)model.getItem(i);
+		a.add(album);
+		final String text = appearance.getScreenAppearance(album, EnumSet.noneOf(EditableListArea.Appearance.Flags.class));
+		s.add(text.substring(appearance.getObservableLeftBound(album), appearance.getObservableRightBound(album)));
+	    }
+	    clipboard.set(a.toArray(new Album[a.size()]), s.toArray(new String[s.size()]));
+	    return true;
+	};
 	return params;
     }
 
@@ -279,17 +292,18 @@ final class MainLayout extends LayoutBase
 	return new AreaLayout(AreaLayout.LEFT_TOP_BOTTOM, albumsArea, playlistArea, controlArea);
     }
 
-    private class PlaylistModel implements EditableListArea.EditableModel
+    private class PlaylistModel implements EditableListArea.Model
     {
-	@Override public boolean clearList()
+	@Override public boolean clearModel()
 	{
 	    return false;
 	}
-	@Override public boolean addToList(int pos,Clipboard clipboard)
+	@Override public boolean addToModel(int pos, java.util.function.Supplier supplier)
 	{
+	    NullCheck.notNull(supplier, "supplier");
 	    return false;
 	}
-	@Override public boolean removeFromList(int index)
+	@Override public boolean removeFromModel(int index)
 	{
 	    return false;
 	}

@@ -27,55 +27,37 @@ import com.google.gson.reflect.*;
 import org.luwrain.core.*;
 import org.luwrain.controls.*;
 
-final class Albums implements ListArea.Model
+final class Albums implements EditableListArea.Model
 {
     static private final String LOG_COMPONENT = App.LOG_COMPONENT;
-    	static final Type ALBUM_LIST_TYPE = new TypeToken<List<Album>>(){}.getType();
+    static final Type ALBUM_LIST_TYPE = new TypeToken<List<Album>>(){}.getType();
 
     private final Gson gson = new Gson();
     private final Luwrain luwrain;
-    private final File albumsFile;
-    private final List<Album> albums = new Vector();
+    private final Settings sett;
+    private final List<Album> albums = new ArrayList();
 
-    Albums(Luwrain luwrain) throws IOException
+    Albums(Luwrain luwrain)
     {
 	NullCheck.notNull(luwrain, "luwrain");
 	this.luwrain = luwrain;
-		final File dataDir = luwrain.getAppDataDir(App.DATA_DIR_NAME).toFile();
-this.albumsFile = new File(dataDir, "albums.json");
+	this.sett = Settings.create(luwrain.getRegistry());
 	load();
     }
 
-    private void load() throws IOException
+    private void load()
     {
 	this.albums.clear();
-	if (!albumsFile.exists() || !albumsFile.isFile())
-	    return;
-	final List<Album> res;
-	final BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(albumsFile)));
-	try {
-	 res = gson.fromJson(r, ALBUM_LIST_TYPE);
-	}
-    finally {
-	r.close();
-    }
+	final List<Album> res = gson.fromJson(sett.getAlbums(""), ALBUM_LIST_TYPE);
 	if (res == null)
 	    return;
-	for(Album a: res)
-	    if (a != null)
-		this.albums.add(a);
+	this.albums.addAll(res);
 		        }
 
-        private void save() throws IOException
+        private void save()
     {
-	final BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(albumsFile)));
-	try {
-	    gson.toJson(albums, w);
-	    w.flush();
-	}
-	finally {
-	    w.close();
-	}
+	final String value = gson.toJson(albums);
+	sett.setAlbums(value);
 		        }
 
     void add(Album album) throws IOException
@@ -91,6 +73,44 @@ this.albumsFile = new File(dataDir, "albums.json");
 	    throw new IllegalArgumentException("index (" + String.valueOf(index) + ") must be non-negative and less than " + String.valueOf(albums.size()));
 	albums.remove(index);
 	save();
+    }
+
+    @Override public boolean clearModel()
+    {
+	this.albums.clear();
+	save();
+	return true;
+    }
+
+    @Override public boolean addToModel(int pos, java.util.function.Supplier supplier)
+    {
+	NullCheck.notNull(supplier, "supplier");
+	final Object supplied = supplier.get();
+	if (supplied == null)
+	    return false;
+	final Object[] newObjs;
+	if (supplied instanceof Object[])
+	    newObjs = (Object[])supplied; else
+	    newObjs = new Object[]{supplied};
+	if (newObjs.length == 0)
+	    return false;
+	for(Object o: newObjs)
+	    if (!(o instanceof Album))
+	    {
+				Log.error(LOG_COMPONENT, "illegal class of album object: " + o.getClass().getName());
+
+		return false;
+	    }
+	    this.albums.addAll(pos, Arrays.asList(Arrays.copyOf(newObjs, newObjs.length, Album[].class)));
+	save();
+	return true;
+    }
+
+    @Override public boolean removeFromModel(int pos)
+    {
+	this.albums.remove(pos);
+	save();
+	return true;
     }
 
     @Override public int getItemCount()
