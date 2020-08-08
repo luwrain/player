@@ -25,10 +25,10 @@ import org.luwrain.script.*;
 
 final class Album extends EmptyHookObject implements Comparable
 {
-    enum Type {STREAMING, DIR, M3U, UNKNOWN};
+    enum Type {SECTION, STREAMING, DIR, M3U, UNKNOWN};
 
     @SerializedName("type")
-    private String type = "";
+    private Type type = null;
 
     @SerializedName("title")
     private String title = "";
@@ -65,27 +65,13 @@ final class Album extends EmptyHookObject implements Comparable
 
     Type getType()
     {
-	if (type == null)
-	    return Type.UNKNOWN;
-	switch(type)
-	{
-	case "M3U":
-	    return Type.M3U;
-	case "DIR":
-	    return Type.DIR;
-	case "STREAMING":
-	    return Type.STREAMING;
-	default:
-	    return Type.UNKNOWN;
-	}
+	return this.type;
     }
 
     void setType(Type type)
     {
 	NullCheck.notNull(type, "type");
-	if (type == Type.UNKNOWN)
-	    throw new IllegalArgumentException("type can't be equal to Type.UNKNOWN");
-	this.type = type.toString();
+	this.type = type;
     }
 
     Properties getProps()
@@ -93,6 +79,11 @@ final class Album extends EmptyHookObject implements Comparable
 	if (props == null)
 	    props = new Properties();
 	return props;
+    }
+
+    boolean isSection()
+    {
+	return this.type == Type.SECTION;
     }
 
     @Override public int compareTo(Object o)

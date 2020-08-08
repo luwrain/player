@@ -35,12 +35,15 @@ final class Conversations
 
     Album.Type newAlbumType()
     {
+	final String sect = strings.albumTypeSection();
 	final String dir = strings.albumTypeDir();
 	final String m3u = strings.albumTypeM3u();
 	final String streaming = strings.albumTypeStreaming();
-	final Object typeRes = Popups.fixedList(luwrain, strings.newAlbumTypePopupName(), new Object[]{dir, m3u, streaming});
+	final Object typeRes = Popups.fixedList(luwrain, strings.newAlbumTypePopupName(), new Object[]{sect, dir, streaming, m3u});
 	if (typeRes == null)
 	    return null;
+	if (typeRes == sect)
+	    return Album.Type.SECTION;
 	if (typeRes == dir)
 	    return Album.Type.DIR;
 	if (typeRes == m3u)
@@ -58,8 +61,14 @@ final class Conversations
 
     String newAlbumTitle()
     {
-	return Popups.textNotEmpty(luwrain, "Новы альбом", "Имя нового альбома:", "");
+	return Popups.textNotEmpty(luwrain, strings.newAlbumPopupName(), strings.newAlbumTitlePopupPrefix(), "");
     }
+
+        String newSectionTitle()
+    {
+	return Popups.textNotEmpty(luwrain, strings.newSectionPopupName(), strings.newSectionTitlePopupPrefix(), "");
+    }
+
 
     String newStreamingAlbumUrl()
     {

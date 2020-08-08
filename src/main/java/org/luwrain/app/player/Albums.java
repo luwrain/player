@@ -60,11 +60,18 @@ final class Albums implements EditableListArea.Model
 	sett.setAlbums(value);
 		        }
 
-    void add(Album album) throws IOException
+    int add(int pos, Album album)
     {
 	NullCheck.notNull(album, "album");
-	albums.add(album);
+	if (pos < 0 || pos >= albums.size())
+	{
+	    albums.add(album);
+	    	save();
+	    return albums.size() - 1;
+	}
+	albums.add(pos, album);
 	save();
+	return pos;
     }
 
     void delete(int index) throws IOException

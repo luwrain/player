@@ -44,8 +44,7 @@ final class MainLayout extends LayoutBase
 	this.player = player;
 	this.albumsArea = new EditableListArea(createAlbumsParams()){
 		final Actions actions = actions(
-						action("add-album", app.getStrings().actionAddAlbum(), new InputEvent(InputEvent.Special.INSERT), MainLayout.this::actAddAlbum),
-												action("delete-album", app.getStrings().actionDeleteAlbum(), new InputEvent(InputEvent.Special.DELETE), MainLayout.this::actDeleteAlbum)
+						action("add-album", app.getStrings().actionAddAlbum(), new InputEvent(InputEvent.Special.INSERT), MainLayout.this::actAddAlbum)
 						);
 		@Override public boolean onInputEvent(InputEvent event)
 		{
@@ -141,6 +140,19 @@ final class MainLayout extends LayoutBase
 	final Album.Type type = app.getConv().newAlbumType();
 	if (type == null)
 	return true;
+	if (type == Album.Type.SECTION)
+	{
+	    final Album album = new Album();
+	    album.setType(Album.Type.SECTION);
+	    final String title = app.getConv().newSectionTitle();
+	    if (title == null)
+		return true;
+	    album.setTitle(title);
+	    final int index = app.getAlbums().add(albumsArea.selectedIndex(), album);
+	    albumsArea.refresh();
+	    albumsArea.select(index, false);
+	    return true;
+	}
 	final String title = app.getConv().newAlbumTitle();
 	if (title == null)
 	    return true;
@@ -154,7 +166,8 @@ final class MainLayout extends LayoutBase
 		final String url = app.getConv().newStreamingAlbumUrl();
 		if (url == null)
 		    return true;
-		return true;
+				album.getProps().setProperty("url", url);
+				break;
 	    }
 	case DIR:
 	    {
@@ -167,35 +180,9 @@ final class MainLayout extends LayoutBase
 	default:
 	    return true;
 	     }
-	try {
-	    app.getAlbums().add(album);
-	}
-	catch(IOException e)
-	{
-	    app.getLuwrain().crash(e);
-	    return true;
-	}
-	albumsArea.refresh();
-	return true;
-    }
-
-    private boolean actDeleteAlbum()
-    {
-	final int index = albumsArea.selectedIndex();
-	if (index < 0)
-	    return false;
-	final Album album = app.getAlbums().getItem(index);
-	if (!app.getConv().confirmAlbumDeleting(album))
-	    return true;
-	try {
-	    app.getAlbums().delete(index);
-	}
-	catch(IOException e)
-	{
-	    app.getLuwrain().crash(e);
-	    return true;
-	}
-	albumsArea.refresh();
+	final int index = app.getAlbums().add(albumsArea.selectedIndex(), album);
+		albumsArea.refresh();
+		albumsArea.select(index, false);
 	return true;
     }
 
@@ -224,20 +211,30 @@ final class MainLayout extends LayoutBase
 	final EditableListArea.Params params = new EditableListArea.Params();
 	params.context = new DefaultControlContext(app.getLuwrain());
 	params.model = app.getAlbums();
-	params.name = app.getStrings().treeAreaName();
+	params.name = app.getStrings().albumsAreaName();
 	params.clickHandler = (area, index, obj)->app.getHooks().onAlbumPlay(obj);
 	params.appearance = new ListUtils.DoubleLevelAppearance(params.context){
 		@Override public boolean isSectionItem(Object item)
 		{
 		    NullCheck.notNull(item, "item");
-		    return (item instanceof String);
-		}
+		    if (item instanceof Album)
+		    {
+			final Album album = (Album)item;
+			return album.isSection();
+		    }
+		    return false;
+		    		}
 	    };
 	params.transition = new ListUtils.DoubleLevelTransition(params.model){
 		@Override public boolean isSectionItem(Object item)
 		{
 		    NullCheck.notNull(item, "item");
-		    return (item instanceof String);
+		    if (item instanceof Album)
+		    {
+			final Album album = (Album)item;
+			return album.isSection();
+		    }
+		    return false;
 		}
 	    };
 	params.clipboardSaver = (area, model, appearance, fromIndex, toIndex, clipboard)->{
