@@ -79,7 +79,7 @@ public final class Extension extends org.luwrain.core.extensions.EmptyExtension
 			    return null;//FIXME:message
 			player.play(new org.luwrain.player.Playlist(url.toString()), 0, 0, org.luwrain.player.Player.DEFAULT_FLAGS, null);
 		    }
-		    return null;
+		    return new Application[0];
 		}
 	    },
 
