@@ -1,5 +1,5 @@
 /*
-   Copyright 2012-2020 Michael Pozhidaev <msp@luwrain.org>
+   Copyright 2012-2021 Michael Pozhidaev <msp@luwrain.org>
 
    This file is part of LUWRAIN.
 
@@ -93,19 +93,16 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
 	return this.albums;
     }
 
-    Hooks getHooks()
-    {
-	return this.hooks;
-    }
-
-    Conversations getConv()
-    {
-	return conv;
-    }
 
     @Override public AreaLayout getDefaultAreaLayout()
     {
 	return this.layout.getLayout();
+    }
+
+    @Override public boolean onEscape(InputEvent event)
+    {
+	closeApp();
+	return true;
     }
 
     @Override public void closeApp()
@@ -171,9 +168,18 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
 		});
 	    */
 	}
-	
+
 	@Override public void onPlayingError(org.luwrain.player.Playlist playlist, Exception e)
 	{
 	}
 
+        Hooks getHooks()
+    {
+	return this.hooks;
+    }
+
+    Conversations getConv()
+    {
+	return conv;
+    }
 }
