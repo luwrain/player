@@ -148,7 +148,7 @@ final class MainLayout extends LayoutBase
 	    if (title == null)
 		return true;
 	    album.setTitle(title);
-	    final int index = app.getAlbums().add(albumsArea.selectedIndex(), album);
+	    final int index = app.getAlbums().addAlbum(albumsArea.selectedIndex(), album);
 	    albumsArea.refresh();
 	    albumsArea.select(index, false);
 	    return true;
@@ -180,7 +180,7 @@ final class MainLayout extends LayoutBase
 	default:
 	    return true;
 	     }
-	final int index = app.getAlbums().add(albumsArea.selectedIndex(), album);
+	final int index = app.getAlbums().addAlbum(albumsArea.selectedIndex(), album);
 		albumsArea.refresh();
 		albumsArea.select(index, false);
 	return true;
@@ -291,16 +291,12 @@ final class MainLayout extends LayoutBase
 
     private class PlaylistModel implements EditableListArea.Model
     {
-	@Override public boolean clearModel()
-	{
-	    return false;
-	}
 	@Override public boolean addToModel(int pos, java.util.function.Supplier supplier)
 	{
 	    NullCheck.notNull(supplier, "supplier");
 	    return false;
 	}
-	@Override public boolean removeFromModel(int index)
+	@Override public boolean removeFromModel(int indexFrom, int indexTo)
 	{
 	    return false;
 	}

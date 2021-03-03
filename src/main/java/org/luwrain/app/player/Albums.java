@@ -27,7 +27,7 @@ import com.google.gson.reflect.*;
 import org.luwrain.core.*;
 import org.luwrain.controls.*;
 
-final class Albums implements EditableListArea.Model
+final class Albums extends ArrayList<Album> implements EditableListArea.Model
 {
     static private final String LOG_COMPONENT = App.LOG_COMPONENT;
     static final Type ALBUM_LIST_TYPE = new TypeToken<List<Album>>(){}.getType();
@@ -35,7 +35,6 @@ final class Albums implements EditableListArea.Model
     private final Gson gson = new Gson();
     private final Luwrain luwrain;
     private final Settings sett;
-    private final List<Album> albums = new ArrayList();
 
     Albums(Luwrain luwrain)
     {
@@ -47,46 +46,39 @@ final class Albums implements EditableListArea.Model
 
     private void load()
     {
-	this.albums.clear();
+	clear();
 	final List<Album> res = gson.fromJson(sett.getAlbums(""), ALBUM_LIST_TYPE);
 	if (res == null)
 	    return;
-	this.albums.addAll(res);
+	addAll(res);
 		        }
 
         private void save()
     {
-	final String value = gson.toJson(albums);
+	final String value = gson.toJson(this);
 	sett.setAlbums(value);
 		        }
 
-    int add(int pos, Album album)
+    int addAlbum(int pos, Album album)
     {
 	NullCheck.notNull(album, "album");
-	if (pos < 0 || pos >= albums.size())
+	if (pos < 0 || pos >= size())
 	{
-	    albums.add(album);
+	    add(album);
 	    	save();
-	    return albums.size() - 1;
+	    return size() - 1;
 	}
-	albums.add(pos, album);
+	add(pos, album);
 	save();
 	return pos;
     }
 
-    void delete(int index) throws IOException
+    void deleteAlbum(int index) throws IOException
     {
-	if (index < 0 || index >= albums.size())
-	    throw new IllegalArgumentException("index (" + String.valueOf(index) + ") must be non-negative and less than " + String.valueOf(albums.size()));
-	albums.remove(index);
+	if (index < 0 || index >= size())
+	    throw new IllegalArgumentException("index (" + String.valueOf(index) + ") must be non-negative and less than " + String.valueOf(size()));
+	remove(index);
 	save();
-    }
-
-    @Override public boolean clearModel()
-    {
-	this.albums.clear();
-	save();
-	return true;
     }
 
     @Override public boolean addToModel(int pos, java.util.function.Supplier supplier)
@@ -105,29 +97,28 @@ final class Albums implements EditableListArea.Model
 	    if (!(o instanceof Album))
 	    {
 				Log.error(LOG_COMPONENT, "illegal class of album object: " + o.getClass().getName());
-
 		return false;
 	    }
-	    this.albums.addAll(pos, Arrays.asList(Arrays.copyOf(newObjs, newObjs.length, Album[].class)));
+	    addAll(pos, Arrays.asList(Arrays.copyOf(newObjs, newObjs.length, Album[].class)));
 	save();
 	return true;
     }
 
-    @Override public boolean removeFromModel(int pos)
+    @Override public boolean removeFromModel(int posFrom, int posTo)
     {
-	this.albums.remove(pos);
+	removeRange(posFrom, posTo);
 	save();
 	return true;
     }
 
     @Override public int getItemCount()
     {
-	return albums.size();
+	return size();
     }
 
     @Override public Album getItem(int index)
     {
-	return albums.get(index);
+	return get(index);
     }
 
     @Override public void refresh()
