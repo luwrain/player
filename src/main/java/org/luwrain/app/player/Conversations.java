@@ -77,6 +77,6 @@ final class Conversations
 
     File newDirAlbumPath()
     {
-	return Popups.existingDir(luwrain, "Новый альбом", "Каталог с файлами для нового альбома:");
+	return Popups.existingDir(luwrain, "Каталог с файлами нового альбома:");
     }
 }
