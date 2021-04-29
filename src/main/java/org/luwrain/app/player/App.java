@@ -52,18 +52,18 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
 	this.args = args.clone();
     }
 
-    @Override public boolean onAppInit() throws IOException
+    @Override public AreaLayout onAppInit() throws IOException
     {
 	this.conv = new Conversations(this);
 	this.albums = new Albums(getLuwrain());
 	this.player = getLuwrain().getPlayer();
 	if (player == null)
-	    return false;
+	    return null;
 	this.player.addListener(this);
 	this.hooks = new Hooks(getLuwrain());
 	this.layout = new MainLayout(this, this.player);
 	setAppName(getStrings().appName());
-	return true;
+	return layout.getLayout();
     }
 
     void fillTrackInfoMap(Playlist playlist, ListArea listArea)
@@ -93,11 +93,6 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
 	return this.albums;
     }
 
-
-    @Override public AreaLayout getDefaultAreaLayout()
-    {
-	return this.layout.getLayout();
-    }
 
     @Override public boolean onEscape(InputEvent event)
     {
