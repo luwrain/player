@@ -63,7 +63,7 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
 	this.hooks = new Hooks(getLuwrain());
 	this.layout = new MainLayout(this, this.player);
 	setAppName(getStrings().appName());
-	return layout.getLayout();
+	return layout.getAreaLayout();
     }
 
     void fillTrackInfoMap(Playlist playlist, ListArea listArea)

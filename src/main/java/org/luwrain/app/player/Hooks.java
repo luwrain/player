@@ -33,7 +33,7 @@ final class Hooks
     {
 	if (selected == null || !(selected instanceof Album))
 	    return false;
-	return luwrain.xRunHooks("luwrain.player.album.play", new Object[]{selected}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY);
+	return true;//luwrain.xRunHooks("luwrain.player.album.play", new Object[]{selected}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY);
     }
 
     boolean onAlbumsInput(InputEvent event, Object selected)
@@ -41,7 +41,7 @@ final class Hooks
 	NullCheck.notNull(event, "event");
 	if (selected == null)
 	    return false;
-	return luwrain.xRunHooks("luwrain.app.player.areas.albums.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), selected}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY);
+	return true;///luwrain.xRunHooks("luwrain.app.player.areas.albums.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), selected}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY);
 	    }
 
 boolean onPlaylistInput(InputEvent event, Object selected)
@@ -49,12 +49,12 @@ boolean onPlaylistInput(InputEvent event, Object selected)
     NullCheck.notNull(event, "event");
     if (selected == null)
 	return false;
-    return luwrain.xRunHooks("luwrain.app.player.areas.playlist.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), selected}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY);
+    return true;//luwrain.xRunHooks("luwrain.app.player.areas.playlist.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), selected}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY);
 	}
 
 boolean onControlInput(InputEvent event)
 {
     NullCheck.notNull(event , "event");
-    return luwrain.xRunHooks("luwrain.app.player.areas.control.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event)}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY);
+    return true;//luwrain.xRunHooks("luwrain.app.player.areas.control.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event)}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY);
 	}
 }

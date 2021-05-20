@@ -31,16 +31,7 @@ public final class Extension extends org.luwrain.core.extensions.EmptyExtension
     @Override public Command[] getCommands(Luwrain luwrain)
     {
 	return new Command[]{
-	    new Command(){
-		@Override public String getName()
-		{
-		    return "player";
-		}
-		@Override public void onCommand(Luwrain luwrain)
-		{
-		    luwrain.launchApp("player");
-		}
-	    },
+	    new SimpleShortcutCommand("player"),
 	};
     }
 
@@ -49,10 +40,7 @@ public final class Extension extends org.luwrain.core.extensions.EmptyExtension
 	return new Shortcut[]{
 
 	    new Shortcut() {
-		@Override public String getExtObjName()
-		{
-		    return "player";
-		}
+		@Override public String getExtObjName() { return "player"; }
 		@Override public Application[] prepareApp(String[] args)
 		{
 		    NullCheck.notNullItems(args, "args");
@@ -61,10 +49,7 @@ public final class Extension extends org.luwrain.core.extensions.EmptyExtension
 	    },
 
 	    new Shortcut() {
-		@Override public String getExtObjName()
-		{
-		    return "player-single-local";
-		}
+		@Override public String getExtObjName() { return "player-single-local"; }
 		@Override public Application[] prepareApp(String[] args)
 		{
 		    NullCheck.notNullItems(args, "args");

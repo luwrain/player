@@ -28,8 +28,8 @@ class ControlArea extends NavigationArea
 interface Callback
 {
 }
-    
-    private final Luwrain luwrain;
+
+    private final ControlContext controlContext;
     private final Callback callback;
     private final Strings strings;
 
@@ -41,16 +41,15 @@ interface Callback
     private String trackTitle = "";
     private long timeSec = 0;
 
-    ControlArea(Luwrain luwrain, Callback callback, Strings strings,
+    ControlArea(ControlContext controlContext, Callback callback, Strings strings,
 		 String pauseResume, String stop)
     {
-	super(new DefaultControlContext(luwrain));
-	NullCheck.notNull(luwrain, "luwrain");
+	super(controlContext);
 	NullCheck.notNull(callback, "callback");
 	NullCheck.notNull(strings, "strings");
 	NullCheck.notEmpty(pauseResume, "pauseResume");
 	NullCheck.notEmpty(stop, "stop");
-	this.luwrain = luwrain;
+	this.controlContext = controlContext;
 	this.callback = callback;
 	this.strings = strings;
 	this.pauseResume = pauseResume;
@@ -61,21 +60,21 @@ interface Callback
     {
 	NullCheck.notNull(mode, "mode");
 	this.mode = mode;
-	luwrain.onAreaNewContent(this);
+	controlContext.onAreaNewContent(this);
     }
 
         void setPlaylistTitle(String value)
     {
 	NullCheck.notNull(value, "value");
 	this.playlistTitle = value;
-	luwrain.onAreaNewContent(this);
+	controlContext.onAreaNewContent(this);
     }
 
     void setTrackTitle(String value)
     {
 	NullCheck.notNull(value, "value");
 	this.trackTitle = value;
-	luwrain.onAreaNewContent(this);
+	controlContext.onAreaNewContent(this);
     }
 
     void setTrackTime(long msec)
@@ -86,7 +85,7 @@ interface Callback
 	if (sec != timeSec)
 	{
 	    timeSec = sec;
-	    luwrain.onAreaNewContent(this);
+	    controlContext.onAreaNewContent(this);
 	}
     }
 

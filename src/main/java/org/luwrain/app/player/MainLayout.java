@@ -38,101 +38,51 @@ final class MainLayout extends LayoutBase
 
     MainLayout(App app, Player player)
     {
-	NullCheck.notNull(app, "app");
+	super(app);
 	NullCheck.notNull(player, "player");
 	this.app = app;
 	this.player = player;
-	this.albumsArea = new EditableListArea(createAlbumsParams()){
-		final Actions actions = actions(
+	{
+	final EditableListArea.Params params = new EditableListArea.Params();
+	params.context = getControlContext();
+	params.model = app.getAlbums();
+	params.name = app.getStrings().albumsAreaName();
+	params.clickHandler = (area, index, obj)->app.getHooks().onAlbumPlay(obj);
+	params.appearance = new ListUtils.DoubleLevelAppearance(params.context){
+		@Override public boolean isSectionItem(Object item) { return isSectionItem(item); }
+	    };
+	params.transition = new ListUtils.DoubleLevelTransition(params.model) {
+				@Override public boolean isSectionItem(Object item) { return isSectionItem(item); }
+	    };
+		params.clipboardSaver = (area, model, appearance, fromIndex, toIndex, clipboard)->{
+	    final List<Album> a = new ArrayList();
+	    final List<String> s = new ArrayList();
+	    for(int i = fromIndex; i < toIndex;i++)
+	    {
+		final Album album = (Album)model.getItem(i);
+		a.add(album);
+		final String text = appearance.getScreenAppearance(album, EnumSet.noneOf(EditableListArea.Appearance.Flags.class));
+		s.add(text.substring(appearance.getObservableLeftBound(album), appearance.getObservableRightBound(album)));
+	    }
+	    clipboard.set(a.toArray(new Album[a.size()]), s.toArray(new String[s.size()]));
+	    return true;
+	};
+	this.albumsArea = new EditableListArea(params);
+	}
+		final Actions albumsActions = actions(
 						action("add-album", app.getStrings().actionAddAlbum(), new InputEvent(InputEvent.Special.INSERT), MainLayout.this::actAddAlbum)
 						);
-		@Override public boolean onInputEvent(InputEvent event)
 		{
-		    NullCheck.notNull(event, "event");
-		    if (app.getHooks().onAlbumsInput(event, selected()))
-			return true;
-		    if (app.onInputEvent(this, event))
-			return true;
-		    return super.onInputEvent( event);
+	final ListArea.Params params = new ListArea.Params();
+	params.context = getControlContext();
+	params.model = new PlaylistModel();
+	params.appearance = new ListUtils.DefaultAppearance(params.context);//new PlaylistAppearance(luwrain, base);
+	//	params.clickHandler = clickHandler;
+	params.name = app.getStrings().playlistAreaName();
+	this.playlistArea = new ListArea(params);
 		}
-		@Override public boolean onSystemEvent(SystemEvent event)
-		{
-		    NullCheck.notNull(event, "event");
-		    if (app.onSystemEvent(this, event, actions))
-			return true;
-		    return super.onSystemEvent(event);
-		}
-		@Override public boolean onAreaQuery(AreaQuery query)
-		{
-		    NullCheck.notNull(query, "query");
-		    if (app.onAreaQuery(this, query))
-			return true;
-		    return super.onAreaQuery(query);
-		}
-		@Override public Action[] getAreaActions()
-		{
-		    return actions.getAreaActions();
-		}
-	    };
-	this.playlistArea = new ListArea(createPlaylistParams()){
-		@Override public boolean onInputEvent(InputEvent event)
-		{
-		    NullCheck.notNull(event, "event");
-		    /*
-		      if (app.getLuwrain().xRunHooks("luwrain.app.player.areas.playlist.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event), null}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
-		      return true;
-		    */
-		    if (app.onInputEvent(this, event))
-			return true;
-		    return super.onInputEvent(event);
-		}
-		@Override public boolean onSystemEvent(SystemEvent event)
-		{
-		    NullCheck.notNull(event, "event");
-		    if (app.onSystemEvent(this, event))
-			return true;
-		    return super.onSystemEvent(event);
-		}
-		@Override public boolean onAreaQuery(AreaQuery query)
-		{
-		    NullCheck.notNull(query, "query");
-		    if (app.onAreaQuery(this, query))
-			return true;
-		    return super.onAreaQuery(query);
-		}
-		@Override public Action[] getAreaActions()
-		{
-		    return new Action[0];
-		}
-	    };
 	final ControlArea.Callback controlCallback = new ControlArea.Callback(){};
-	this.controlArea = new ControlArea(app.getLuwrain(), controlCallback, app.getStrings(), "ПАУЗА", "СТОП"){
-		@Override public boolean onInputEvent(InputEvent event)
-		{
-		    NullCheck.notNull(event, "event");
-		    /*
-		      if (app.getLuwrain().xRunHooks("luwrain.app.player.areas.control.input", new Object[]{org.luwrain.script.ScriptUtils.createInputEvent(event)}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY))
-		      return true;
-		    */
-		    if (app.onInputEvent(this, event))
-			return true;
-		    return super.onInputEvent(event);
-		}
-		@Override public boolean onSystemEvent(SystemEvent event)
-		{
-		    NullCheck.notNull(event, "event");
-		    if (app.onSystemEvent(this, event))
-			return true;
-		    return super.onSystemEvent(event);
-		}
-		@Override public boolean onAreaQuery(AreaQuery query)
-		{
-		    NullCheck.notNull(query, "query");
-		    if (app.onAreaQuery(this, query))
-			return true;
-		    return super.onAreaQuery(query);
-		}		    
-	    };
+	this.controlArea = new ControlArea(getControlContext(), controlCallback, app.getStrings(), "ПАУЗА", "СТОП");
     }
 
     private boolean actAddAlbum()
@@ -206,63 +156,7 @@ final class MainLayout extends LayoutBase
 			    */
     }
 
-    private EditableListArea.Params createAlbumsParams()
-    {
-	final EditableListArea.Params params = new EditableListArea.Params();
-	params.context = new DefaultControlContext(app.getLuwrain());
-	params.model = app.getAlbums();
-	params.name = app.getStrings().albumsAreaName();
-	params.clickHandler = (area, index, obj)->app.getHooks().onAlbumPlay(obj);
-	params.appearance = new ListUtils.DoubleLevelAppearance(params.context){
-		@Override public boolean isSectionItem(Object item)
-		{
-		    NullCheck.notNull(item, "item");
-		    if (item instanceof Album)
-		    {
-			final Album album = (Album)item;
-			return album.isSection();
-		    }
-		    return false;
-		    		}
-	    };
-	params.transition = new ListUtils.DoubleLevelTransition(params.model){
-		@Override public boolean isSectionItem(Object item)
-		{
-		    NullCheck.notNull(item, "item");
-		    if (item instanceof Album)
-		    {
-			final Album album = (Album)item;
-			return album.isSection();
-		    }
-		    return false;
-		}
-	    };
-	params.clipboardSaver = (area, model, appearance, fromIndex, toIndex, clipboard)->{
-	    final List<Album> a = new LinkedList();
-	    final List<String> s = new LinkedList();
-	    for(int i = fromIndex; i < toIndex;i++)
-	    {
-		final Album album = (Album)model.getItem(i);
-		a.add(album);
-		final String text = appearance.getScreenAppearance(album, EnumSet.noneOf(EditableListArea.Appearance.Flags.class));
-		s.add(text.substring(appearance.getObservableLeftBound(album), appearance.getObservableRightBound(album)));
-	    }
-	    clipboard.set(a.toArray(new Album[a.size()]), s.toArray(new String[s.size()]));
-	    return true;
-	};
-	return params;
-    }
 
-    private ListArea.Params createPlaylistParams()
-    {
-	final ListArea.Params params = new ListArea.Params();
-	params.context = new DefaultControlContext(app.getLuwrain());
-	params.model = new PlaylistModel();
-	params.appearance = new ListUtils.DefaultAppearance(params.context);//new PlaylistAppearance(luwrain, base);
-	//	params.clickHandler = clickHandler;
-	params.name = app.getStrings().playlistAreaName();
-	return params;
-    }
 
     private int getPlaylistLen()
     {
@@ -284,10 +178,18 @@ final class MainLayout extends LayoutBase
 	return Utils.getTrackTextAppearanceWithMap(trackUrl, app.trackInfoMap);
     }
 
-    AreaLayout getLayout()
-    {
-	return new AreaLayout(AreaLayout.LEFT_TOP_BOTTOM, albumsArea, playlistArea, controlArea);
-    }
+boolean isSectionItem(Object item)
+		{
+		    NullCheck.notNull(item, "item");
+		    if (item instanceof Album)
+		    {
+			final Album album = (Album)item;
+			return album.isSection();
+		    }
+		    return false;
+		}
+
+
 
     private class PlaylistModel implements EditableListArea.Model
     {
