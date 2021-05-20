@@ -34,6 +34,7 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
     static final String LOG_COMPONENT = "player";
 
     private final String[] args;
+    final Starting starting = new Starting(this);
     private org.luwrain.player.Player player = null;
     private Conversations conv = null;
     private MainLayout layout = null;
@@ -167,6 +168,11 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
 	@Override public void onPlayingError(org.luwrain.player.Playlist playlist, Exception e)
 	{
 	}
+
+    Player getPlayer()
+    {
+	return this.player;
+    }
 
         Hooks getHooks()
     {

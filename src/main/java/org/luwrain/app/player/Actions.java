@@ -56,21 +56,6 @@ final class Actions
 	albumsArea.refresh();
 	return true;
     }
-
-    boolean onAlbumClick(Area playlistArea, Object obj)
-    {
-	NullCheck.notNull(playlistArea, "playlistArea");
-	if (obj == null || !(obj instanceof Album))
-	    return false;
-	final Album album = (Album)obj;
-	try {
-	    return luwrain.xRunHooks("luwrain.player.album.play", new Object[]{album}, Luwrain.HookStrategy.CHAIN_OF_RESPONSIBILITY);
-	}
-	catch(Exception e)
-	{
-	    luwrain.message(luwrain.i18n().getExceptionDescr(e), Luwrain.MessageType.ERROR);
-	    return true;
-	}
-    }
     */
+
 }

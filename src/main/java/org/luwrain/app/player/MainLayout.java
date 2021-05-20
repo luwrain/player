@@ -43,46 +43,49 @@ final class MainLayout extends LayoutBase
 	this.app = app;
 	this.player = player;
 	{
-	final EditableListArea.Params params = new EditableListArea.Params();
-	params.context = getControlContext();
-	params.model = app.getAlbums();
-	params.name = app.getStrings().albumsAreaName();
-	params.clickHandler = (area, index, obj)->app.getHooks().onAlbumPlay(obj);
-	params.appearance = new ListUtils.DoubleLevelAppearance(params.context){
-		@Override public boolean isSectionItem(Object item) { return isSectionItem(item); }
-	    };
-	params.transition = new ListUtils.DoubleLevelTransition(params.model) {
-				@Override public boolean isSectionItem(Object item) { return isSectionItem(item); }
-	    };
-		params.clipboardSaver = (area, model, appearance, fromIndex, toIndex, clipboard)->{
-	    final List<Album> a = new ArrayList();
-	    final List<String> s = new ArrayList();
-	    for(int i = fromIndex; i < toIndex;i++)
-	    {
-		final Album album = (Album)model.getItem(i);
-		a.add(album);
-		final String text = appearance.getScreenAppearance(album, EnumSet.noneOf(EditableListArea.Appearance.Flags.class));
-		s.add(text.substring(appearance.getObservableLeftBound(album), appearance.getObservableRightBound(album)));
-	    }
-	    clipboard.set(a.toArray(new Album[a.size()]), s.toArray(new String[s.size()]));
-	    return true;
-	};
-	this.albumsArea = new EditableListArea(params);
-	}
-		final Actions albumsActions = actions(
-						action("add-album", app.getStrings().actionAddAlbum(), new InputEvent(InputEvent.Special.INSERT), MainLayout.this::actAddAlbum)
-						);
+	    final EditableListArea.Params params = new EditableListArea.Params();
+	    params.context = getControlContext();
+	    params.model = app.getAlbums();
+	    params.name = app.getStrings().albumsAreaName();
+	    params.clickHandler = (area, index, obj)->app.starting.play((Album)obj);
+	    params.appearance = new ListUtils.DoubleLevelAppearance(params.context){
+		    @Override public boolean isSectionItem(Object item) { return MainLayout.this.isSectionItem(item); }
+		};
+	    params.transition = new ListUtils.DoubleLevelTransition(params.model) {
+		    @Override public boolean isSectionItem(Object item) { return MainLayout.this.isSectionItem(item); }
+		};
+	    params.clipboardSaver = (area, model, appearance, fromIndex, toIndex, clipboard)->{
+		final List<Album> a = new ArrayList();
+		final List<String> s = new ArrayList();
+		for(int i = fromIndex; i < toIndex;i++)
 		{
-	final ListArea.Params params = new ListArea.Params();
-	params.context = getControlContext();
-	params.model = new PlaylistModel();
-	params.appearance = new ListUtils.DefaultAppearance(params.context);//new PlaylistAppearance(luwrain, base);
-	//	params.clickHandler = clickHandler;
-	params.name = app.getStrings().playlistAreaName();
-	this.playlistArea = new ListArea(params);
+		    final Album album = (Album)model.getItem(i);
+		    a.add(album);
+		    final String text = appearance.getScreenAppearance(album, EnumSet.noneOf(EditableListArea.Appearance.Flags.class));
+		    s.add(text.substring(appearance.getObservableLeftBound(album), appearance.getObservableRightBound(album)));
 		}
+		clipboard.set(a.toArray(new Album[a.size()]), s.toArray(new String[s.size()]));
+		return true;
+	    };
+	    this.albumsArea = new EditableListArea(params);
+	}
+	final Actions albumsActions = actions(
+					      action("add-album", app.getStrings().actionAddAlbum(), new InputEvent(InputEvent.Special.INSERT), MainLayout.this::actAddAlbum)
+					      );
+	{
+	    final ListArea.Params params = new ListArea.Params();
+	    params.context = getControlContext();
+	    params.model = new PlaylistModel();
+	    params.appearance = new ListUtils.DefaultAppearance(params.context);//new PlaylistAppearance(luwrain, base);
+	    //	params.clickHandler = clickHandler;
+	    params.name = app.getStrings().playlistAreaName();
+	    this.playlistArea = new ListArea(params);
+	}
+	final Actions playlistActions = actions();
 	final ControlArea.Callback controlCallback = new ControlArea.Callback(){};
 	this.controlArea = new ControlArea(getControlContext(), controlCallback, app.getStrings(), "ПАУЗА", "СТОП");
+	final Actions controlActions = actions();
+	setAreaLayout(AreaLayout.LEFT_TOP_BOTTOM, albumsArea, albumsActions, playlistArea, playlistActions, controlArea, controlActions);
     }
 
     private boolean actAddAlbum()
