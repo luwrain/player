@@ -36,4 +36,9 @@ static final String NAME = "luwrain.player";
     String newSectionPopupName();
     String newSectionTitlePopupPrefix();
     String playlistAreaName();
+
+    String actionVolumePlus();
+    String actionVolumeMinus();
+    String actionJumpForward();
+    String actionJumpBackward();
 }

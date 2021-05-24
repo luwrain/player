@@ -22,6 +22,7 @@ import java.net.*;
 
 import org.luwrain.core.*;
 import org.luwrain.player.*;
+import org.luwrain.util.*;
 
 final class Starting
 {
@@ -42,6 +43,8 @@ final class Starting
 	{
 	case STREAMING:
 	    return onStreaming(album);
+	case DIR:
+	    	    return onDir(album);
 	default:
 	    return false;
 	}
@@ -56,5 +59,46 @@ final class Starting
 	final Playlist playlist = new Playlist(url.trim());
 	app.getPlayer().play(playlist, 0, 0, EnumSet.of(Player.Flags.STREAMING), new Properties());
 	return true;
+    }
+
+    private boolean onDir(Album album)
+    {
+	NullCheck.notNull(album, "album");
+	final String path = album.getProps().getProperty("path");
+	if (path == null || path.trim().isEmpty())
+	    return false;
+	final List<String> urls = new ArrayList();
+	final App.TaskId taskId = app.newTaskId();
+	return app.runTask(taskId, ()->{
+		collectMusicFiles(new File(path), urls);
+		app.finishedTask(taskId, ()->{
+			final Playlist playlist = new Playlist(urls.toArray(new String[urls.size()]));
+			app.getPlayer().play(playlist, 0, 0, EnumSet.noneOf(Player.Flags.class), new Properties());
+		    });
+	    });
+    }
+
+    private void collectMusicFiles(File file, List<String> res)
+    {
+	NullCheck.notNull(file, "file");
+	NullCheck.notNull(res, "res");
+	if (!file.exists())
+	    return;
+	if (file.isFile())
+	{
+	    final String name = file.getName().toLowerCase();
+	    if (name.endsWith(".mp3"))
+		res.add(UrlUtils.fileToUrl(file));
+	    return;
+	}
+	if (!file.isDirectory())
+	    return;
+	final File[] files = file.listFiles();
+	if (files != null)
+	{
+	    Arrays.sort(files);
+	    for(File f: files)
+		collectMusicFiles(f, res);
+	}
     }
 }

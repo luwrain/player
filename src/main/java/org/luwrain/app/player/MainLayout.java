@@ -22,18 +22,29 @@ import java.nio.charset.*;
 
 import org.luwrain.core.*;
 import org.luwrain.core.events.*;
+import org.luwrain.core.events.InputEvent.Modifiers;
+import org.luwrain.core.events.InputEvent.Special;
 import org.luwrain.controls.*;
 import org.luwrain.player.*;
 import org.luwrain.app.base.*;
 
 final class MainLayout extends LayoutBase
 {
+    static private final int
+	STEP_VOLUME = 5,
+	STEP_JUMP = 5000;
+
+    static private final InputEvent
+	KEY_VOLUME_PLUS = new InputEvent('+', EnumSet.of(Modifiers.SHIFT)),
+	KEY_VOLUME_MINUS = new InputEvent('_', EnumSet.of(Modifiers.SHIFT)),
+    	KEY_JUMP_FORWARD = new InputEvent('='),
+	KEY_JUMP_BACKWARD = new InputEvent('-');
+
     private final App app;
     private final Player player;
     private EditableListArea albumsArea = null;
     private ListArea playlistArea = null;
     private ControlArea controlArea = null;
-
     private AlbumItem[] tracks = new AlbumItem[0];
 
     MainLayout(App app, Player player)
@@ -42,6 +53,11 @@ final class MainLayout extends LayoutBase
 	NullCheck.notNull(player, "player");
 	this.app = app;
 	this.player = player;
+	final ActionInfo
+	actionVolumePlus = action("volume-plus", app.getStrings().actionVolumePlus(), KEY_VOLUME_PLUS, ()->{ return actVolume(STEP_VOLUME); }),
+	actionVolumeMinus = action("volume-minus", app.getStrings().actionVolumeMinus(), KEY_VOLUME_MINUS, ()->{ return actVolume(-1 * STEP_VOLUME); }),
+	actionJumpForward = action("jump-forward", app.getStrings().actionJumpForward(), KEY_JUMP_FORWARD, ()->{ return app.getPlayer().jump(STEP_JUMP); }),
+	actionJumpBackward = action("jump-backward", app.getStrings().actionJumpBackward(), KEY_JUMP_BACKWARD, ()->{ return app.getPlayer().jump(-1 * STEP_JUMP); });
 	{
 	    final EditableListArea.Params params = new EditableListArea.Params();
 	    params.context = getControlContext();
@@ -70,21 +86,29 @@ final class MainLayout extends LayoutBase
 	    this.albumsArea = new EditableListArea(params);
 	}
 	final Actions albumsActions = actions(
-					      action("add-album", app.getStrings().actionAddAlbum(), new InputEvent(InputEvent.Special.INSERT), MainLayout.this::actAddAlbum)
+					      action("add-album", app.getStrings().actionAddAlbum(), new InputEvent(Special.INSERT), MainLayout.this::actAddAlbum),
+					      actionJumpForward, actionJumpBackward,
+					      actionVolumePlus, actionVolumeMinus
 					      );
 	{
 	    final ListArea.Params params = new ListArea.Params();
 	    params.context = getControlContext();
 	    params.model = new PlaylistModel();
 	    params.appearance = new ListUtils.DefaultAppearance(params.context);//new PlaylistAppearance(luwrain, base);
-	    //	params.clickHandler = clickHandler;
+	    params.clickHandler = null;
 	    params.name = app.getStrings().playlistAreaName();
 	    this.playlistArea = new ListArea(params);
 	}
-	final Actions playlistActions = actions();
+	final Actions playlistActions = actions(
+						actionJumpForward, actionJumpBackward,
+						actionVolumePlus, actionVolumeMinus
+						);
 	final ControlArea.Callback controlCallback = new ControlArea.Callback(){};
 	this.controlArea = new ControlArea(getControlContext(), controlCallback, app.getStrings(), "ПАУЗА", "СТОП");
-	final Actions controlActions = actions();
+	final Actions controlActions = actions(
+					       actionJumpForward, actionJumpBackward,
+					       actionVolumePlus, actionVolumeMinus
+					       );
 	setAreaLayout(AreaLayout.LEFT_TOP_BOTTOM, albumsArea, albumsActions, playlistArea, playlistActions, controlArea, controlActions);
     }
 
@@ -92,7 +116,7 @@ final class MainLayout extends LayoutBase
     {
 	final Album.Type type = app.getConv().newAlbumType();
 	if (type == null)
-	return true;
+	    return true;
 	if (type == Album.Type.SECTION)
 	{
 	    final Album album = new Album();
@@ -109,18 +133,18 @@ final class MainLayout extends LayoutBase
 	final String title = app.getConv().newAlbumTitle();
 	if (title == null)
 	    return true;
-			final Album album = new Album();
-		album.setType(type);
-		album.setTitle(title);
+	final Album album = new Album();
+	album.setType(type);
+	album.setTitle(title);
 	switch(type)
 	{
-	    case STREAMING:
+	case STREAMING:
 	    {
 		final String url = app.getConv().newStreamingAlbumUrl();
 		if (url == null)
 		    return true;
-				album.getProps().setProperty("url", url);
-				break;
+		album.getProps().setProperty("url", url);
+		break;
 	    }
 	case DIR:
 	    {
@@ -132,10 +156,19 @@ final class MainLayout extends LayoutBase
 	    }
 	default:
 	    return true;
-	     }
+	}
 	final int index = app.getAlbums().addAlbum(albumsArea.selectedIndex(), album);
-		albumsArea.refresh();
-		albumsArea.select(index, false);
+	albumsArea.refresh();
+	albumsArea.select(index, false);
+	return true;
+    }
+
+    private boolean actVolume(int step)
+    {
+	final int level = app.getPlayer().getVolume() + step;
+	if (level <0 || level > 100)
+	    return false;
+	app.getPlayer().setVolume(level);
 	return true;
     }
 
@@ -149,14 +182,14 @@ final class MainLayout extends LayoutBase
 	app.fillTrackInfoMap(playlist, playlistArea);
 	playlistArea.reset(false);
 	playlistArea.refresh();
-			    /*
-		    if (Utils.isStreamingPlaylist(playlist))
-			controlArea.setMode(ControlArea.Mode.PLAYING_STREAMING); else
-			controlArea.setMode(ControlArea.Mode.PLAYING);
-		    //FIXME:controlArea.setPlaylistTitle(playlist.getPlaylistTitle());
-		    controlArea.setTrackTitle("");
-		    controlArea.setTrackTime(0);
-			    */
+	/*
+	  if (Utils.isStreamingPlaylist(playlist))
+	  controlArea.setMode(ControlArea.Mode.PLAYING_STREAMING); else
+	  controlArea.setMode(ControlArea.Mode.PLAYING);
+	  //FIXME:controlArea.setPlaylistTitle(playlist.getPlaylistTitle());
+	  controlArea.setTrackTitle("");
+	  controlArea.setTrackTime(0);
+	*/
     }
 
 
