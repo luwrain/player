@@ -25,8 +25,6 @@ interface Settings
 {
     static final String PLAYER_PATH = "/org/luwrain/player";
 
-    int getVolume(int defValue);
-    void setVolume(int value);
     String getAlbums(String defValue);
     void setAlbums(String value);
 

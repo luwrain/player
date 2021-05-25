@@ -34,7 +34,7 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
     private final List<org.luwrain.player.Listener> listeners = new Vector();
 
     private State state = State.STOPPED;
-    private int volume = 100;
+    private int volume = MAX_VOLUME;
     private MediaResourcePlayer.Instance currentPlayer = null;
     private org.luwrain.player.Playlist playlist = null;
     private Set<Flags> flags = null;
@@ -50,11 +50,6 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
 	this.mediaResourcePlayers = luwrain.getMediaResourcePlayers();
 	for(MediaResourcePlayer p: mediaResourcePlayers)
 	    Log.debug(LOG_COMPONENT, "\'" + p.getExtObjName() + "\' is a known media resource player");
-	this.volume = this.sett.getVolume(100);
-	if (this.volume < 0)
-	    this.volume = 0;
-	if (this.volume > 100)
-	    this.volume = 100;
     }
 
     @Override public synchronized Result play(org.luwrain.player.Playlist playlist, int startingTrackNum, long startingPosMsec, Set<Flags> flags, Properties props)
@@ -65,6 +60,7 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
 	    return Result.INVALID_PLAYLIST;
 	stop();
 	this.playlist = playlist;
+	this.volume = playlist.getVolume();
 	this.flags = flags;
 	this.props = props != null?props:new Properties();
 	this.trackNum = startingTrackNum;
@@ -268,20 +264,19 @@ posMsec = 0;
 
     @Override public int getVolume()
     {
-	return volume;
+	return this.volume;
     }
 
     @Override public void setVolume(int value)
     {
-	Log.debug(LOG_COMPONENT, "changing volume to " + value);
-	if (value < 0 || value > 100)
-	    throw new IllegalArgumentException("value (" + value + ") must be between 0 and 100 (inclusively)");
-	if (this.volume == value)
+	final int newVolume = Math.min(Math.max(value, MIN_VOLUME), MAX_VOLUME);
+	if (this.volume == newVolume)
 	    return;
-	this.volume = value;
+	this.volume = newVolume;
 	if (currentPlayer != null)
 	    currentPlayer.setVolume(this.volume);
-	sett.setVolume(this.volume);
+	if (playlist != null)
+	    playlist.onNewVolume(this.volume);
     }
 
     @Override public Set<Flags> getFlags()
