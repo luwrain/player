@@ -335,7 +335,7 @@ posMsec = 0;
     {
 	if (trackNum >= playlist.getTrackCount())
 	    return null;
-	final String url = playlist.getTrack(trackNum);
+	final String url = playlist.getTrackUrl(trackNum);
 	Log.debug(LOG_COMPONENT, "creating task for " + url);
 	try {
 	    return new Task(new URL(url), flags.contains(Flags.STREAMING)?0:posMsec);

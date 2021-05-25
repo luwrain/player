@@ -56,7 +56,7 @@ final class Starting
 	final String url = album.getProps().getProperty("url");
 	if (url == null || url.trim().isEmpty())
 	    return false;
-	final Playlist playlist = new Playlist(url.trim());
+	final Playlist playlist = new FixedPlaylist(url.trim());
 	app.getPlayer().play(playlist, 0, 0, EnumSet.of(Player.Flags.STREAMING), new Properties());
 	return true;
     }
@@ -72,7 +72,7 @@ final class Starting
 	return app.runTask(taskId, ()->{
 		collectMusicFiles(new File(path), urls);
 		app.finishedTask(taskId, ()->{
-			final Playlist playlist = new Playlist(urls.toArray(new String[urls.size()]));
+			final Playlist playlist = new FixedPlaylist(urls.toArray(new String[urls.size()]));
 			app.getPlayer().play(playlist, 0, 0, EnumSet.noneOf(Player.Flags.class), new Properties());
 		    });
 	    });

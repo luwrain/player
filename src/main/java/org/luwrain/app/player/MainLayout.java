@@ -175,10 +175,9 @@ final class MainLayout extends LayoutBase
     void onNewPlaylist(Playlist  playlist)
     {
 	NullCheck.notNull(playlist, "playlist");
-	final String[]  urls = playlist.getTracks();
-	this.tracks = new AlbumItem[urls.length];
-	for(int i = 0;i < urls.length;i++)
-	    this.tracks[i] = new AlbumItem(urls[i], app.trackInfoMap);
+	this.tracks = new AlbumItem[playlist.getTrackCount()];
+	for(int i = 0;i < tracks.length;i++)
+	    this.tracks[i] = new AlbumItem(playlist.getTrackUrl(i), app.trackInfoMap);
 	app.fillTrackInfoMap(playlist, playlistArea);
 	playlistArea.reset(false);
 	playlistArea.refresh();
@@ -190,22 +189,6 @@ final class MainLayout extends LayoutBase
 	  controlArea.setTrackTitle("");
 	  controlArea.setTrackTime(0);
 	*/
-    }
-
-
-
-    private int getPlaylistLen()
-    {
-	if (!player.hasPlaylist())
-	    return 0;
-	return player.getPlaylist().getTrackCount();
-    }
-
-    private String[] getPlaylistUrls()
-    {
-	if (!player.hasPlaylist())
-	    return new String[0];
-	return player.getPlaylist().getTracks();
     }
 
     private String getTrackTextAppearance(String trackUrl)
@@ -224,8 +207,6 @@ boolean isSectionItem(Object item)
 		    }
 		    return false;
 		}
-
-
 
     private class PlaylistModel implements EditableListArea.Model
     {
