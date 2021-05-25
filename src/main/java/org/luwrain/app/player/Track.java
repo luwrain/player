@@ -20,12 +20,12 @@ import java.util.*;
 
 import org.luwrain.core.*;
 
-final class AlbumItem
+final class Track
 {
     final String url;
     final Map<String, TrackInfo> trackInfoMap;
 
-    AlbumItem(String url, Map<String, TrackInfo> trackInfoMap)
+    Track(String url, Map<String, TrackInfo> trackInfoMap)
     {
 	NullCheck.notEmpty(url, "url");
 	NullCheck.notNull(trackInfoMap, "trackInfoMap");
@@ -50,8 +50,8 @@ final class AlbumItem
 
     @Override public boolean equals(Object o)
     {
-	if (o == null || !(o instanceof AlbumItem))
+	if (o == null || !(o instanceof Track))
 	    return false;
-	return url.equals(((AlbumItem)o).url);
+	return url.equals(((Track)o).url);
     }
 }

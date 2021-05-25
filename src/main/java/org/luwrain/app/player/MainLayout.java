@@ -45,7 +45,7 @@ final class MainLayout extends LayoutBase
     private EditableListArea albumsArea = null;
     private ListArea playlistArea = null;
     private ControlArea controlArea = null;
-    private AlbumItem[] tracks = new AlbumItem[0];
+    private Track[] tracks = new Track[0];
 
     MainLayout(App app, Player player)
     {
@@ -175,9 +175,9 @@ final class MainLayout extends LayoutBase
     void onNewPlaylist(Playlist  playlist)
     {
 	NullCheck.notNull(playlist, "playlist");
-	this.tracks = new AlbumItem[playlist.getTrackCount()];
+	this.tracks = new Track[playlist.getTrackCount()];
 	for(int i = 0;i < tracks.length;i++)
-	    this.tracks[i] = new AlbumItem(playlist.getTrackUrl(i), app.trackInfoMap);
+	    this.tracks[i] = new Track(playlist.getTrackUrl(i), app.trackInfoMap);
 	app.fillTrackInfoMap(playlist, playlistArea);
 	playlistArea.reset(false);
 	playlistArea.refresh();
