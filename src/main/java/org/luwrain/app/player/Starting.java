@@ -44,7 +44,7 @@ final class Starting
 	case STREAMING:
 	    return onStreaming(album);
 	case DIR:
-	    	    return onDir(album);
+	    return onDir(album);
 	default:
 	    return false;
 	}
@@ -56,7 +56,10 @@ final class Starting
 	final String url = album.getProps().getProperty("url");
 	if (url == null || url.trim().isEmpty())
 	    return false;
-	final Playlist playlist = new FixedPlaylist(url.trim());
+	final Playlist playlist = new FixedPlaylist(new String[]{url.trim()}, (value)->{
+		album.getProps().setProperty("volume", String.valueOf(value));
+		app.getAlbums().save();
+	    }, album.getVolume());
 	app.getPlayer().play(playlist, 0, 0, EnumSet.of(Player.Flags.STREAMING), new Properties());
 	return true;
     }
@@ -72,7 +75,10 @@ final class Starting
 	return app.runTask(taskId, ()->{
 		collectMusicFiles(new File(path), urls);
 		app.finishedTask(taskId, ()->{
-			final Playlist playlist = new FixedPlaylist(urls.toArray(new String[urls.size()]));
+			final Playlist playlist = new FixedPlaylist(urls.toArray(new String[urls.size()]), (value)->{
+				album.getProps().setProperty("volume", String.valueOf(value));
+				app.getAlbums().save();
+			    }, album.getVolume());
 			app.getPlayer().play(playlist, 0, 0, EnumSet.noneOf(Player.Flags.class), new Properties());
 		    });
 	    });

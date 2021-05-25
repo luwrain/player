@@ -38,9 +38,10 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
     private org.luwrain.player.Player player = null;
     private Conversations conv = null;
     private MainLayout layout = null;
+    private Albums albums = null;
     private Hooks hooks = null;
     final Map<String, TrackInfo> trackInfoMap = new ConcurrentHashMap();
-    private Albums albums = null;
+
 
     App()
     {
@@ -94,7 +95,6 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
     {
 	return this.albums;
     }
-
 
     @Override public boolean onEscape(InputEvent event)
     {

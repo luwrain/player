@@ -32,9 +32,9 @@ final class Albums extends ArrayList<Album> implements EditableListArea.Model
     static private final String LOG_COMPONENT = App.LOG_COMPONENT;
     static final Type ALBUM_LIST_TYPE = new TypeToken<List<Album>>(){}.getType();
 
-    private final Gson gson = new Gson();
-    private final Luwrain luwrain;
-    private final Settings sett;
+    private transient final Gson gson = new Gson();
+    private transient final Luwrain luwrain;
+    private transient final Settings sett;
 
     Albums(Luwrain luwrain)
     {
@@ -44,7 +44,7 @@ final class Albums extends ArrayList<Album> implements EditableListArea.Model
 	load();
     }
 
-    private void load()
+    private synchronized void load()
     {
 	clear();
 	final List<Album> res = gson.fromJson(sett.getAlbums(""), ALBUM_LIST_TYPE);
@@ -53,13 +53,13 @@ final class Albums extends ArrayList<Album> implements EditableListArea.Model
 	addAll(res);
 		        }
 
-        private void save()
+        synchronized void save()
     {
 	final String value = gson.toJson(this);
 	sett.setAlbums(value);
-		        }
+    }
 
-    int addAlbum(int pos, Album album)
+    synchronized int addAlbum(int pos, Album album)
     {
 	NullCheck.notNull(album, "album");
 	if (pos < 0 || pos >= size())
@@ -73,7 +73,7 @@ final class Albums extends ArrayList<Album> implements EditableListArea.Model
 	return pos;
     }
 
-    void deleteAlbum(int index) throws IOException
+    synchronized void deleteAlbum(int index) throws IOException
     {
 	if (index < 0 || index >= size())
 	    throw new IllegalArgumentException("index (" + String.valueOf(index) + ") must be non-negative and less than " + String.valueOf(size()));
@@ -81,7 +81,7 @@ final class Albums extends ArrayList<Album> implements EditableListArea.Model
 	save();
     }
 
-    @Override public boolean addToModel(int pos, java.util.function.Supplier supplier)
+    @Override public synchronized boolean addToModel(int pos, java.util.function.Supplier supplier)
     {
 	NullCheck.notNull(supplier, "supplier");
 	final Object supplied = supplier.get();
@@ -104,24 +104,24 @@ final class Albums extends ArrayList<Album> implements EditableListArea.Model
 	return true;
     }
 
-    @Override public boolean removeFromModel(int posFrom, int posTo)
+    @Override public synchronized boolean removeFromModel(int posFrom, int posTo)
     {
 	removeRange(posFrom, posTo);
 	save();
 	return true;
     }
 
-    @Override public int getItemCount()
+    @Override public synchronized int getItemCount()
     {
 	return size();
     }
 
-    @Override public Album getItem(int index)
+    @Override public synchronized Album getItem(int index)
     {
 	return get(index);
     }
 
-    @Override public void refresh()
+    @Override public synchronized void refresh()
     {
     }
 }

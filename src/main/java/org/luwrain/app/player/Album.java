@@ -21,6 +21,7 @@ import com.google.gson.annotations.*;
 import java.util.*;
 
 import org.luwrain.core.*;
+import org.luwrain.player.Player;
 import org.luwrain.script.*;
 
 final class Album extends EmptyHookObject implements Comparable
@@ -79,6 +80,20 @@ final class Album extends EmptyHookObject implements Comparable
 	if (props == null)
 	    props = new Properties();
 	return props;
+    }
+
+    int getVolume()
+    {
+	final String volumeStr = getProps().getProperty("volume");
+	if (volumeStr == null || volumeStr.trim().isEmpty())
+	    return Player.MAX_VOLUME;
+	try {
+	    return Math.min(Math.max(Integer.parseInt(volumeStr.trim()), Player.MIN_VOLUME), Player.MAX_VOLUME);
+	}
+	    catch(NumberFormatException e)
+	    {
+		return Player.MAX_VOLUME;
+	    }
     }
 
     boolean isSection()
