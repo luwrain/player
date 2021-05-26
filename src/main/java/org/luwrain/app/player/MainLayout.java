@@ -60,10 +60,10 @@ final class MainLayout extends LayoutBase
 	actionPauseResume = action("pause-resume", app.getStrings().actionPauseResume(), KEY_PAUSE_RESUME, app.getPlayer()::pauseResume),
 	actionNextTrack = action("next-track", app.getStrings().actionNextTrack(), KEY_NEXT_TRACK, ()->actTrack(1)),
 	actionPrevTrack = action("prev-track", app.getStrings().actionPrevTrack(), KEY_PREV_TRACK, ()->actTrack(-1)),
-	actionVolumePlus = action("volume-plus", app.getStrings().actionVolumePlus(), KEY_VOLUME_PLUS, ()->{ return actVolume(STEP_VOLUME); }),
-	actionVolumeMinus = action("volume-minus", app.getStrings().actionVolumeMinus(), KEY_VOLUME_MINUS, ()->{ return actVolume(-1 * STEP_VOLUME); }),
-	actionJumpForward = action("jump-forward", app.getStrings().actionJumpForward(), KEY_JUMP_FORWARD, ()->{ return app.getPlayer().jump(STEP_JUMP); }),
-	actionJumpBackward = action("jump-backward", app.getStrings().actionJumpBackward(), KEY_JUMP_BACKWARD, ()->{ return app.getPlayer().jump(-1 * STEP_JUMP); });
+	actionVolumePlus = action("volume-plus", app.getStrings().actionVolumePlus(), KEY_VOLUME_PLUS, ()->actVolume(STEP_VOLUME)),
+	actionVolumeMinus = action("volume-minus", app.getStrings().actionVolumeMinus(), KEY_VOLUME_MINUS, ()->actVolume(-1 * STEP_VOLUME)),
+	actionJumpForward = action("jump-forward", app.getStrings().actionJumpForward(), KEY_JUMP_FORWARD, ()->app.getPlayer().jump(STEP_JUMP)),
+	actionJumpBackward = action("jump-backward", app.getStrings().actionJumpBackward(), KEY_JUMP_BACKWARD, ()->app.getPlayer().jump(-1 * STEP_JUMP));
 	{
 	    final EditableListArea.Params params = new EditableListArea.Params();
 	    params.context = getControlContext();
@@ -109,6 +109,7 @@ final class MainLayout extends LayoutBase
 	}
 	final Actions playlistActions = actions(
 						actionPauseResume,
+											      actionNextTrack, actionPrevTrack,
 						actionJumpForward, actionJumpBackward,
 						actionVolumePlus, actionVolumeMinus
 						);
@@ -116,6 +117,7 @@ final class MainLayout extends LayoutBase
 	this.controlArea = new ControlArea(getControlContext(), controlCallback, app.getStrings(), "ПАУЗА", "СТОП");
 	final Actions controlActions = actions(
 					       actionPauseResume,
+					       					      actionNextTrack, actionPrevTrack,
 					       actionJumpForward, actionJumpBackward,
 					       actionVolumePlus, actionVolumeMinus
 					       );
