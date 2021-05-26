@@ -35,6 +35,9 @@ final class MainLayout extends LayoutBase
 	STEP_JUMP = 5000;
 
     static private final InputEvent
+	KEY_PAUSE_RESUME = new InputEvent(' '),
+	KEY_NEXT_TRACK  = new InputEvent('=', EnumSet.of(Modifiers.ALT)),
+	KEY_PREV_TRACK = new InputEvent('-', EnumSet.of(Modifiers.ALT)),
 	KEY_VOLUME_PLUS = new InputEvent('+', EnumSet.of(Modifiers.SHIFT)),
 	KEY_VOLUME_MINUS = new InputEvent('_', EnumSet.of(Modifiers.SHIFT)),
     	KEY_JUMP_FORWARD = new InputEvent('='),
@@ -54,6 +57,9 @@ final class MainLayout extends LayoutBase
 	this.app = app;
 	this.player = player;
 	final ActionInfo
+	actionPauseResume = action("pause-resume", app.getStrings().actionPauseResume(), KEY_PAUSE_RESUME, app.getPlayer()::pauseResume),
+	actionNextTrack = action("next-track", app.getStrings().actionNextTrack(), KEY_NEXT_TRACK, ()->actTrack(1)),
+	actionPrevTrack = action("prev-track", app.getStrings().actionPrevTrack(), KEY_PREV_TRACK, ()->actTrack(-1)),
 	actionVolumePlus = action("volume-plus", app.getStrings().actionVolumePlus(), KEY_VOLUME_PLUS, ()->{ return actVolume(STEP_VOLUME); }),
 	actionVolumeMinus = action("volume-minus", app.getStrings().actionVolumeMinus(), KEY_VOLUME_MINUS, ()->{ return actVolume(-1 * STEP_VOLUME); }),
 	actionJumpForward = action("jump-forward", app.getStrings().actionJumpForward(), KEY_JUMP_FORWARD, ()->{ return app.getPlayer().jump(STEP_JUMP); }),
@@ -87,6 +93,8 @@ final class MainLayout extends LayoutBase
 	}
 	final Actions albumsActions = actions(
 					      action("add-album", app.getStrings().actionAddAlbum(), new InputEvent(Special.INSERT), MainLayout.this::actAddAlbum),
+					      actionPauseResume,
+					      actionNextTrack, actionPrevTrack,
 					      actionJumpForward, actionJumpBackward,
 					      actionVolumePlus, actionVolumeMinus
 					      );
@@ -100,12 +108,14 @@ final class MainLayout extends LayoutBase
 	    this.playlistArea = new ListArea(params);
 	}
 	final Actions playlistActions = actions(
+						actionPauseResume,
 						actionJumpForward, actionJumpBackward,
 						actionVolumePlus, actionVolumeMinus
 						);
 	final ControlArea.Callback controlCallback = new ControlArea.Callback(){};
 	this.controlArea = new ControlArea(getControlContext(), controlCallback, app.getStrings(), "ПАУЗА", "СТОП");
 	final Actions controlActions = actions(
+					       actionPauseResume,
 					       actionJumpForward, actionJumpBackward,
 					       actionVolumePlus, actionVolumeMinus
 					       );
@@ -161,6 +171,20 @@ final class MainLayout extends LayoutBase
 	albumsArea.refresh();
 	albumsArea.select(index, false);
 	return true;
+    }
+
+    private boolean actTrack(int pos)
+    {
+	final Playlist playlist = app.getPlayer().getPlaylist();
+	if (playlist == null)
+	    return false;
+	int index = app.getPlayer().getTrackNum();
+	if (index < 0 || index >= playlist.getTrackCount())
+	    return false;
+	index += pos;
+	if (index < 0 || index >= playlist.getTrackCount())
+	    return false;
+	return app.getPlayer().playTrack(index);
     }
 
     private boolean actVolume(int step)

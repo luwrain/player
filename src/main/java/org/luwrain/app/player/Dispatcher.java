@@ -189,6 +189,29 @@ posMsec = 0;
 	return true;
     }
 
+        @Override public synchronized boolean playTrack(int trackIndex)
+    {
+	if (state == State.STOPPED || flags.contains(Flags.STREAMING))
+	    return false;
+	if (trackIndex < 0 || trackIndex >= playlist.getTrackCount())
+	    return false;
+	final State prevState = state;
+	if (currentPlayer != null)
+	{
+	    currentPlayer.stop();
+	    currentPlayer = null;
+	}
+	this.trackNum = trackIndex;
+this.posMsec = 0;
+	runPlayer();
+	state = State.PLAYING;
+	if (prevState != state)
+	    	notifyListeners((listener)->listener.onNewState(playlist, State.PLAYING));
+		    	notifyListeners((listener)->listener.onNewTrack(playlist, trackNum));
+	notifyListeners((listener)->listener.onTrackTime(playlist, trackNum, 0));
+	return true;
+    }
+
     @Override public synchronized void onPlayerTime(MediaResourcePlayer.Instance sourcePlayer, long msec)
     {
 	if (currentPlayer == null || sourcePlayer == null || currentPlayer != sourcePlayer)
