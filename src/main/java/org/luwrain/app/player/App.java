@@ -96,7 +96,7 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
 	return this.albums;
     }
 
-    @Override public boolean onEscape(InputEvent event)
+    @Override public boolean onEscape()
     {
 	closeApp();
 	return true;
