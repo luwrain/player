@@ -45,7 +45,7 @@ final class MainLayout extends LayoutBase
 
     private final App app;
     private final Player player;
-    final EditableListArea albumsArea;
+    final EditableListArea<Album> albumsArea;
     final ListArea<Track> playlistArea;
     final ControlArea controlArea ;
     private Track[] tracks = new Track[0];
@@ -65,20 +65,20 @@ final class MainLayout extends LayoutBase
 	actionJumpForward = action("jump-forward", app.getStrings().actionJumpForward(), KEY_JUMP_FORWARD, ()->app.getPlayer().jump(STEP_JUMP)),
 	actionJumpBackward = action("jump-backward", app.getStrings().actionJumpBackward(), KEY_JUMP_BACKWARD, ()->app.getPlayer().jump(-1 * STEP_JUMP));
 	{
-	    final EditableListArea.Params params = new EditableListArea.Params();
+	    final EditableListArea.Params<Album> params = new EditableListArea.Params<>();
 	    params.context = getControlContext();
 	    params.model = app.getAlbums();
 	    params.name = app.getStrings().albumsAreaName();
 	    params.clickHandler = (area, index, obj)->app.starting.play((Album)obj);
-	    params.appearance = new ListUtils.DoubleLevelAppearance(params.context){
-		    @Override public boolean isSectionItem(Object item) { return MainLayout.this.isSectionItem(item); }
+	    params.appearance = new ListUtils.DoubleLevelAppearance<Album>(params.context){
+		    @Override public boolean isSectionItem(Album album) { return MainLayout.this.isSectionItem(album); }
 		};
-	    params.transition = new ListUtils.DoubleLevelTransition(params.model) {
-		    @Override public boolean isSectionItem(Object item) { return MainLayout.this.isSectionItem(item); }
+	    params.transition = new ListUtils.DoubleLevelTransition<Album>(params.model) {
+		    @Override public boolean isSectionItem(Album album) { return MainLayout.this.isSectionItem(album); }
 		};
 	    params.clipboardSaver = (area, model, appearance, fromIndex, toIndex, clipboard)->{
-		final List<Album> a = new ArrayList();
-		final List<String> s = new ArrayList();
+		final List<Album> a = new ArrayList<>();
+		final List<String> s = new ArrayList<>();
 		for(int i = fromIndex; i < toIndex;i++)
 		{
 		    final Album album = (Album)model.getItem(i);
@@ -89,7 +89,7 @@ final class MainLayout extends LayoutBase
 		clipboard.set(a.toArray(new Album[a.size()]), s.toArray(new String[s.size()]));
 		return true;
 	    };
-	    this.albumsArea = new EditableListArea(params);
+	    this.albumsArea = new EditableListArea<>(params);
 	}
 	final Actions albumsActions = actions(
 					      action("add-album", app.getStrings().actionAddAlbum(), new InputEvent(Special.INSERT), MainLayout.this::actAddAlbum),

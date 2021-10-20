@@ -40,7 +40,7 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
     private MainLayout layout = null;
     private Albums albums = null;
     private Hooks hooks = null;
-    final Map<String, TrackInfo> trackInfoMap = new ConcurrentHashMap();
+    final Map<String, TrackInfo> trackInfoMap = new ConcurrentHashMap<>();
 
 
     App()
@@ -72,11 +72,11 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
     {
 	NullCheck.notNull(playlist, "playlist");
 	NullCheck.notNull(listArea, "listArea");
-	final List<String> tracks = new ArrayList();
+	final List<String> tracks = new ArrayList<>();
 	int count = playlist.getTrackCount();
 	for(int i = 0;i < count;i++)
 	    tracks.add(playlist.getTrackUrl(i));
-	getLuwrain().executeBkg(new FutureTask(()->{
+	getLuwrain().executeBkg(new FutureTask<>(()->{
 		    for(String s: tracks)
 		    {
 			try {

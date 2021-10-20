@@ -27,7 +27,7 @@ import com.google.gson.reflect.*;
 import org.luwrain.core.*;
 import org.luwrain.controls.*;
 
-final class Albums extends ArrayList<Album> implements EditableListArea.Model
+final class Albums extends ArrayList<Album> implements EditableListArea.Model<Album>
 {
     static private final String LOG_COMPONENT = App.LOG_COMPONENT;
     static final Type ALBUM_LIST_TYPE = new TypeToken<List<Album>>(){}.getType();
@@ -81,7 +81,7 @@ final class Albums extends ArrayList<Album> implements EditableListArea.Model
 	save();
     }
 
-    @Override public synchronized boolean addToModel(int pos, java.util.function.Supplier supplier)
+    @Override public synchronized boolean addToModel(int pos, java.util.function.Supplier<Object> supplier)
     {
 	NullCheck.notNull(supplier, "supplier");
 	final Object supplied = supplier.get();

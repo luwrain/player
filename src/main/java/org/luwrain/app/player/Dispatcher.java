@@ -30,7 +30,7 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
     private final Settings sett;
     private final Random rand = new Random();
     private MediaResourcePlayer[] mediaResourcePlayers;
-    private final List<org.luwrain.player.Listener> listeners = new Vector();
+    private final List<org.luwrain.player.Listener> listeners = new ArrayList<>();
 
     private State state = State.STOPPED;
     private int volume = MAX_VOLUME;

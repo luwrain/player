@@ -70,7 +70,7 @@ final class Starting
 	final String path = album.getProps().getProperty("path");
 	if (path == null || path.trim().isEmpty())
 	    return false;
-	final List<String> urls = new ArrayList();
+	final List<String> urls = new ArrayList<>();
 	final App.TaskId taskId = app.newTaskId();
 	return app.runTask(taskId, ()->{
 		collectMusicFiles(new File(path), urls);
