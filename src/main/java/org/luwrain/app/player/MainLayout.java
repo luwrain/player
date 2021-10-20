@@ -45,9 +45,9 @@ final class MainLayout extends LayoutBase
 
     private final App app;
     private final Player player;
-    private EditableListArea albumsArea = null;
-    private ListArea playlistArea = null;
-    private ControlArea controlArea = null;
+    final EditableListArea albumsArea;
+    final ListArea<Track> playlistArea;
+    final ControlArea controlArea ;
     private Track[] tracks = new Track[0];
 
     MainLayout(App app, Player player)
@@ -98,15 +98,11 @@ final class MainLayout extends LayoutBase
 					      actionJumpForward, actionJumpBackward,
 					      actionVolumePlus, actionVolumeMinus
 					      );
-	{
-	    final ListArea.Params params = new ListArea.Params();
-	    params.context = getControlContext();
-	    params.model = new PlaylistModel();
-	    params.appearance = new ListUtils.DefaultAppearance(params.context);//new PlaylistAppearance(luwrain, base);
+	    this.playlistArea = new ListArea<>(listParams((params)->{
+		    	    params.name = app.getStrings().playlistAreaName();
+			    params.model = new ListUtils.ArrayModel<>(()->tracks);
 	    params.clickHandler = null;
-	    params.name = app.getStrings().playlistAreaName();
-	    this.playlistArea = new ListArea(params);
-	}
+		    }));
 	final Actions playlistActions = actions(
 						actionPauseResume,
 											      actionNextTrack, actionPrevTrack,
@@ -122,7 +118,7 @@ final class MainLayout extends LayoutBase
 					       actionVolumePlus, actionVolumeMinus
 					       );
 	setAreaLayout(AreaLayout.LEFT_TOP_BOTTOM, albumsArea, albumsActions, playlistArea, playlistActions, controlArea, controlActions);
-    }
+	}
 
     private boolean actAddAlbum()
     {
@@ -233,30 +229,4 @@ boolean isSectionItem(Object item)
 		    }
 		    return false;
 		}
-
-    private class PlaylistModel implements EditableListArea.Model
-    {
-	@Override public boolean addToModel(int pos, java.util.function.Supplier supplier)
-	{
-	    NullCheck.notNull(supplier, "supplier");
-	    return false;
-	}
-	@Override public boolean removeFromModel(int indexFrom, int indexTo)
-	{
-	    return false;
-	}
-	@Override public void refresh()
-	{
-	} 
-	@Override public Object getItem(int index)
-	{
-	    if (index < 0 || index >= tracks.length)
-		return "";
-	    return tracks[index];
-	}
-	@Override public int getItemCount()
-	{
-	    return tracks.length;
-	}
-    }
 }
