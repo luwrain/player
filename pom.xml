@@ -34,10 +34,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
             </manifest>
-          </archive>
-
-
-	        	    <manifestSections>
+            <manifestSections>
               <manifestSection>
                 <name>org/luwrain</name>
                 <manifestEntries>
@@ -45,6 +42,7 @@
                 </manifestEntries>
               </manifestSection>
             </manifestSections>
+          </archive>
         </configuration>
       </plugin>
     </plugins>
