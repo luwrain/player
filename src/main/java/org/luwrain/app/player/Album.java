@@ -16,35 +16,28 @@
 
 package org.luwrain.app.player;
 
-import com.google.gson.annotations.*;
-
-import java.util.*;
-
-import org.luwrain.core.*;
 import org.luwrain.player.Player;
-import org.luwrain.script.*;
 
-final class Album extends EmptyHookObject implements Comparable
+final class Album implements Comparable
 {
     enum Type {SECTION, STREAMING, DIR, M3U, UNKNOWN};
 
-    private Type type = null;
-    private String title = "";
-    private Properties props = new Properties();
+    private String
+	title = null,
+	url = null,
+	path = null;
 
-    @Override public Object getMember(String name)
+    private Type type = null;
+    private Integer volume = null;
+
+    Type getType()
     {
-	switch(name)
-	{
-	case "title":
-	    return getTitle();
-	case "type":
-	    return getType().toString().toLowerCase();
-	case "properties":
-	    return new PropertiesHookObject(getProps());
-	default:
-	    return super.getMember(name);
-	}
+	return this.type != null?type:Type.UNKNOWN;
+    }
+
+    void setType(Type type)
+    {
+	this.type = type;
     }
 
     String getTitle()
@@ -54,40 +47,39 @@ final class Album extends EmptyHookObject implements Comparable
 
     void setTitle(String title)
     {
-	NullCheck.notNull(title, "title");
 	this.title = title;
     }
 
-    Type getType()
+    String getUrl()
     {
-	return this.type;
+	return url;
     }
 
-    void setType(Type type)
+    void setUrl(String url)
     {
-	NullCheck.notNull(type, "type");
-	this.type = type;
+	this.url = url;
     }
 
-    Properties getProps()
+    String getPath()
     {
-	if (props == null)
-	    props = new Properties();
-	return props;
+	return path;
+    }
+
+    void setPath(String path)
+    {
+	this.path = path;
     }
 
     int getVolume()
     {
-	final String volumeStr = getProps().getProperty("volume");
-	if (volumeStr == null || volumeStr.trim().isEmpty())
+	if (volume == null)
 	    return Player.MAX_VOLUME;
-	try {
-	    return Math.min(Math.max(Integer.parseInt(volumeStr.trim()), Player.MIN_VOLUME), Player.MAX_VOLUME);
-	}
-	    catch(NumberFormatException e)
-	    {
-		return Player.MAX_VOLUME;
-	    }
+	return Math.min(Math.max(volume.intValue(), Player.MIN_VOLUME), Player.MAX_VOLUME);
+    }
+
+    void setVolume(int volume)
+    {
+	this.volume = new Integer(volume);
     }
 
     boolean isSection()

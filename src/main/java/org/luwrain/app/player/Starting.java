@@ -46,20 +46,20 @@ final class Starting
 
     private boolean onStreaming(Album album)
     {
-	final String url = album.getProps().getProperty("url");
+	final String url = album.getUrl();
 	if (url == null || url.trim().isEmpty())
 	    return false;
 	final Playlist playlist = new FixedPlaylist(new String[]{url.trim()}, (value)->{
-		album.getProps().setProperty("volume", String.valueOf(value));
+		album.setVolume(value);
 		app.getAlbums().save();
 	    }, album.getVolume());
-	app.getPlayer().play(playlist, 0, 0, EnumSet.of(Player.Flags.STREAMING), new Properties());
+	app.getPlayer().play(playlist, 0, 0, EnumSet.of(Player.Flags.STREAMING));
 	return true;
     }
 
     private boolean onDir(Album album)
     {
-	final String path = album.getProps().getProperty("path");
+	final String path = album.getPath();
 	if (path == null || path.trim().isEmpty())
 	    return false;
 	final List<String> urls = new ArrayList<>();
@@ -68,10 +68,10 @@ final class Starting
 		collectMusicFiles(new File(path), urls);
 		app.finishedTask(taskId, ()->{
 			final Playlist playlist = new FixedPlaylist(urls.toArray(new String[urls.size()]), (value)->{
-				album.getProps().setProperty("volume", String.valueOf(value));
+				album.setVolume(value);
 				app.getAlbums().save();
 			    }, album.getVolume());
-			app.getPlayer().play(playlist, 0, 0, EnumSet.noneOf(Player.Flags.class), new Properties());
+			app.getPlayer().play(playlist, 0, 0, EnumSet.noneOf(Player.Flags.class));
 		    });
 	    });
     }

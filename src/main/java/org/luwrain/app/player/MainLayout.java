@@ -150,7 +150,7 @@ final class MainLayout extends LayoutBase
 		final String url = app.getConv().newStreamingAlbumUrl();
 		if (url == null)
 		    return true;
-		album.getProps().setProperty("url", url);
+		album.setUrl(url);
 		break;
 	    }
 	case DIR:
@@ -158,7 +158,7 @@ final class MainLayout extends LayoutBase
 		final File path = app.getConv().newDirAlbumPath();
 		if (path == null)
 		    return true;
-		album.getProps().setProperty("path", path.getAbsolutePath());
+		album.setPath(path.getAbsolutePath());
 		break;
 	    }
 	default:

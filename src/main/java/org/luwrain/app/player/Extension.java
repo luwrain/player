@@ -61,7 +61,7 @@ public final class Extension extends EmptyExtension
 			final URL url = Urls.toUrl(f);
 			if (url == null)
 			    return null;//FIXME:message
-			player.play(new org.luwrain.player.FixedPlaylist(url.toString()), 0, 0, org.luwrain.player.Player.DEFAULT_FLAGS, null);
+			player.play(new org.luwrain.player.FixedPlaylist(url.toString()), 0, 0, org.luwrain.player.Player.DEFAULT_FLAGS);
 		    }
 		    return new Application[0];
 		}
