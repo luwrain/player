@@ -28,18 +28,12 @@ final class Album extends EmptyHookObject implements Comparable
 {
     enum Type {SECTION, STREAMING, DIR, M3U, UNKNOWN};
 
-    @SerializedName("type")
     private Type type = null;
-
-    @SerializedName("title")
     private String title = "";
-
-    @SerializedName("props")
     private Properties props = new Properties();
 
     @Override public Object getMember(String name)
     {
-	NullCheck.notNull(name, "name");
 	switch(name)
 	{
 	case "title":

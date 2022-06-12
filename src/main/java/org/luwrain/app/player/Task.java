@@ -27,7 +27,6 @@ final class Task
 
     Task(URL url, long startPosMsec)
     {
-	NullCheck.notNull(url, "url");
 	if (startPosMsec < 0)
 	    throw new IllegalArgumentException("startPosMsec (" + startPosMsec + ") may not be negative");
 	this.url = url;

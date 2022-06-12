@@ -20,7 +20,6 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.io.*;
 import java.net.*;
-//import java.nio.charset.*;
 
 import org.luwrain.core.*;
 import org.luwrain.core.events.*;
@@ -28,39 +27,35 @@ import org.luwrain.controls.*;
 import org.luwrain.player.*;
 import org.luwrain.app.base.*;
 
-class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.player.Listener
+final class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.player.Listener
 {
-    static final String DATA_DIR_NAME = "luwrain.player";
-    static final String LOG_COMPONENT = "player";
+    static final String
+	DATA_DIR_NAME = "luwrain.player",
+	LOG_COMPONENT = "player";
 
     private final String[] args;
     final Starting starting = new Starting(this);
     private org.luwrain.player.Player player = null;
-    private Conversations conv = null;
+    private Conv conv = null;
     private MainLayout layout = null;
     private Albums albums = null;
     private Hooks hooks = null;
     final Map<String, TrackInfo> trackInfoMap = new ConcurrentHashMap<>();
 
-
-    App()
-    {
-	this(null);
-    }
-
+    App() { this(null); }
     App(String[] args)
     {
 	super(Strings.NAME, Strings.class, "luwrain.player");
-	this.args = args.clone();
+	this.args = args != null?args.clone():new String[0];
     }
 
-    @Override public AreaLayout onAppInit() throws IOException
+    @Override public AreaLayout onAppInit() throws Exception
     {
-	this.conv = new Conversations(this);
+	this.conv = new Conv(this);
 	this.albums = new Albums(getLuwrain());
 	this.player = getLuwrain().getPlayer();
 	if (player == null)
-	    return null;
+	    throw new Exception("No system player");
 	this.player.addListener(this);
 	this.hooks = new Hooks(getLuwrain());
 	this.layout = new MainLayout(this, this.player);
@@ -70,8 +65,6 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
 
     void fillTrackInfoMap(Playlist playlist, ListArea listArea)
     {
-	NullCheck.notNull(playlist, "playlist");
-	NullCheck.notNull(listArea, "listArea");
 	final List<String> tracks = new ArrayList<>();
 	int count = playlist.getTrackCount();
 	for(int i = 0;i < count;i++)
@@ -91,10 +84,6 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
 	}, null));
     }
 
-    Albums getAlbums()
-    {
-	return this.albums;
-    }
 
     @Override public boolean onEscape()
     {
@@ -116,7 +105,6 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
 
     @Override public void onNewPlaylist(org.luwrain.player.Playlist playlist)
     {
-	NullCheck.notNull(playlist, "playlist");
 	getLuwrain().runUiSafely(()->{
 		if (layout != null)
 		    layout.onNewPlaylist(playlist);
@@ -170,18 +158,8 @@ class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.
 	{
 	}
 
-    Player getPlayer()
-    {
-	return this.player;
-    }
-
-        Hooks getHooks()
-    {
-	return this.hooks;
-    }
-
-    Conversations getConv()
-    {
-	return conv;
-    }
+    Albums getAlbums() { return this.albums; }
+    Player getPlayer() { return this.player; }
+    Hooks getHooks() { return this.hooks; }
+    Conv getConv() { return conv; }
 }

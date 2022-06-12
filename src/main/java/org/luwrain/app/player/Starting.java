@@ -27,16 +27,10 @@ import org.luwrain.util.*;
 final class Starting
 {
     private final App app;
-
-    Starting(App app)
-    {
-	NullCheck.notNull(app, "app");
-	this.app = app;
-    }
+    Starting(App app) { this.app = app; }
 
     boolean play(Album album)
     {
-	NullCheck.notNull(album, "album");
 	if (album.getType() == null)
 	    return false;
 	switch(album.getType())
@@ -52,7 +46,6 @@ final class Starting
 
     private boolean onStreaming(Album album)
     {
-	NullCheck.notNull(album, "album");
 	final String url = album.getProps().getProperty("url");
 	if (url == null || url.trim().isEmpty())
 	    return false;
@@ -66,7 +59,6 @@ final class Starting
 
     private boolean onDir(Album album)
     {
-	NullCheck.notNull(album, "album");
 	final String path = album.getProps().getProperty("path");
 	if (path == null || path.trim().isEmpty())
 	    return false;
@@ -86,8 +78,6 @@ final class Starting
 
     private void collectMusicFiles(File file, List<String> res)
     {
-	NullCheck.notNull(file, "file");
-	NullCheck.notNull(res, "res");
 	if (!file.exists())
 	    return;
 	if (file.isFile())

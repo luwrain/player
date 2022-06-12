@@ -53,7 +53,6 @@ final class MainLayout extends LayoutBase
     MainLayout(App app, Player player)
     {
 	super(app);
-	NullCheck.notNull(player, "player");
 	this.app = app;
 	this.player = player;
 	final ActionInfo
@@ -215,13 +214,11 @@ final class MainLayout extends LayoutBase
 
     private String getTrackTextAppearance(String trackUrl)
     {
-	NullCheck.notNull(trackUrl, "trackUrl");
 	return Utils.getTrackTextAppearanceWithMap(trackUrl, app.trackInfoMap);
     }
 
 boolean isSectionItem(Object item)
 		{
-		    NullCheck.notNull(item, "item");
 		    if (item instanceof Album)
 		    {
 			final Album album = (Album)item;
