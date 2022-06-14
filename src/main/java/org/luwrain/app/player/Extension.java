@@ -31,7 +31,18 @@ public final class Extension extends EmptyExtension
     {
 	return new Command[]{
 	    new SimpleShortcutCommand("player"),
-	};
+
+	    new Command(){
+		@Override public String getName() { return "player-pause"; }
+		@Override public void onCommand(Luwrain luwrain)
+		{
+		    final org.luwrain.player.Player player = luwrain.getPlayer();
+		    if (player != null)
+			player.pauseResume(); else
+			luwrain.playSound(Sounds.BLOCKED);
+		}},
+
+	    };
     }
 
     @Override public Shortcut[] getShortcuts(Luwrain luwrain)
