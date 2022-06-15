@@ -60,7 +60,9 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
 	NullCheck.notNull(playlist, "playlist");
 	NullCheck.notNull(flags, "flags");
 	if (startingTrackNum < 0 || startingTrackNum >= playlist.getTrackCount())
-	    return Result.INVALID_PLAYLIST;
+	    throw new IllegalArgumentException("Illegal starting track num: " + String.valueOf(startingTrackNum));
+	if (startingPosMsec < 0)
+	    throw new IllegalArgumentException("Illegal starting position: " + String.valueOf(startingPosMsec));
 	stop();
 	this.playlist = playlist;
 	this.volume = playlist.getVolume();
@@ -81,6 +83,7 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
 	notifyListeners((l)->l.onNewState(playlist, State.PLAYING));
 	notifyListeners((l)->l.onNewPlaylist(playlist));
 	notifyListeners((l)->l.onNewTrack(playlist, trackNum));
+	playlist.onProgress(trackNum, startingPosMsec);
 	return Result.OK;
     }
 
@@ -88,13 +91,13 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
     {
 	if (state == State.STOPPED)
 	    return false;
-	//Current player may be null, this means we are paused
-	if (currentPlayer != null)
-	    currentPlayer.stop();
-	currentPlayer = null;
-	//Playlist must be saved
-	trackNum = 0;
-	posMsec = 0;
+	//If the current player is null, we are paused
+	if (this.player != null)
+	    player.stop();
+	player = null;
+	//The playlist must be keeped, we don't touch it
+	this.trackNum = 0;
+	this.posMsec = 0;
 	state = State.STOPPED;
 	notifyListeners((listener)->listener.onNewState(playlist, State.STOPPED));
 	return true;
@@ -108,8 +111,8 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
 	if (state == State.PLAYING)
 	{
 	    //pausing
-	    currentPlayer.stop();
-	    currentPlayer = null;
+	    player.stop();
+	    player = null;
 	    state = State.PAUSED;
 	    notifyListeners((listener)->listener.onNewState(playlist, State.PAUSED));
 	} else
@@ -131,10 +134,10 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
     {
 	if (state == State.STOPPED || flags.contains(Flags.STREAMING))
 	    return false;
-	if (currentPlayer != null)
+	if (this.player != null)
 	{
-	    currentPlayer.stop();
-	    currentPlayer = null;
+	    this.player.stop();
+	    this.player = null;
 	}
 	posMsec += offsetMsec;
 	if (posMsec < 0)
@@ -142,6 +145,7 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
 	runPlayer();
 	state = State.PLAYING;
 	notifyListeners((listener)->listener.onTrackTime(playlist, trackNum, posMsec));
+	this.playlist.onProgress(trackNum, posMsec);
 	return true;
     }
 
@@ -152,19 +156,20 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
 	if (trackNum + 1 >= playlist.getTrackCount())
 	    return false;
 	final State prevState = state;
-	if (currentPlayer != null)
+	if (player != null)
 	{
-	    currentPlayer.stop();
-	    currentPlayer = null;
+	    this.player.stop();
+	    this.player = null;
 	}
-	++trackNum;
-	posMsec = 0;
+	++this.trackNum;
+	this.posMsec = 0;
 	runPlayer();
-	state = State.PLAYING;
+	this.state = State.PLAYING;
 	if (prevState != state)
 	    	notifyListeners((listener)->listener.onNewState(playlist, State.PLAYING));
 	notifyListeners((listener)->listener.onNewTrack(playlist, trackNum));
 	notifyListeners((listener)->listener.onTrackTime(playlist, trackNum, 0));
+	this.playlist.onProgress(trackNum, 0);
 	return true;
     }
 
@@ -175,19 +180,20 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
 	if (trackNum == 0)
 	    return false;
 	final State prevState = state;
-	if (currentPlayer != null)
+	if (player != null)
 	{
-	    currentPlayer.stop();
-	    currentPlayer = null;
+	    this.player.stop();
+	    this.player = null;
 	}
-	--trackNum;
-posMsec = 0;
+	--this.trackNum;
+this.posMsec = 0;
 	runPlayer();
 	state = State.PLAYING;
 	if (prevState != state)
 	    	notifyListeners((listener)->listener.onNewState(playlist, State.PLAYING));
 		    	notifyListeners((listener)->listener.onNewTrack(playlist, trackNum));
 	notifyListeners((listener)->listener.onTrackTime(playlist, trackNum, 0));
+		this.playlist.onProgress(trackNum, 0);
 	return true;
     }
 
@@ -198,10 +204,10 @@ posMsec = 0;
 	if (trackIndex < 0 || trackIndex >= playlist.getTrackCount())
 	    return false;
 	final State prevState = state;
-	if (currentPlayer != null)
+	if (player != null)
 	{
-	    currentPlayer.stop();
-	    currentPlayer = null;
+	    this.player.stop();
+	    this.player = null;
 	}
 	this.trackNum = trackIndex;
 this.posMsec = 0;
@@ -211,26 +217,28 @@ this.posMsec = 0;
 	    	notifyListeners((listener)->listener.onNewState(playlist, State.PLAYING));
 		    	notifyListeners((listener)->listener.onNewTrack(playlist, trackNum));
 	notifyListeners((listener)->listener.onTrackTime(playlist, trackNum, 0));
+	this.playlist.onProgress(this.trackNum, 0);
 	return true;
     }
 
-    @Override public synchronized void onPlayerTime(MediaResourcePlayer.Instance sourcePlayer, long msec)
+    @Override public synchronized void onPlayerTime(Instance sourcePlayer, long msec)
     {
-	if (currentPlayer == null || sourcePlayer == null || currentPlayer != sourcePlayer)
+	if (this.player == null || sourcePlayer == null || this.player != sourcePlayer)
 	    return;
-	if (state != State.PLAYING || flags.contains(Flags.STREAMING))
+	if (this.state != State.PLAYING || flags.contains(Flags.STREAMING))
 	    return;
-	if (posMsec <= msec && msec < posMsec + 50)
+	if (this.posMsec <= msec && msec < this.posMsec + 50)
 	    return;
-	posMsec = msec;
+	this.posMsec = msec;
 	notifyListeners((listener)->listener.onTrackTime(playlist, trackNum, posMsec));
+	this.playlist.onProgress(this.trackNum, this.posMsec);
     }
 
     @Override public synchronized void onPlayerFinish(Instance sourcePlayer)
     {
-	if (currentPlayer == null || sourcePlayer == null || currentPlayer != sourcePlayer)
+	if (player == null || sourcePlayer == null || player != sourcePlayer)
 	    return;
-	if (state != State.PLAYING)
+	if (this.state != State.PLAYING)
 	    return;
 	if (flags.contains(Flags.STREAMING))
 	{
@@ -240,14 +248,14 @@ this.posMsec = 0;
 	if (!flags.contains(Flags.CYCLED) && !flags.contains(Flags.RANDOM))
 	{
 	    if (trackNum + 1 < playlist.getTrackCount())
-		nextTrack(); else
+		this.nextTrack(); else
 		stop();
 	    return;
 	}
-	if (currentPlayer != null)
+	if (this.player != null)
 	{
-	    currentPlayer.stop();
-	    currentPlayer = null;
+	    this.player.stop();
+	    player = null;
 	}
 	if (!flags.contains(Flags.RANDOM))
 	{
@@ -261,7 +269,7 @@ this.posMsec = 0;
 	this.state = State.PLAYING;
 	notifyListeners((listener)->listener.onNewTrack(playlist, trackNum));
 	notifyListeners((listener)->listener.onTrackTime(playlist, trackNum, 0));
-	this.playlist.onProgress(trackNum, 0);
+	this.playlist.onProgress(this.trackNum, 0);
     }
 
     @Override public synchronized void onPlayerError(Exception e)
@@ -299,8 +307,8 @@ this.posMsec = 0;
 	if (this.volume == newVolume)
 	    return;
 	this.volume = newVolume;
-	if (currentPlayer != null)
-	    currentPlayer.setVolume(this.volume);
+	if (player != null)
+	    player.setVolume(this.volume);
 	if (playlist != null)
 	    playlist.onNewVolume(this.volume);
     }
@@ -397,7 +405,7 @@ this.posMsec = 0;
 	    default:
 		return Result.GENERAL_PLAYER_ERROR;
 	    }
-	currentPlayer = instance;
+	player = instance;
 	return Result.OK;
     }
 
