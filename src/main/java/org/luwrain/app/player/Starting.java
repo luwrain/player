@@ -29,20 +29,36 @@ final class Starting
     private final App app;
     Starting(App app) { this.app = app; }
 
-    boolean play(Album album)
+        private boolean onDir(Album album)
     {
-	if (album.getType() == null)
+	final String path = album.getPath();
+	if (path.isEmpty())
 	    return false;
-	switch(album.getType())
-	{
-	case STREAMING:
-	    return onStreaming(album);
-	case DIR:
-	    return onDir(album);
-	default:
-	    return false;
-	}
+	final List<String> urls = new ArrayList<>();
+	final App.TaskId taskId = app.newTaskId();
+	return app.runTask(taskId, ()->{
+		collectMusicFiles(new File(path), urls);
+		app.finishedTask(taskId, ()->{
+			final Playlist playlist = new FixedPlaylist(urls.toArray(new String[urls.size()]),
+								    (trackNum, posMsec)->{
+									if (!album.isSavePosition())
+									    return;
+									album.setTrackNum(trackNum);
+									album.setPosMsec(posMsec);
+									app.getAlbums().save();
+								    },
+								    (value)->{
+				album.setVolume(value);
+				app.getAlbums().save();
+			    }, album.getVolume());
+			app.getPlayer().play(playlist,
+					     album.isSavePosition()?album.getTrackNum():0,
+					     album.isSavePosition()?album.getPosMsec():0,
+					     EnumSet.noneOf(Player.Flags.class));
+		    });
+	    });
     }
+
 
     private boolean onStreaming(Album album)
     {
@@ -57,24 +73,6 @@ final class Starting
 	return true;
     }
 
-    private boolean onDir(Album album)
-    {
-	final String path = album.getPath();
-	if (path == null || path.trim().isEmpty())
-	    return false;
-	final List<String> urls = new ArrayList<>();
-	final App.TaskId taskId = app.newTaskId();
-	return app.runTask(taskId, ()->{
-		collectMusicFiles(new File(path), urls);
-		app.finishedTask(taskId, ()->{
-			final Playlist playlist = new FixedPlaylist(urls.toArray(new String[urls.size()]), (value)->{
-				album.setVolume(value);
-				app.getAlbums().save();
-			    }, album.getVolume());
-			app.getPlayer().play(playlist, 0, 0, EnumSet.noneOf(Player.Flags.class));
-		    });
-	    });
-    }
 
     private void collectMusicFiles(File file, List<String> res)
     {
@@ -97,4 +95,20 @@ final class Starting
 		collectMusicFiles(f, res);
 	}
     }
+
+        boolean play(Album album)
+    {
+	if (album.getType() == null)
+	    return false;
+	switch(album.getType())
+	{
+	case STREAMING:
+	    return onStreaming(album);
+	case DIR:
+	    return onDir(album);
+	default:
+	    return false;
+	}
+    }
+
 }

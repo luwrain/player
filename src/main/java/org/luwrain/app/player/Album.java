@@ -27,9 +27,13 @@ public final class Album implements Comparable
 	url = null,
 	path = null;
 
+    private Integer
+	volume = null,
+	trackNum = null;
+
     private Type type = null;
-    private Integer volume = null;
     private Boolean savePos = null;
+    private Long posMsec = null;
 
     public Type getType()
     {
@@ -91,6 +95,26 @@ public final class Album implements Comparable
     public void setSavePosition(boolean value)
     {
 	this.savePos = Boolean.valueOf(value);
+    }
+
+    public int getTrackNum()
+    {
+	return trackNum != null?trackNum.intValue():0;
+    }
+
+    public void setTrackNum(int value)
+    {
+	this.trackNum = Integer.valueOf(value);
+    }
+
+    public long getPosMsec()
+    {
+	return posMsec != null?posMsec.longValue():0;
+    }
+
+    public void setPosMsec(long value)
+    {
+	this.posMsec = Long.valueOf(value);
     }
 
     public boolean isSection()
