@@ -44,4 +44,9 @@ static final String NAME = "luwrain.player";
     String actionVolumeMinus();
     String actionJumpForward();
     String actionJumpBackward();
+
+    String albumPropTitle();
+    String albumPropUrl();
+    String albumPropPath();
+    String albumPropTitleCannotBeEmpty();
 }

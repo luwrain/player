@@ -18,9 +18,9 @@ package org.luwrain.app.player;
 
 import org.luwrain.player.Player;
 
-final class Album implements Comparable
+public final class Album implements Comparable
 {
-    enum Type {SECTION, STREAMING, DIR, M3U, UNKNOWN};
+    public enum Type {SECTION, STREAMING, DIR, M3U, UNKNOWN};
 
     private String
 	title = null,
@@ -30,59 +30,59 @@ final class Album implements Comparable
     private Type type = null;
     private Integer volume = null;
 
-    Type getType()
+    public Type getType()
     {
 	return this.type != null?type:Type.UNKNOWN;
     }
 
-    void setType(Type type)
+    public void setType(Type type)
     {
 	this.type = type;
     }
 
-    String getTitle()
+    public String getTitle()
     {
-	return title != null?title:"";
+	return title != null?title.trim():"";
     }
 
-    void setTitle(String title)
+    public void setTitle(String title)
     {
 	this.title = title;
     }
 
-    String getUrl()
+    public String getUrl()
     {
-	return url;
+	return url != null?url.trim():"";
     }
 
-    void setUrl(String url)
+    public void setUrl(String url)
     {
 	this.url = url;
     }
 
-    String getPath()
+    public String getPath()
     {
-	return path;
+	return path != null?path:"";
     }
 
-    void setPath(String path)
+    public void setPath(String path)
     {
 	this.path = path;
     }
 
-    int getVolume()
+    public int getVolume()
     {
 	if (volume == null)
 	    return Player.MAX_VOLUME;
 	return Math.min(Math.max(volume.intValue(), Player.MIN_VOLUME), Player.MAX_VOLUME);
     }
 
-    void setVolume(int volume)
+    public void setVolume(int volume)
     {
-	this.volume = new Integer(volume);
+	this.volume = Integer.valueOf(volume);
     }
 
-    boolean isSection()
+    public boolean isSection()
     {
 	return this.type == Type.SECTION;
     }

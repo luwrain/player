@@ -27,6 +27,7 @@ import org.luwrain.core.events.InputEvent.Special;
 import org.luwrain.controls.*;
 import org.luwrain.player.*;
 import org.luwrain.app.base.*;
+import org.luwrain.app.player.layouts.*;
 
 final class MainLayout extends LayoutBase
 {
@@ -88,7 +89,18 @@ final class MainLayout extends LayoutBase
 		clipboard.set(a.toArray(new Album[a.size()]), s.toArray(new String[s.size()]));
 		return true;
 	    };
-	    this.albumsArea = new EditableListArea<>(params);
+	    this.albumsArea = new EditableListArea<Album>(params){
+		    @Override public boolean onSystemEvent(SystemEvent event)
+		    {
+			if (event.getType() == SystemEvent.Type.REGULAR)
+			    switch(event.getCode())
+			    {
+			    case PROPERTIES:
+			    return onAlbumProperties();
+			    }
+			return super.onSystemEvent(event);
+		    }
+		};
 	}
 	final Actions albumsActions = actions(
 					      action("add-album", app.getStrings().actionAddAlbum(), new InputEvent(Special.INSERT), MainLayout.this::actAddAlbum),
@@ -210,6 +222,30 @@ final class MainLayout extends LayoutBase
 	  controlArea.setTrackTitle("");
 	  controlArea.setTrackTime(0);
 	*/
+    }
+
+    private boolean onAlbumProperties()
+    {
+	final Album album = albumsArea.selected();
+	if (album == null)
+	    return false;
+	final ActionHandler closing = ()->{
+		    app.setAreaLayout(this);
+		    setActiveArea(albumsArea);
+		    return true;
+	};
+	final LayoutBase layout;
+	switch(album.getType())
+	{
+	case STREAMING: 
+layout = new StreamAlbumPropertiesLayout(app, album, closing);
+break;
+	default:
+	    return false;
+	}
+	app.setAreaLayout(layout);
+	getLuwrain().announceActiveArea();
+	return true;
     }
 
     private String getTrackTextAppearance(String trackUrl)

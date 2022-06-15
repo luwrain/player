@@ -27,7 +27,7 @@ import org.luwrain.controls.*;
 import org.luwrain.player.*;
 import org.luwrain.app.base.*;
 
-final class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.player.Listener
+public final class App extends AppBase<Strings> implements Application, MonoApp, org.luwrain.player.Listener
 {
     static final String
 	DATA_DIR_NAME = "luwrain.player",
