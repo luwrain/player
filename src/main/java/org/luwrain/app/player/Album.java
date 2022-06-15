@@ -29,6 +29,7 @@ public final class Album implements Comparable
 
     private Type type = null;
     private Integer volume = null;
+    private Boolean savePos = null;
 
     public Type getType()
     {
@@ -80,6 +81,16 @@ public final class Album implements Comparable
     public void setVolume(int volume)
     {
 	this.volume = Integer.valueOf(volume);
+    }
+
+    public boolean isSavePosition()
+    {
+	return savePos != null?savePos.booleanValue():false;
+    }
+
+    public void setSavePosition(boolean value)
+    {
+	this.savePos = Boolean.valueOf(value);
     }
 
     public boolean isSection()

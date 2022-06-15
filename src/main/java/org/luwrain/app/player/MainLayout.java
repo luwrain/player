@@ -230,6 +230,7 @@ final class MainLayout extends LayoutBase
 	if (album == null)
 	    return false;
 	final ActionHandler closing = ()->{
+	    app.getAlbums().save();
 		    app.setAreaLayout(this);
 		    setActiveArea(albumsArea);
 		    return true;
@@ -237,8 +238,11 @@ final class MainLayout extends LayoutBase
 	final LayoutBase layout;
 	switch(album.getType())
 	{
-	case STREAMING: 
+	case STREAMING:
 layout = new StreamAlbumPropertiesLayout(app, album, closing);
+break;
+	case DIR:
+layout = new DirAlbumPropertiesLayout(app, album, closing);
 break;
 	default:
 	    return false;

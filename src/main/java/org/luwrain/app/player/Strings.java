@@ -48,5 +48,6 @@ static final String NAME = "luwrain.player";
     String albumPropTitle();
     String albumPropUrl();
     String albumPropPath();
+    String albumPropSavePosition();
     String albumPropTitleCannotBeEmpty();
 }
