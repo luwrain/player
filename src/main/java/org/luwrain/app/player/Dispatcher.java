@@ -21,20 +21,26 @@ import java.net.*;
 import java.nio.file.*;
 
 import org.luwrain.core.*;
+import org.luwrain.core.MediaResourcePlayer.*;
 
 final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer.Listener
 {
-    static final String LOG_COMPONENT = "player";
+    static final String
+	LOG_COMPONENT = "player";
+
+    private interface ListenerNotification
+    {
+	void notify(org.luwrain.player.Listener listener);
+    }
 
     private final Luwrain luwrain;
-    private final Settings sett;
     private final Random rand = new Random();
     private MediaResourcePlayer[] mediaResourcePlayers;
     private final List<org.luwrain.player.Listener> listeners = new ArrayList<>();
 
     private State state = State.STOPPED;
     private int volume = MAX_VOLUME;
-    private MediaResourcePlayer.Instance currentPlayer = null;
+    private Instance player = null;
     private org.luwrain.player.Playlist playlist = null;
     private Set<Flags> flags = null;
     private int trackNum = 0;
@@ -44,10 +50,9 @@ final class Dispatcher implements org.luwrain.player.Player, MediaResourcePlayer
     {
 	NullCheck.notNull(luwrain, "luwrain");
 	this.luwrain = luwrain;
-	this.sett = Settings.create(luwrain.getRegistry());
 	this.mediaResourcePlayers = luwrain.getMediaResourcePlayers();
 	for(MediaResourcePlayer p: mediaResourcePlayers)
-	    Log.debug(LOG_COMPONENT, "\'" + p.getExtObjName() + "\' is a known media resource player");
+	    Log.debug(LOG_COMPONENT, "'" + p.getExtObjName() + "' is a known media resource player");
     }
 
     @Override public synchronized Result play(org.luwrain.player.Playlist playlist, int startingTrackNum, long startingPosMsec, Set<Flags> flags)
@@ -221,7 +226,7 @@ this.posMsec = 0;
 	notifyListeners((listener)->listener.onTrackTime(playlist, trackNum, posMsec));
     }
 
-    @Override public synchronized void onPlayerFinish(MediaResourcePlayer.Instance sourcePlayer)
+    @Override public synchronized void onPlayerFinish(Instance sourcePlayer)
     {
 	if (currentPlayer == null || sourcePlayer == null || currentPlayer != sourcePlayer)
 	    return;
@@ -247,15 +252,16 @@ this.posMsec = 0;
 	if (!flags.contains(Flags.RANDOM))
 	{
 	    if (trackNum + 1 < playlist.getTrackCount())
-		++trackNum; else
-		trackNum = 0;
+		++this.trackNum; else
+		this.trackNum = 0;
 	} else
-	    trackNum = rand.nextInt(playlist.getTrackCount());
-	posMsec = 0;
+	    this.trackNum = rand.nextInt(playlist.getTrackCount());
+	this.posMsec = 0;
 	runPlayer();
-	state = State.PLAYING;
+	this.state = State.PLAYING;
 	notifyListeners((listener)->listener.onNewTrack(playlist, trackNum));
 	notifyListeners((listener)->listener.onTrackTime(playlist, trackNum, 0));
+	this.playlist.onProgress(trackNum, 0);
     }
 
     @Override public synchronized void onPlayerError(Exception e)
@@ -326,14 +332,13 @@ this.posMsec = 0;
 
     private void notifyListeners(ListenerNotification notification)
     {
-	NullCheck.notNull(notification, "notification");
 	for(org.luwrain.player.Listener l: listeners)
 	    try {
 		notification.notify(l);
 	    }
 	    catch(Throwable e)
 	    {
-		Log.warning(LOG_COMPONENT, "some listener has thrown an exception:" + e.getClass().getName() + ":" + e.getMessage());
+		Log.warning(LOG_COMPONENT, "a player listener has thrown an exception: " + e.getClass().getName() + ": " + e.getMessage());
 	    }
     }
 
@@ -342,7 +347,6 @@ this.posMsec = 0;
 	if (trackNum >= playlist.getTrackCount())
 	    return null;
 	final String url = playlist.getTrackUrl(trackNum);
-	Log.debug(LOG_COMPONENT, "creating task for " + url);
 	try {
 	    return new Task(new URL(url), flags.contains(Flags.STREAMING)?0:posMsec);
 	}
@@ -357,7 +361,6 @@ this.posMsec = 0;
     {
 	NullCheck.notNull(task, "task");
 	final String contentType = luwrain.suggestContentType(task.url, ContentTypes.ExpectedType.AUDIO);
-	Log.debug(LOG_COMPONENT, "suggested content type is \'" + contentType + "\'");
 	for(MediaResourcePlayer p: mediaResourcePlayers)
 	{
 	    final String supportedTypes = p.getSupportedMimeType();
@@ -375,16 +378,17 @@ this.posMsec = 0;
 	final MediaResourcePlayer p = findPlayer(task);
 	if (p == null)
 	{
-	    Log.error(LOG_COMPONENT, "unable to choose the player for " + task.url.toString());
+	    Log.error(LOG_COMPONENT, "unable to choose a player for " + task.url.toString());
 	    return Result.UNSUPPORTED_FORMAT_STARTING_TRACK;
 	}
-	Log.debug(LOG_COMPONENT, "the chosen player is \'" + p.getExtObjName() + "\'");
 	final MediaResourcePlayer.Instance instance = p.newMediaResourcePlayer(this);
 	final MediaResourcePlayer.Params params = new MediaResourcePlayer.Params();
 	params.playFromMsec = task.startPosMsec;
 	params.volume = volume;
 	params.flags = EnumSet.noneOf(MediaResourcePlayer.Flags.class);
 	final MediaResourcePlayer.Result result = instance.play(task.url, params);
+	if (result == null)
+	    		return Result.GENERAL_PLAYER_ERROR;
 	if (!result.isOk())
 	    switch(result.getType())
 	    {
@@ -397,8 +401,4 @@ this.posMsec = 0;
 	return Result.OK;
     }
 
-    private interface ListenerNotification
-    {
-	void notify(org.luwrain.player.Listener listener);
-    }
 }

@@ -40,7 +40,7 @@ public final class DirAlbumPropertiesLayout extends LayoutBase
 	this.formArea = new FormArea(getControlContext(), album.getTitle());
 	formArea.addEdit(TITLE, app.getStrings().albumPropTitle(), album.getTitle());
 	formArea.addEdit(PATH, app.getStrings().albumPropPath(), album.getPath());
-	formArea.addCheckbox(SAVE_POSITION, app.getStrings().albumPropSavePosition(), true);
+	formArea.addCheckbox(SAVE_POSITION, app.getStrings().albumPropSavePosition(), album.isSavePosition());
 	setCloseHandler(closing);
 	setOkHandler(()->onOk(album, closing));
 	setAreaLayout(formArea, null);
