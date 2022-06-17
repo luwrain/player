@@ -17,6 +17,7 @@
 package org.luwrain.app.player;
 
 import java.util.*;
+import java.util.concurrent.atomic.*;
 import java.io.*;
 import java.net.*;
 
@@ -26,10 +27,13 @@ import org.luwrain.util.*;
 
 final class Starting
 {
+    static private final long
+	SAVE_POS_STEP = 1000;
+
     private final App app;
     Starting(App app) { this.app = app; }
 
-        private boolean onDir(Album album)
+    private boolean onDir(Album album)
     {
 	final String path = album.getPath();
 	if (path.isEmpty())
@@ -39,18 +43,22 @@ final class Starting
 	return app.runTask(taskId, ()->{
 		collectMusicFiles(new File(path), urls);
 		app.finishedTask(taskId, ()->{
+			final AtomicLong prevPosMsec = new AtomicLong(album.getPosMsec());
 			final Playlist playlist = new FixedPlaylist(urls.toArray(new String[urls.size()]),
 								    (trackNum, posMsec)->{
 									if (!album.isSavePosition())
 									    return;
+									if (Math.abs(posMsec - prevPosMsec.get()) < SAVE_POS_STEP)
+									    return;
+									prevPosMsec.set(posMsec);
 									album.setTrackNum(trackNum);
 									album.setPosMsec(posMsec);
 									app.getAlbums().save();
 								    },
 								    (value)->{
-				album.setVolume(value);
-				app.getAlbums().save();
-			    }, album.getVolume());
+									album.setVolume(value);
+									app.getAlbums().save();
+								    }, album.getVolume());
 			app.getPlayer().play(playlist,
 					     album.isSavePosition()?album.getTrackNum():0,
 					     album.isSavePosition()?album.getPosMsec():0,
