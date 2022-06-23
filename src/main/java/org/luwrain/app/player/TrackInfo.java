@@ -26,18 +26,13 @@ import org.luwrain.util.*;
 
 final class TrackInfo
 {
-    static private final String charset = "windows-1251";
+    static private final String
+	charset = "windows-1251";
 
-    final String track;
-    final String artist;
-    final String title;
-    final String album;
-    final String comment;
-
+    final String track, artist, title, album, comment;
     final long length;
-    final int bitrate;
+    final int bitrate, sampleRate;
     final boolean vbr;
-    final int sampleRate;
 
     TrackInfo(URL url) throws IOException
     {
@@ -99,7 +94,6 @@ final class TrackInfo
 	this.title = transcode(title );
 	this.album = transcode(album);
 	this.comment = transcode(comment);
-
     }
 
     private String transcode(String value) throws IOException
@@ -108,6 +102,6 @@ final class TrackInfo
 	    return value;
 
 	byte[] bytes = value.getBytes("ISO-8859-1");
-return new String(bytes, "windows-1251");
+	return new String(bytes, "windows-1251");
     }
 }

@@ -40,7 +40,7 @@ public final class App extends AppBase<Strings> implements Application, MonoApp,
     private MainLayout mainLayout = null;
     private Albums albums = null;
     private Hooks hooks = null;
-    final Map<String, TrackInfo> trackInfoMap = new ConcurrentHashMap<>();
+    final ConcurrentMap<String, TrackInfo> trackInfoMap = new ConcurrentHashMap<>();
 
     App() { this(null); }
     App(String[] args)
@@ -69,19 +69,19 @@ public final class App extends AppBase<Strings> implements Application, MonoApp,
 	int count = playlist.getTrackCount();
 	for(int i = 0;i < count;i++)
 	    tracks.add(playlist.getTrackUrl(i));
-	getLuwrain().executeBkg(new FutureTask<>(()->{
-		    for(String s: tracks)
-		    {
-			try {
-			    trackInfoMap.put(s, new TrackInfo(new URL(s)));
-			    getLuwrain().runUiSafely(()->listArea.refresh());
-			}
-			catch(IOException e)
-			{
-			    Log.warning(LOG_COMPONENT, "unable to get track info for " + s +  ":" + e.getClass().getName() + ":" + e.getMessage());
-			}
+	getLuwrain().executeBkg(()->{
+		for(String s: tracks)
+		{
+		    try {
+			trackInfoMap.put(s, new TrackInfo(new URL(s)));
+			getLuwrain().runUiSafely(()->listArea.refresh());
 		    }
-	}, null));
+		    catch(Throwable e)
+		    {
+			crash(e);
+		    }
+		}
+	    });
     }
 
     @Override public boolean onEscape()
@@ -115,7 +115,16 @@ public final class App extends AppBase<Strings> implements Application, MonoApp,
 	getLuwrain().runUiSafely(()->{
 		if (mainLayout == null)
 		    return;
-		mainLayout.controlArea.setTrackTitle("fixme1");
+		final TrackInfo trackInfo = trackInfoMap.get(playlist.getTrackUrl(trackNum));
+		if (trackInfo != null)
+		{
+		    mainLayout.controlArea.setPlaylistTitle(trackInfo.artist);
+				mainLayout.controlArea.setTrackTitle(trackInfo.title);
+		} else
+		{
+		    		    mainLayout.controlArea.setPlaylistTitle("-");
+				mainLayout.controlArea.setTrackTitle("-");
+		}
 		mainLayout.controlArea.setTrackTime(0);
 	    });
     }

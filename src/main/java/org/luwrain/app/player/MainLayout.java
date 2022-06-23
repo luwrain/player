@@ -206,7 +206,6 @@ final class MainLayout extends LayoutBase
 
     void onNewPlaylist(Playlist  playlist)
     {
-	NullCheck.notNull(playlist, "playlist");
 	this.tracks = new Track[playlist.getTrackCount()];
 	for(int i = 0;i < tracks.length;i++)
 	    this.tracks[i] = new Track(playlist.getTrackUrl(i), app.trackInfoMap);

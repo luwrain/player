@@ -32,7 +32,7 @@ class ControlArea extends NavigationArea
     private final Strings strings;
 
     private Mode mode = Mode.STOPPED;
-    private String playlistTitle = "";
+    private String playlistTitle = "";//FIXME:must be album
     private String trackTitle = "";
     private long timeSec = 0;
     private String[] content = new String[]{""};
