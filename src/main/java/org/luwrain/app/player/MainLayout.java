@@ -31,7 +31,7 @@ import org.luwrain.app.player.layouts.*;
 
 final class MainLayout extends LayoutBase
 {
-    static private final int
+    static final int
 	STEP_VOLUME = 5,
 	STEP_JUMP = 5000;
 
@@ -121,7 +121,7 @@ final class MainLayout extends LayoutBase
 						actionVolumePlus, actionVolumeMinus
 						);
 	final ControlArea.Callback controlCallback = new ControlArea.Callback(){};
-	this.controlArea = new ControlArea(getControlContext(), controlCallback, app.getStrings(), "ПАУЗА", "СТОП");
+	this.controlArea = new ControlArea(app, getControlContext(), controlCallback, app.getStrings());
 	final Actions controlActions = actions(
 					       actionPauseResume,
 					       					      actionNextTrack, actionPrevTrack,

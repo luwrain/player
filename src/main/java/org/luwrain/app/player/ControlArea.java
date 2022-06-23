@@ -25,56 +25,45 @@ class ControlArea extends NavigationArea
 {
     enum Mode {STOPPED, PAUSED, PLAYING, PLAYING_STREAMING};
 
-interface Callback
+    interface Callback
 {
 }
 
-    private final ControlContext controlContext;
+    private final App app;
+    //    private final ControlContext controlContext;
     private final Callback callback;
     private final Strings strings;
-
-    private final String pauseResume;
-    private final String stop;
 
     private Mode mode = Mode.STOPPED;
     private String playlistTitle = "";
     private String trackTitle = "";
     private long timeSec = 0;
 
-    ControlArea(ControlContext controlContext, Callback callback, Strings strings,
-		 String pauseResume, String stop)
+    ControlArea(App app, ControlContext controlContext, Callback callback, Strings strings)
     {
 	super(controlContext);
-	NullCheck.notNull(callback, "callback");
-	NullCheck.notNull(strings, "strings");
-	NullCheck.notEmpty(pauseResume, "pauseResume");
-	NullCheck.notEmpty(stop, "stop");
-	this.controlContext = controlContext;
+	this.app = app;
+	//	this.controlContext = controlContext;
 	this.callback = callback;
 	this.strings = strings;
-	this.pauseResume = pauseResume;
-	this.stop = stop;
     }
 
     void setMode(Mode mode)
     {
-	NullCheck.notNull(mode, "mode");
 	this.mode = mode;
-	controlContext.onAreaNewContent(this);
+	context.onAreaNewContent(this);
     }
 
         void setPlaylistTitle(String value)
     {
-	NullCheck.notNull(value, "value");
 	this.playlistTitle = value;
-	controlContext.onAreaNewContent(this);
+	context.onAreaNewContent(this);
     }
 
     void setTrackTitle(String value)
     {
-	NullCheck.notNull(value, "value");
 	this.trackTitle = value;
-	controlContext.onAreaNewContent(this);
+	context.onAreaNewContent(this);
     }
 
     void setTrackTime(long msec)
@@ -85,7 +74,7 @@ interface Callback
 	if (sec != timeSec)
 	{
 	    timeSec = sec;
-	    controlContext.onAreaNewContent(this);
+	    context.onAreaNewContent(this);
 	}
     }
 
@@ -122,7 +111,7 @@ interface Callback
 	    switch(index)
 	    {
 	    case 0:
-		return getControlStr();
+		return "";
 	    case 1:
 	    return Utils.getTimeStr(timeSec);
 	    case 2:
@@ -137,39 +126,25 @@ interface Callback
 	}
     }
 
-    /*
     @Override public boolean onInputEvent(InputEvent event)
     {
-	NullCheck.notNull(event, "event");
 	if (event.isSpecial() && !event.isModified())
 	    switch(event.getSpecial())
 	    {
-	    case ENTER:
-		return onEnter(event);
+	    case ARROW_LEFT:
+		return app.getPlayer().jump(-1 * MainLayout.STEP_JUMP);
+			    case ARROW_RIGHT:
+		return app.getPlayer().jump(MainLayout.STEP_JUMP);
+	    case ARROW_UP:
+		return app.getPlayer().prevTrack();
+	    case ARROW_DOWN:
+		return app.getPlayer().nextTrack();
 	    }
 	return super.onInputEvent(event);
     }
-    */
 
     @Override public String getAreaName()
     {
 	return strings.controlAreaName();
     }
-    /*
-    @Override public void announceLine(int index, String line)
-    {
     }
-    */
-
-    private boolean onEnter(InputEvent event)
-    {
-	return false;
-    }
-
-    private String getControlStr()
-    {
-	if (mode == Mode.PAUSED)
-	    return "<< [" + pauseResume + "] " + stop + "  >>";
-	return "<<  " + pauseResume + "  " + stop + "  >>";
-    }
-}
