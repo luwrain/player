@@ -63,8 +63,6 @@ class ControlArea extends NavigationArea
 		return false;
 	    app.setEventResponse(text(Sounds.OK, getTimeStr(timeSec)));
 	    return true;
-
-	    
 	    case ARROW_UP:
 		return app.getPlayer().prevTrack();
 	    case ARROW_DOWN:

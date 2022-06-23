@@ -37,7 +37,7 @@ public final class App extends AppBase<Strings> implements Application, MonoApp,
     final Starting starting = new Starting(this);
     private org.luwrain.player.Player player = null;
     private Conv conv = null;
-    private MainLayout layout = null;
+    private MainLayout mainLayout = null;
     private Albums albums = null;
     private Hooks hooks = null;
     final Map<String, TrackInfo> trackInfoMap = new ConcurrentHashMap<>();
@@ -58,9 +58,9 @@ public final class App extends AppBase<Strings> implements Application, MonoApp,
 	    throw new Exception("No system player");
 	this.player.addListener(this);
 	this.hooks = new Hooks(getLuwrain());
-	this.layout = new MainLayout(this, this.player);
+	this.mainLayout = new MainLayout(this, this.player);
 	setAppName(getStrings().appName());
-	return layout.getAreaLayout();
+	return mainLayout.getAreaLayout();
     }
 
     void fillTrackInfoMap(Playlist playlist, ListArea listArea)
@@ -84,7 +84,6 @@ public final class App extends AppBase<Strings> implements Application, MonoApp,
 	}, null));
     }
 
-
     @Override public boolean onEscape()
     {
 	closeApp();
@@ -106,57 +105,56 @@ public final class App extends AppBase<Strings> implements Application, MonoApp,
     @Override public void onNewPlaylist(org.luwrain.player.Playlist playlist)
     {
 	getLuwrain().runUiSafely(()->{
-		if (layout != null)
-		    layout.onNewPlaylist(playlist);
+		if (mainLayout != null)
+		    mainLayout.onNewPlaylist(playlist);
 	    });
     }
 
-	@Override public void onNewTrack(org.luwrain.player.Playlist playlist, int trackNum)
-	{
-	    /*
-	    luwrain.runUiSafely(()->{
-		    controlArea.setTrackTitle("fixme1");
-		    controlArea.setTrackTime(0);
-		});
-	    */
-	}
+    @Override public void onNewTrack(org.luwrain.player.Playlist playlist, int trackNum)
+    {
+	getLuwrain().runUiSafely(()->{
+		if (mainLayout == null)
+		    return;
+		mainLayout.controlArea.setTrackTitle("fixme1");
+		mainLayout.controlArea.setTrackTime(0);
+	    });
+    }
 
-	@Override public void onTrackTime(org.luwrain.player.Playlist playlist, int trackNum, long msec)
-	{
-	    /*
-	    luwrain.runUiSafely(()->controlArea.setTrackTime(msec));
-	    */
-	}
-	
-	@Override public void onNewState(org.luwrain.player.Playlist playlist, Player.State state)
-	{
-	    NullCheck.notNull(playlist, "playlist");
-	    NullCheck.notNull(state, "state");
-	    /*
-	    luwrain.runUiSafely(()->{
+    @Override public void onTrackTime(org.luwrain.player.Playlist playlist, int trackNum, long msec)
+    {
+	getLuwrain().runUiSafely(()->{
+		if (mainLayout != null)
+		    mainLayout.controlArea.setTrackTime(msec);
+	    });
+    }
+
+    @Override public void onNewState(org.luwrain.player.Playlist playlist, Player.State state)
+    {
+	getLuwrain().runUiSafely(()->{
+		if (mainLayout != null)
 		    switch(state)
 		    {
 		    case STOPPED:
-			controlArea.setMode(ControlArea.Mode.STOPPED);
+			mainLayout.controlArea.setMode(ControlArea.Mode.STOPPED);
 			break;
 		    case PAUSED:
 			if (Utils.isStreamingPlaylist(playlist))
-			    controlArea.setMode(ControlArea.Mode.PLAYING_STREAMING); else
-			    controlArea.setMode(ControlArea.Mode.PAUSED);
+			    mainLayout.controlArea.setMode(ControlArea.Mode.PLAYING_STREAMING); else
+			    mainLayout.controlArea.setMode(ControlArea.Mode.PAUSED);
 			break;
 		    case PLAYING:
 			if (Utils.isStreamingPlaylist(playlist))
-			    controlArea.setMode(ControlArea.Mode.PLAYING_STREAMING); else
-			    controlArea.setMode(ControlArea.Mode.PLAYING);
+			    mainLayout.controlArea.setMode(ControlArea.Mode.PLAYING_STREAMING); else
+			    mainLayout.controlArea.setMode(ControlArea.Mode.PLAYING);
 			break;
 		    }
-		});
-	    */
-	}
+	    });
+    }
 
-	@Override public void onPlayingError(org.luwrain.player.Playlist playlist, Exception e)
-	{
-	}
+    @Override public void onPlayingError(org.luwrain.player.Playlist playlist, Exception e)
+    {
+	crash(e);
+    }
 
     Albums getAlbums() { return this.albums; }
     Player getPlayer() { return this.player; }
