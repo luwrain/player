@@ -112,7 +112,15 @@ final class MainLayout extends LayoutBase
 	    this.playlistArea = new ListArea<>(listParams((params)->{
 		    	    params.name = app.getStrings().playlistAreaName();
 			    params.model = new ListUtils.ArrayModel<>(()->tracks);
-	    params.clickHandler = null;
+			    params.clickHandler = (area, index, track)->{
+final Playlist playlist = app.getPlayer().getPlaylist();
+if (playlist == null)
+    return false;
+if (index >= playlist.getTrackCount())
+				return false;
+app.getPlayer().playTrack(index);
+return true;
+			    };
 		    }));
 	final Actions playlistActions = actions(
 						actionPauseResume,

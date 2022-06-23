@@ -119,11 +119,11 @@ public final class App extends AppBase<Strings> implements Application, MonoApp,
 		if (trackInfo != null)
 		{
 		    mainLayout.controlArea.setPlaylistTitle(trackInfo.artist);
-				mainLayout.controlArea.setTrackTitle(trackInfo.title);
+		    mainLayout.controlArea.setTrackTitle(trackInfo.title);
 		} else
 		{
-		    		    mainLayout.controlArea.setPlaylistTitle("-");
-				mainLayout.controlArea.setTrackTitle("-");
+		    mainLayout.controlArea.setPlaylistTitle("-");
+		    mainLayout.controlArea.setTrackTitle("-");
 		}
 		mainLayout.controlArea.setTrackTime(0);
 	    });
