@@ -27,8 +27,6 @@ class Utils
 {
     static String getTrackTextAppearanceWithMap(String trackUrl, Map<String, TrackInfo> map)
     {
-	NullCheck.notNull(trackUrl, "trackUrl");
-	NullCheck.notNull(map, "map");
 	final String tagText = getTrackTagText(trackUrl, map);
 	if (tagText != null)
 	    return tagText;
@@ -48,8 +46,6 @@ class Utils
 
     static private String getTrackTagText(String trackUrl, Map<String, TrackInfo> map)
     {
-	NullCheck.notNull(trackUrl, "trackUrl");
-	NullCheck.notNull(map, "map");
 	if (!map.containsKey(trackUrl))
 	    return null;
 	final StringBuilder b = new StringBuilder();

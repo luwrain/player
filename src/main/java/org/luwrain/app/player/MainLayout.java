@@ -120,8 +120,7 @@ final class MainLayout extends LayoutBase
 						actionJumpForward, actionJumpBackward,
 						actionVolumePlus, actionVolumeMinus
 						);
-	final ControlArea.Callback controlCallback = new ControlArea.Callback(){};
-	this.controlArea = new ControlArea(app, getControlContext(), controlCallback, app.getStrings());
+	this.controlArea = new ControlArea(app, getControlContext(), app.getStrings());
 	final Actions controlActions = actions(
 					       actionPauseResume,
 					       					      actionNextTrack, actionPrevTrack,
