@@ -21,7 +21,7 @@ import java.io.*;
 import org.luwrain.core.*;
 import org.luwrain.popups.Popups;
 
-final class Conv
+public final class Conv
 {
     private final Luwrain luwrain;
     private final Strings strings;
@@ -38,7 +38,7 @@ final class Conv
 	final String dir = strings.albumTypeDir();
 	final String m3u = strings.albumTypeM3u();
 	final String streaming = strings.albumTypeStreaming();
-	final Object typeRes = Popups.fixedList(luwrain, strings.newAlbumTypePopupName(), new Object[]{sect, dir, streaming, m3u});
+	final Object typeRes = Popups.fixedList(luwrain, strings.newAlbumTypePopupName(), new Object[]{dir, streaming/*, m3u*/, sect});
 	if (typeRes == null)
 	    return null;
 	if (typeRes == sect)
@@ -72,8 +72,8 @@ final class Conv
 	return Popups.textNotEmpty(luwrain, "Новый альбом", "Адрес потока радиостанции:", "http://");
     }
 
-    File newDirAlbumPath()
+    public File dirAlbumPath()
     {
-	return Popups.existingDir(luwrain, "Каталог с файлами нового альбома:");
+	return Popups.existingDir(luwrain, "Каталог с файлами альбома:");//FIXME:
     }
 }

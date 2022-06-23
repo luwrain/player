@@ -17,8 +17,10 @@
 package org.luwrain.app.player.layouts;
 
 import java.util.*;
+import java.io.*;
 
 import org.luwrain.core.*;
+import org.luwrain.core.events.*;
 import org.luwrain.controls.*;
 import org.luwrain.app.base.*;
 import org.luwrain.app.player.*;
@@ -37,7 +39,25 @@ public final class DirAlbumPropertiesLayout extends LayoutBase
     {
 	super(app);
 	this.app = app;
-	this.formArea = new FormArea(getControlContext(), album.getTitle());
+	this.formArea = new FormArea(getControlContext(), album.getTitle()){
+		@Override public boolean onInputEvent(InputEvent event)
+		{
+		    if (event.isSpecial() && !event.isModified())
+			switch(event.getSpecial())
+			{
+			case ENTER:
+			    if (getHotPointY() != 1)
+				break;
+			    {
+				final File path = app.getConv().dirAlbumPath();
+				if (path == null)
+				    return true;
+				formArea.setEnteredText(PATH, path.getAbsolutePath());
+			    }
+			}
+		    return super.onInputEvent(event);
+		}
+	    };
 	formArea.addEdit(TITLE, app.getStrings().albumPropTitle(), album.getTitle());
 	formArea.addEdit(PATH, app.getStrings().albumPropPath(), album.getPath());
 	formArea.addCheckbox(SAVE_POSITION, app.getStrings().albumPropSavePosition(), album.isSavePosition());

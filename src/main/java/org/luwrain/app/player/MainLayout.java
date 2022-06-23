@@ -109,34 +109,34 @@ final class MainLayout extends LayoutBase
 					      actionJumpForward, actionJumpBackward,
 					      actionVolumePlus, actionVolumeMinus
 					      );
-	    this.playlistArea = new ListArea<>(listParams((params)->{
-		    	    params.name = app.getStrings().playlistAreaName();
-			    params.model = new ListUtils.ArrayModel<>(()->tracks);
-			    params.clickHandler = (area, index, track)->{
-final Playlist playlist = app.getPlayer().getPlaylist();
-if (playlist == null)
-    return false;
-if (index >= playlist.getTrackCount())
-				return false;
-app.getPlayer().playTrack(index);
-return true;
-			    };
-		    }));
+	this.playlistArea = new ListArea<>(listParams((params)->{
+		    params.name = app.getStrings().playlistAreaName();
+		    params.model = new ListUtils.ArrayModel<>(()->tracks);
+		    params.clickHandler = (area, index, track)->{
+			final Playlist playlist = app.getPlayer().getPlaylist();
+			if (playlist == null)
+			    return false;
+			if (index >= playlist.getTrackCount())
+			    return false;
+			app.getPlayer().playTrack(index);
+			return true;
+		    };
+		}));
 	final Actions playlistActions = actions(
 						actionPauseResume,
-											      actionNextTrack, actionPrevTrack,
+						actionNextTrack, actionPrevTrack,
 						actionJumpForward, actionJumpBackward,
 						actionVolumePlus, actionVolumeMinus
 						);
 	this.controlArea = new ControlArea(app, getControlContext(), app.getStrings());
 	final Actions controlActions = actions(
 					       actionPauseResume,
-					       					      actionNextTrack, actionPrevTrack,
+					       actionNextTrack, actionPrevTrack,
 					       actionJumpForward, actionJumpBackward,
 					       actionVolumePlus, actionVolumeMinus
 					       );
 	setAreaLayout(AreaLayout.LEFT_TOP_BOTTOM, albumsArea, albumsActions, playlistArea, playlistActions, controlArea, controlActions);
-	}
+    }
 
     private boolean actAddAlbum()
     {
@@ -174,7 +174,7 @@ return true;
 	    }
 	case DIR:
 	    {
-		final File path = app.getConv().newDirAlbumPath();
+		final File path = app.getConv().dirAlbumPath();
 		if (path == null)
 		    return true;
 		album.setPath(path.getAbsolutePath());

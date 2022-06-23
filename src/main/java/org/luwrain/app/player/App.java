@@ -78,7 +78,7 @@ public final class App extends AppBase<Strings> implements Application, MonoApp,
 		    }
 		    catch(Throwable e)
 		    {
-			crash(e);
+			Log.debug(LOG_COMPONENT, "unable to read tags of the file: " + e.getClass().getName() + ": " + e.getMessage());
 		    }
 		}
 	    });
@@ -168,5 +168,5 @@ public final class App extends AppBase<Strings> implements Application, MonoApp,
     Albums getAlbums() { return this.albums; }
     Player getPlayer() { return this.player; }
     Hooks getHooks() { return this.hooks; }
-    Conv getConv() { return conv; }
+    public Conv getConv() { return conv; }
 }
