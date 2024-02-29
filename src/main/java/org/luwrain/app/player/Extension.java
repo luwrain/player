@@ -1,5 +1,5 @@
 /*
-   Copyright 2012-2022 Michael Pozhidaev <msp@luwrain.org>
+   Copyright 2012-2024 Michael Pozhidaev <msp@luwrain.org>
 
    This file is part of LUWRAIN.
 
@@ -20,8 +20,10 @@ import java.net.*;
 import java.util.*;
 import java.io.*;
 
-import org.luwrain.core.*;
+
 import org.luwrain.util.*;
+import org.luwrain.core.*;
+import static org.luwrain.core.NullCheck.*;
 
 public final class Extension extends EmptyExtension
 {
@@ -53,7 +55,7 @@ public final class Extension extends EmptyExtension
 		@Override public String getExtObjName() { return "player"; }
 		@Override public Application[] prepareApp(String[] args)
 		{
-		    NullCheck.notNullItems(args, "args");
+		    notNullItems(args, "args");
 		    return new Application[]{new App(args)};
 		}
 	    },
