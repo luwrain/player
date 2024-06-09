@@ -16,8 +16,11 @@
 
 package org.luwrain.app.player;
 
+import com.google.auto.service.*;
+
 import org.luwrain.core.*;
 
+@AutoService(org.luwrain.player.Factory.class)
 public class Factory implements org.luwrain.player.Factory
 {
     @Override public org.luwrain.player.Player  newPlayer(Params params)
